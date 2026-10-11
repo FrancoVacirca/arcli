@@ -16,6 +16,7 @@ import { ArcaContextResolver, type ResolvedArcaRuntime } from '../../services/ar
 import { ArcaVoucherHistoryGateway } from '../../services/arca/arca-voucher-history.gateway';
 import { writeTerminalJson, writeTerminalOutput } from '../../ui';
 import { configureSpanishHelp, createVoucherQueryHelp } from '../help';
+import { integerOption } from '../option-parsers';
 import { startSpinner } from '../spinner';
 
 import { getGlobalOptions, registerGlobalOptions } from './billing.command.shared';
@@ -24,8 +25,6 @@ interface PointOfSaleOptions {
   readonly pv?: number;
   readonly puntoVenta?: number;
 }
-
-const parseInteger = (value: string): number => Number.parseInt(value, 10);
 
 function requireVoucherKind(shortcut: string): VoucherKindDefinition {
   const voucherKind = getVoucherKindByShortcut(shortcut.trim().toLowerCase());
@@ -62,8 +61,8 @@ function createContext(command: Command): {
 
 function addPointOfSaleOptions(command: Command): Command {
   return command
-    .option('--pv <numero>', 'punto de venta; por defecto el de la config', parseInteger)
-    .option('--punto-venta <numero>', 'punto de venta; por defecto el de la config', parseInteger);
+    .option('--pv <numero>', 'punto de venta; por defecto el de la config', integerOption('--pv'))
+    .option('--punto-venta <numero>', 'punto de venta; por defecto el de la config', integerOption('--punto-venta'));
 }
 
 async function withSpinner<T>(runtime: ResolvedArcaRuntime, run: () => Promise<T>): Promise<T> {
@@ -85,7 +84,7 @@ export function registerVoucherQueryCommands(program: Command): void {
       .option(
         '--cantidad <numero>',
         `cuantos comprobantes mostrar (1 a ${MAX_RECENT_VOUCHERS}; por defecto config.comprobantesPorLista o ${RECENT_VOUCHERS_LIMIT})`,
-        parseInteger,
+        integerOption('--cantidad'),
       ),
   ).addHelpText('after', createVoucherQueryHelp());
 

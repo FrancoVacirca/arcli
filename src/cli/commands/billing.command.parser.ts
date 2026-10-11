@@ -1,3 +1,4 @@
+import Big from 'big.js';
 import type { Command } from 'commander';
 
 import { InputValidationError } from '../../lib/errors/app-error';
@@ -118,6 +119,19 @@ function parseIvaRateFlags(values: readonly string[] | undefined): {
       return { amount: parseRateAmount(value, value.slice(separator + 1)), rate: value.slice(0, separator) };
     }),
   };
+}
+
+/** Total de un comprobante con varias alicuotas, sumado con Big: 100.1 + 200.2 da 300.3, no 300.29999999999995. */
+function sumRateAmounts(
+  rateAmounts: readonly RateAmountInput[],
+  exemptAmount: number | undefined,
+  untaxedAmount: number | undefined,
+): number {
+  return rateAmounts
+    .reduce((sum, item) => sum.plus(typeof item.amount === 'number' ? item.amount : 0), new Big(0))
+    .plus(exemptAmount ?? 0)
+    .plus(untaxedAmount ?? 0)
+    .toNumber();
 }
 
 /**
@@ -329,11 +343,7 @@ function parseBillingCommandInputFromSource(
   // Con varias alicuotas el monto total se puede omitir: es la suma de cada una mas exento y no gravado.
   const totalAmount =
     pickNumber(commandOptions.monto, fileInput?.montoTotal) ??
-    (ivaRateAmounts
-      ? ivaRateAmounts.reduce((sum, item) => sum + (typeof item.amount === 'number' ? item.amount : 0), 0) +
-        (exemptAmount ?? 0) +
-        (untaxedAmount ?? 0)
-      : undefined);
+    (ivaRateAmounts ? sumRateAmounts(ivaRateAmounts, exemptAmount, untaxedAmount) : undefined);
 
   return {
     ...billingCommandSchema.parse({

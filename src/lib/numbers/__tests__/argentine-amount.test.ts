@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { EXCHANGE_RATE_DECIMALS, formatArgentineAmountInput, parseArgentineAmount } from '../argentine-amount';
+import {
+  EXCHANGE_RATE_DECIMALS,
+  formatArgentineAmountInput,
+  hasAtMostDecimals,
+  parseArgentineAmount,
+} from '../argentine-amount';
 
 describe('parseArgentineAmount', () => {
   it.each([
@@ -57,5 +62,19 @@ describe('formatArgentineAmountInput', () => {
   ])('escribe %s como %s', (value, expected) => {
     expect(formatArgentineAmountInput(value)).toBe(expected);
     expect(parseArgentineAmount(expected)).toEqual({ ok: true, value });
+  });
+});
+
+describe('hasAtMostDecimals', () => {
+  it.each([
+    [100, 2, true],
+    [100.55, 2, true],
+    [0.1, 2, true],
+    [100.555, 2, false],
+    [1452.123456, 6, true],
+    [1452.1234567, 6, false],
+    [Number.NaN, 2, false],
+  ])('%s con hasta %s decimales: %s', (value, decimals, expected) => {
+    expect(hasAtMostDecimals(value, decimals)).toBe(expected);
   });
 });

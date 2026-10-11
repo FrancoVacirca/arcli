@@ -46,6 +46,13 @@ export function validateConceptDateInputs(input: BillingCommandInput, voucherKin
       'Si informa fechas de servicio, debe enviar ambas: --servicio-desde y --servicio-hasta.',
     );
   }
+
+  // --dia arma el fin del servicio desde hoy; con una fecha explicita no se usaria y nadie se enteraria.
+  if (input.dueDay && (input.billingDate || input.serviceEndDate)) {
+    throw new InputValidationError(
+      '--dia no se combina con --fecha ni con --servicio-hasta: con esas fechas no se usa. Quite --dia o esas fechas.',
+    );
+  }
 }
 
 export function validateDocumentIdentity(input: BillingCommandInput, voucherKind: VoucherKindDefinition): void {

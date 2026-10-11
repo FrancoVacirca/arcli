@@ -1,3 +1,5 @@
+import Big from 'big.js';
+
 /** Decimales de un importe en ARCA. */
 export const AMOUNT_DECIMALS = 2;
 
@@ -44,4 +46,9 @@ export function parseArgentineAmount(
 /** Escribe un numero como lo lee `parseArgentineAmount`: `1234.5` pasa a `1234,5`. */
 export function formatArgentineAmountInput(value: number): string {
   return String(value).replace('.', ',');
+}
+
+/** `true` si el numero no tiene mas de `decimals` decimales: 100.55 si, 100.555 no. */
+export function hasAtMostDecimals(value: number, decimals: number): boolean {
+  return Number.isFinite(value) && new Big(value).round(decimals, Big.roundDown).eq(value);
 }

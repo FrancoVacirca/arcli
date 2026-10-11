@@ -1,20 +1,7 @@
 import { type Command, Option } from 'commander';
 
-import { InputValidationError } from '../../lib/errors/app-error';
-import { EXCHANGE_RATE_DECIMALS, parseArgentineAmount } from '../../lib/numbers/argentine-amount';
-
-/** Montos como en Argentina: punto para miles y coma para decimales. */
-function amountOption(flag: string, maxDecimals?: number): (value: string) => number {
-  return (value) => {
-    const result = parseArgentineAmount(value, { maxDecimals });
-
-    if (!result.ok) {
-      throw new InputValidationError(`${flag} "${value}" no es valido: ${result.reason}.`);
-    }
-
-    return result.value;
-  };
-}
+import { EXCHANGE_RATE_DECIMALS } from '../../lib/numbers/argentine-amount';
+import { amountOption, documentNumberOption, integerOption } from '../option-parsers';
 
 export function registerBillingOptions(command: Command): void {
   command
@@ -31,11 +18,9 @@ export function registerBillingOptions(command: Command): void {
     .option('--exento <number>', 'parte exenta del monto total (A y B)', amountOption('--exento'))
     // No puede llamarse --no-gravado: commander interpreta --no-* como negacion de un flag booleano.
     .option('--nogravado <number>', 'parte no gravada del monto total (A y B)', amountOption('--nogravado'))
-    .option('-d, --dia <number>', 'dia de vencimiento o referencia del servicio', (value: string) =>
-      Number.parseInt(value, 10),
-    )
-    .option('--punto-venta <number>', 'punto de venta', (value: string) => Number.parseInt(value, 10))
-    .option('--pv <number>', 'alias de punto de venta', (value: string) => Number.parseInt(value, 10))
+    .option('-d, --dia <number>', 'dia de vencimiento o referencia del servicio', integerOption('--dia'))
+    .option('--punto-venta <number>', 'punto de venta', integerOption('--punto-venta'))
+    .option('--pv <number>', 'alias de punto de venta', integerOption('--pv'))
     .option('--cargar <path>', 'cargar datos base desde un archivo JSON')
     .option('-f, --fecha <fecha>', 'fecha del comprobante; acepta D, D/M, D/M/YY o D/M/YYYY con - o /')
     .option('-c, --concepto <tipo>', 'productos, servicios o productos y servicios (alias: cs, cp, csp)')
@@ -51,9 +36,9 @@ export function registerBillingOptions(command: Command): void {
       amountOption('--cotizacion-moneda', EXCHANGE_RATE_DECIMALS),
     )
     .option('--misma-moneda', 'el pago se cancela en la misma moneda extranjera; usa la cotizacion oficial de ARCA')
-    .option('--cuit <number>', 'usar CUIT del receptor', (value: string) => Number.parseInt(value, 10))
-    .option('--cuil <number>', 'usar CUIL del receptor', (value: string) => Number.parseInt(value, 10))
-    .option('--dni <number>', 'usar DNI del receptor', (value: string) => Number.parseInt(value, 10))
+    .option('--cuit <number>', 'usar CUIT del receptor', documentNumberOption('--cuit'))
+    .option('--cuil <number>', 'usar CUIL del receptor', documentNumberOption('--cuil'))
+    .option('--dni <number>', 'usar DNI del receptor', documentNumberOption('--dni'))
     .option('--consumidor-final', 'usar consumidor final con documento 0')
     .option('--cfinal', 'alias de consumidor final con documento 0')
     .option('--iva-receptor <tipo>', 'condicion IVA del receptor')
@@ -75,12 +60,14 @@ export function registerBillingOptions(command: Command): void {
     .option('--servicio-hasta <fecha>', 'fecha de fin de servicio')
     .option('--vencimiento <fecha>', 'fecha de vencimiento del pago; por defecto el fin del servicio')
     .option('--vto <fecha>', 'alias de fecha de vencimiento del pago')
-    .option('--at <number>', 'tipo ARCA del comprobante asociado', (value: string) => Number.parseInt(value, 10))
-    .option('--apv <number>', 'punto de venta del comprobante asociado', (value: string) => Number.parseInt(value, 10))
-    .option('--asociado-punto-venta <number>', 'punto de venta del comprobante asociado', (value: string) =>
-      Number.parseInt(value, 10),
+    .option('--at <number>', 'tipo ARCA del comprobante asociado', integerOption('--at'))
+    .option('--apv <number>', 'punto de venta del comprobante asociado', integerOption('--apv'))
+    .option(
+      '--asociado-punto-venta <number>',
+      'punto de venta del comprobante asociado',
+      integerOption('--asociado-punto-venta'),
     )
-    .option('--ar <number>', 'numero del comprobante asociado', (value: string) => Number.parseInt(value, 10))
+    .option('--ar <number>', 'numero del comprobante asociado', integerOption('--ar'))
     .option('--ac <shortcut>', 'atajo del comprobante asociado, por ejemplo fc o fa')
     .option('--acuit <number>', 'CUIT del comprobante asociado; en NC/ND FCE por defecto el CUIT emisor')
     .option('--periodo-desde <fecha>', 'inicio del periodo asociado; alternativa a --ac en notas comunes')

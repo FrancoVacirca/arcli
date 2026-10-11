@@ -1,3 +1,5 @@
+import { toArgentineCalendarDate } from '../../lib/dates/arca-date';
+
 /** Periodos de servicio para repetir una factura: el mes actual o el anterior, en formato D/MM/YYYY. */
 export interface ServicePeriod {
   readonly from: string;
@@ -12,10 +14,15 @@ function monthPeriod(year: number, month: number): ServicePeriod {
   return { from: format(new Date(year, month, 1)), to: format(new Date(year, month + 1, 0)) };
 }
 
-export function currentMonthPeriod(today: Date): ServicePeriod {
-  return monthPeriod(today.getFullYear(), today.getMonth());
+// monthPeriod hace la cuenta con fechas locales de punta a punta; solo "hoy" sale de la fecha argentina.
+export function currentMonthPeriod(now: Date): ServicePeriod {
+  const today = toArgentineCalendarDate(now);
+
+  return monthPeriod(today.year, today.month - 1);
 }
 
-export function previousMonthPeriod(today: Date): ServicePeriod {
-  return monthPeriod(today.getFullYear(), today.getMonth() - 1);
+export function previousMonthPeriod(now: Date): ServicePeriod {
+  const today = toArgentineCalendarDate(now);
+
+  return monthPeriod(today.year, today.month - 2);
 }

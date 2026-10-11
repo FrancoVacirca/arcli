@@ -47,7 +47,7 @@ describe('config-fields', () => {
 
 describe('periods', () => {
   it('builds the current and previous month, also across years', () => {
-    expect(currentMonthPeriod(new Date(2026, 1, 10))).toEqual({ from: '1/02/2026', to: '28/02/2026' });
-    expect(previousMonthPeriod(new Date(2026, 0, 10))).toEqual({ from: '1/12/2025', to: '31/12/2025' });
+    expect(currentMonthPeriod(new Date('2026-02-10T15:00:00Z'))).toEqual({ from: '1/02/2026', to: '28/02/2026' });
+    expect(previousMonthPeriod(new Date('2026-01-10T15:00:00Z'))).toEqual({ from: '1/12/2025', to: '31/12/2025' });
   });
 });

@@ -220,7 +220,7 @@ describe('flujos del modo interactivo', () => {
   });
 
   describe('repetir factura', () => {
-    const today = new Date(2026, 9, 5);
+    const today = new Date('2026-10-05T15:00:00Z');
 
     it('copia receptor, concepto, monto y alicuota con el periodo del mes pasado', async () => {
       script = createScript([

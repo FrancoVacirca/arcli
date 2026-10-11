@@ -6,6 +6,7 @@ import { InputValidationError } from '../../lib/errors/app-error';
 import { formatVoucherLabel } from './billing.mappers';
 import type { BillingCommandInput } from './billing.schemas';
 import type { VoucherKindDefinition } from './billing.types';
+import { getVoucherKindByArcaType } from './voucher-kind-map';
 
 interface ResolveAssociatedVoucherOptions {
   readonly billingDate: string;
@@ -36,9 +37,7 @@ export function resolveAssociatedVouchers(options: ResolveAssociatedVoucherOptio
   const associatedCuit = associatedVoucher?.cuit ?? (voucherKind.isElectronicCredit ? String(emitterCuit) : undefined);
   const associatedVoucherType =
     associatedVoucher?.tipo ?? resolveAssociatedVoucherType(associatedVoucher?.shortcut, requireVoucherKind);
-  const associatedVoucherKind = associatedVoucher?.shortcut
-    ? requireVoucherKind(associatedVoucher.shortcut)
-    : undefined;
+  const associatedVoucherKind = resolveAssociatedVoucherKind(associatedVoucher, requireVoucherKind);
 
   if (!associatedVoucher?.numero || !associatedVoucher.puntoVenta || !associatedVoucherType || !associatedCuit) {
     throw new InputValidationError(
@@ -67,6 +66,26 @@ export function resolveAssociatedVouchers(options: ResolveAssociatedVoucherOptio
       Tipo: associatedVoucherType,
     },
   ];
+}
+
+/**
+ * El tipo del asociado, por atajo (--ac) o por codigo ARCA (--at), para validar letra y familia igual en los dos
+ * casos. Un codigo fuera del alcance de ARCLI no se valida aca: lo resuelve ARCA.
+ */
+function resolveAssociatedVoucherKind(
+  associatedVoucher: BillingCommandInput['associatedVoucher'],
+  requireVoucherKind: (shortcut: string) => VoucherKindDefinition,
+): VoucherKindDefinition | undefined {
+  const byShortcut = associatedVoucher?.shortcut ? requireVoucherKind(associatedVoucher.shortcut) : undefined;
+  const byType = associatedVoucher?.tipo ? (getVoucherKindByArcaType(associatedVoucher.tipo) ?? undefined) : undefined;
+
+  if (byShortcut && associatedVoucher?.tipo && byShortcut.arcaType !== associatedVoucher.tipo) {
+    throw new InputValidationError(
+      `El atajo "${associatedVoucher.shortcut}" es el tipo ${byShortcut.arcaType}, no el ${associatedVoucher.tipo}. Use uno solo para el comprobante asociado.`,
+    );
+  }
+
+  return byShortcut ?? byType;
 }
 
 function resolveAssociatedVoucherDate(

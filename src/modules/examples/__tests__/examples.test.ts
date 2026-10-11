@@ -16,7 +16,7 @@ describe('examples', () => {
   });
 
   it('uses dates relative to today and includes the FCE data', () => {
-    const output = stripAnsi(renderExamples(new Date(2026, 2, 18)));
+    const output = stripAnsi(renderExamples(new Date('2026-03-18T15:00:00Z')));
 
     expect(output).toContain('-f 18-03-2026 --mda PES --cm 1 --sd 01-03-2026 --sh 18-03-2026 --vto 28-03-2026');
     expect(output).toContain(

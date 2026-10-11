@@ -1,4 +1,10 @@
-import { formatDateAsArcaDate, maxArcaDate, parseArgentineDateInputAsArcaDate } from '../../lib/dates/arca-date';
+import {
+  calendarDateToArcaDate,
+  formatDateAsArcaDate,
+  maxArcaDate,
+  parseArgentineDateInputAsArcaDate,
+  toArgentineCalendarDate,
+} from '../../lib/dates/arca-date';
 
 import { isElectronicCreditInvoice } from './billing.fce';
 import type { BillingCommandInput } from './billing.schemas';
@@ -17,17 +23,22 @@ export interface BillingDateRange {
   readonly serviceStartDate?: string;
 }
 
-function resolvePaymentDateFromDueDay(dueDay: number): Date {
-  const referenceDate = new Date();
-  const paymentDate = new Date(referenceDate);
+/** Fecha ARCA del proximo `dueDay`, contando desde hoy en Argentina. La cuenta va en UTC para no cruzar zonas. */
+function resolvePaymentDateFromDueDay(dueDay: number, now = new Date()): string {
+  const today = toArgentineCalendarDate(now);
+  const paymentDate = new Date(Date.UTC(today.year, today.month - 1, today.day));
 
-  if (dueDay < referenceDate.getDate()) {
-    paymentDate.setMonth(paymentDate.getMonth() + 1);
+  if (dueDay < today.day) {
+    paymentDate.setUTCMonth(paymentDate.getUTCMonth() + 1);
   }
 
-  paymentDate.setDate(dueDay);
+  paymentDate.setUTCDate(dueDay);
 
-  return paymentDate;
+  return calendarDateToArcaDate({
+    day: paymentDate.getUTCDate(),
+    month: paymentDate.getUTCMonth() + 1,
+    year: paymentDate.getUTCFullYear(),
+  });
 }
 
 /**
@@ -49,7 +60,7 @@ function resolveServiceDates(
   billingDate: string,
 ): Required<Pick<BillingDateRange, 'serviceEndDate' | 'serviceStartDate'>> {
   const defaultServiceEndDate =
-    input.billingDate || !input.dueDay ? billingDate : formatDateAsArcaDate(resolvePaymentDateFromDueDay(input.dueDay));
+    input.billingDate || !input.dueDay ? billingDate : resolvePaymentDateFromDueDay(input.dueDay);
   const serviceEndDate = input.serviceEndDate
     ? parseArgentineDateInputAsArcaDate(input.serviceEndDate)
     : defaultServiceEndDate;

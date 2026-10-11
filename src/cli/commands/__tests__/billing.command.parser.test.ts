@@ -419,6 +419,15 @@ describe('billing.command.parser', () => {
     ).toThrow(/--alicuota "reducida:552.50": el monto no es valido: use coma para los decimales/);
   });
 
+  it('sums several alicuotas without floating point errors', () => {
+    const input = parseBillingCommandInput(
+      createCommand(['--cs', '--ir-ri', '--alicuota', 'general:100,1', '--alicuota', 'reducida:200,2']),
+      'fa',
+    );
+
+    expect(input.totalAmount).toBe(300.3);
+  });
+
   it('accepts a single alicuota by alias', () => {
     const input = parseBillingCommandInput(
       createCommand(['--monto', '110,5', '--cs', '--ir-ri', '--alicuota', 'reducida']),

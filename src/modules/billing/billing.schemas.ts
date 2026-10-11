@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { AMOUNT_DECIMALS, EXCHANGE_RATE_DECIMALS, hasAtMostDecimals } from '../../lib/numbers/argentine-amount';
+
 import type { VoucherShortcut } from './billing.types';
 
 const BILLING_CONCEPT_ALIASES = {
@@ -73,9 +75,17 @@ export const billingIvaRateSchema = z.preprocess(
   z.enum(IVA_RATE_VALUES, { message: `La alicuota debe ser ${IVA_RATE_HINT}.` }),
 );
 
+/** Importe positivo con los decimales que acepta ARCA: 2 en importes y 6 en la cotizacion. */
+function positiveAmountSchema(decimals = AMOUNT_DECIMALS) {
+  return z
+    .number()
+    .positive()
+    .refine((value) => hasAtMostDecimals(value, decimals), { message: `Use hasta ${decimals} decimales.` });
+}
+
 /** Una alicuota con el importe que le corresponde, IVA incluido (igual que --monto). */
 const billingIvaRateAmountSchema = z.object({
-  amount: z.number().positive(),
+  amount: positiveAmountSchema(),
   rate: billingIvaRateSchema,
 });
 
@@ -122,8 +132,8 @@ export const billingCommandSchema = z.object({
   documentType: billingDocumentTypeSchema.default('consumidor-final'),
   dryRun: z.boolean().default(false),
   emit: z.boolean().default(false),
-  exchangeRate: z.number().positive().optional(),
-  exemptAmount: z.number().positive().optional(),
+  exchangeRate: positiveAmountSchema(EXCHANGE_RATE_DECIMALS).optional(),
+  exemptAmount: positiveAmountSchema().optional(),
   ivaRate: billingIvaRateSchema.optional(),
   ivaRateAmounts: z.array(billingIvaRateAmountSchema).min(1).optional(),
   dueDay: z.number().int().min(1).max(31).optional(),
@@ -144,8 +154,8 @@ export const billingCommandSchema = z.object({
     .trim()
     .min(1)
     .transform((value) => value as VoucherShortcut),
-  totalAmount: z.number().positive(),
-  untaxedAmount: z.number().positive().optional(),
+  totalAmount: positiveAmountSchema(),
+  untaxedAmount: positiveAmountSchema().optional(),
   transferMode: z
     .string()
     .trim()

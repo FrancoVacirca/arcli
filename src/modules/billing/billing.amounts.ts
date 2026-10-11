@@ -32,9 +32,6 @@ type TaxAmountsInput = Pick<
   'exemptAmount' | 'ivaRate' | 'ivaRateAmounts' | 'totalAmount' | 'untaxedAmount'
 >;
 
-// Margen de ARCA para comparar importes (10048): un centavo.
-const AMOUNT_TOLERANCE = 0.01;
-
 export function resolveIvaRateLabel(aliquotId: number): string | undefined {
   const entry = Object.entries(IVA_RATE_DEFINITIONS).find(([, definition]) => definition.id === aliquotId);
 
@@ -122,7 +119,8 @@ function resolveTaxedParts(
 
   const sum = [...byRate.values()].reduce((total, amount) => total.plus(amount), new Big(0));
 
-  if (sum.minus(taxedTotal).abs().gt(AMOUNT_TOLERANCE)) {
+  // Los importes tienen 2 decimales como maximo, asi que la suma tiene que dar exacta.
+  if (!sum.eq(taxedTotal)) {
     throw new InputValidationError(
       `La suma de las alicuotas (${formatPlain(sum)}) no coincide con lo gravado del monto total (${formatPlain(taxedTotal)}). Revise --monto, --alicuota, --exento y --nogravado.`,
     );
@@ -137,4 +135,11 @@ function formatPlain(value: Big): string {
 
 function roundAmount(value: Big): number {
   return value.round(2, Big.roundHalfUp).toNumber();
+}
+
+/** ImpTotal: la suma exacta de sus partes (10048), sin errores de coma flotante. */
+export function sumTaxAmounts(amounts: TaxAmounts): number {
+  return roundAmount(
+    new Big(amounts.untaxedAmount).plus(amounts.exemptAmount).plus(amounts.netAmount).plus(amounts.ivaAmount),
+  );
 }

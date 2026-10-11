@@ -30,8 +30,10 @@ La idea de esta guía es separar esas tres capas para que sea más fácil entend
 ### Tipos y formatos
 
 - `--monto` debe ser un número positivo
-- `--dia` debe ser un entero entre `1` y `31`
-- `--punto-venta`, `--pv`, `--at`, `--apv`, `--ar` deben ser enteros positivos
+- `--dia` debe ser un entero entre `1` y `31`, y no se combina con `--fecha` ni con `--servicio-hasta` (con esas fechas no se usaría)
+- `--punto-venta`, `--pv`, `--at`, `--apv`, `--ar` deben ser enteros positivos, escritos solo con dígitos (`3a` da error)
+- `--cuit`, `--cuil` y `--dni` aceptan guiones y puntos (`20-11111111-2`), pero nada más
+- `--at` se valida igual que `--ac`: una NC A no puede asociar una factura B. Si en el JSON vienen `tipo` y `atajo`, tienen que coincidir
 - `--cotizacion-moneda` y `--cm` deben ser números positivos
 - `--cuit` y `--cuil` deben tener 11 dígitos
 - `--dni` debe tener 7 u 8 dígitos
@@ -47,6 +49,7 @@ ARCLI interpreta las fechas en formato argentino (día primero), con mes y año 
 
 Reglas de interpretación:
 
+- "hoy" es siempre el día en Argentina, aunque el equipo esté en otra zona horaria (por ejemplo un servidor en UTC después de las 21 h)
 - si omitís el año, ARCLI usa el año actual
 - si omitís mes y año, ARCLI usa el mes y año actuales
 - un año de 2 dígitos se interpreta como `20YY`
@@ -245,7 +248,7 @@ arcli fa --cs --cuit 30709965812 --ir-ri --alicuota general:1210 --alicuota redu
 ```
 
 - Cada monto se parte en neto e IVA según su tasa, y se envía una entrada de `Iva` por alícuota. La suma de los netos es `ImpNeto` (10061).
-- `--monto` pasa a ser opcional. Sin él, el total es la suma de las alícuotas más `--exento` y `--nogravado`. Si lo pasás, tiene que coincidir con esa suma (con un margen de un centavo).
+- `--monto` pasa a ser opcional. Sin él, el total es la suma de las alícuotas más `--exento` y `--nogravado`. Si lo pasás, tiene que coincidir exactamente con esa suma.
 - Si la misma alícuota aparece dos veces, se suman sus montos.
 - No se puede mezclar `--alicuota TASA` con `--alicuota TASA:MONTO`, ni repetir `--alicuota TASA` sin monto.
 - En JSON: `"alicuotas": [{ "tasa": "general", "monto": 1210 }, { "tasa": "10.5", "monto": 552.5 }]`.

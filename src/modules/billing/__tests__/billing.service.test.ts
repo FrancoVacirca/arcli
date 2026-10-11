@@ -94,6 +94,35 @@ describe('billing.service', () => {
     expect(payload.CbteFch).toBe('20260318');
   });
 
+  it.each([[{ billingDate: '18/3' }], [{ serviceEndDate: '20/3', serviceStartDate: '1/3' }]])(
+    'rejects --dia with an explicit date, because it would be ignored: %j',
+    (dates) => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-03-18T12:00:00Z'));
+
+      expect(() =>
+        new BillingService().buildVoucherPayload(
+          createBillingInput({ concept: 'servicios', dueDay: 25, shortcut: 'fc', ...dates }),
+          createRuntime(),
+        ),
+      ).toThrow(/--dia no se combina con --fecha ni con --servicio-hasta/);
+    },
+  );
+
+  it('uses the Argentine date at night, even on a UTC machine', () => {
+    vi.useFakeTimers();
+    // 22:30 del 18/03 en Argentina; en UTC ya es el 19.
+    vi.setSystemTime(new Date('2026-03-19T01:30:00Z'));
+
+    const payload = new BillingService().buildVoucherPayload(
+      createBillingInput({ concept: 'servicios', dueDay: 25, shortcut: 'fc' }),
+      createRuntime(),
+    );
+
+    expect(payload.CbteFch).toBe('20260318');
+    expect(payload.FchVtoPago).toBe('20260325');
+  });
+
   it('builds invoice payload with explicit billing date in Argentine format', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-03-18T12:00:00Z'));
@@ -1146,6 +1175,36 @@ describe('billing.service', () => {
         createRuntime(),
       ),
     ).toThrow(/misma letra/);
+  });
+
+  it('validates a numeric --at like a shortcut: an NC A cannot point to a Factura B', () => {
+    expect(() =>
+      new BillingService().buildVoucherPayload(
+        createBillingInput({
+          associatedVoucher: { cuit: '20123456789', numero: 99, puntoVenta: 3, tipo: 6 },
+          documentNumber: 20123456789,
+          documentType: 'cuit',
+          ivaCondition: 'responsable-inscripto',
+          shortcut: 'nca',
+        }),
+        createRuntime(),
+      ),
+    ).toThrow(/misma letra/);
+  });
+
+  it('rejects a shortcut and a numeric type that do not match', () => {
+    expect(() =>
+      new BillingService().buildVoucherPayload(
+        createBillingInput({
+          associatedVoucher: { cuit: '20123456789', numero: 99, puntoVenta: 3, shortcut: 'fa', tipo: 6 },
+          documentNumber: 20123456789,
+          documentType: 'cuit',
+          ivaCondition: 'responsable-inscripto',
+          shortcut: 'nca',
+        }),
+        createRuntime(),
+      ),
+    ).toThrow(/El atajo "fa" es el tipo 1, no el 6/);
   });
 
   it('rejects associated vouchers that are not invoices when shortcut is provided', () => {

@@ -1,3 +1,4 @@
+import { toArgentineCalendarDate } from '../../lib/dates/arca-date';
 import { badge, renderLogo, sectionHeading, toneText } from '../../ui';
 import type { VoucherFamily, VoucherKindDefinition } from '../billing/billing.types';
 import { VOUCHER_FAMILIES, VOUCHER_KIND_MAP, VOUCHER_SHORTCUTS } from '../billing/voucher-kind-map';
@@ -71,7 +72,10 @@ function formatExampleDate(value: Date): string {
 }
 
 // Fechas relativas a hoy para que los ejemplos queden dentro de la ventana que acepta ARCA.
-function resolveExampleDates(today: Date): ExampleDates {
+function resolveExampleDates(now: Date): ExampleDates {
+  const argentineToday = toArgentineCalendarDate(now);
+  // Fecha local armada con el dia argentino: las cuentas y el formato siguen en local.
+  const today = new Date(argentineToday.year, argentineToday.month - 1, argentineToday.day);
   const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
   const paymentDue = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 10);
 

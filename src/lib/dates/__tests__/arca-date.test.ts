@@ -29,8 +29,18 @@ describe('arca-date', () => {
     expect(formatDateAsArcaDate(referenceDate)).toBe('20260820');
   });
 
-  it('formats using the local calendar day', () => {
-    expect(formatDateAsArcaDate(new Date(2026, 7, 20, 23, 30))).toBe('20260820');
+  it('uses the Argentine calendar day whatever the machine time zone', () => {
+    // 22:30 del 20/08 en Argentina; en UTC ya es el 21.
+    expect(formatDateAsArcaDate(new Date('2026-08-21T01:30:00Z'))).toBe('20260820');
+    // 00:30 del 21/08 en Argentina.
+    expect(formatDateAsArcaDate(new Date('2026-08-21T03:30:00Z'))).toBe('20260821');
+  });
+
+  it('completes month and year from the Argentine day', () => {
+    // 22:00 del 31/07 en Argentina: "15" es el 15 de julio, aunque en UTC ya sea agosto.
+    expect(parseArgentineDateInputAsArcaDate('15', new Date('2026-08-01T01:00:00Z'))).toBe('20260715');
+    // 22:00 del 31/12/2026 en Argentina: el ano todavia es 2026.
+    expect(parseArgentineDateInputAsArcaDate('1/12', new Date('2027-01-01T01:00:00Z'))).toBe('20261201');
   });
 
   it('computes day differences across months', () => {

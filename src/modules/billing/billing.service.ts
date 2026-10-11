@@ -5,7 +5,7 @@ import { InputValidationError } from '../../lib/errors/app-error';
 import type { ResolvedArcaRuntime } from '../../services/arca/arca-context.resolver';
 import { evaluateFceObligation, type FceObligationGateway, shouldCheckFceObligation } from '../fce/fce-obligation';
 
-import { resolveTaxAmounts } from './billing.amounts';
+import { resolveTaxAmounts, sumTaxAmounts } from './billing.amounts';
 import { resolveAssociatedPeriod } from './billing.associated-period';
 import { resolveAssociatedVouchers } from './billing.associated-vouchers';
 import { isForeignCurrency, needsOfficialExchangeRate, resolveBillingCurrencyFields } from './billing.currency';
@@ -160,7 +160,7 @@ export class BillingService {
       ImpNeto: taxAmounts.netAmount,
       ImpOpEx: taxAmounts.exemptAmount,
       ImpTotConc: taxAmounts.untaxedAmount,
-      ImpTotal: input.totalAmount,
+      ImpTotal: sumTaxAmounts(taxAmounts),
       ImpTrib: 0,
       MonCotiz: currencyFields.MonCotiz,
       MonId: currencyFields.MonId,
