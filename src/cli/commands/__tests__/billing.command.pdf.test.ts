@@ -111,6 +111,22 @@ describe('attachPdfs', () => {
     expect(result.pdf).toEqual({ path: '/pdfs/factura-c_0003-00000125.pdf' });
   });
 
+  it('treats Ctrl+C in the PDF question as no, because the voucher is already issued', async () => {
+    const { deps, plugin } = createDeps();
+
+    vi.mocked(deps.confirm).mockRejectedValueOnce(
+      Object.assign(new Error('User force closed the prompt'), { name: 'ExitPromptError' }),
+    );
+
+    const [result] = await attachPdfs(
+      { config: CONFIG, inputs: [input()], interactive: true, results: [createResult()] },
+      deps,
+    );
+
+    expect(result.pdf).toBeUndefined();
+    expect(plugin.load).not.toHaveBeenCalled();
+  });
+
   it('asks once for the whole batch when the config says preguntar', async () => {
     const { deps } = createDeps({ answers: [true] });
     const results = await attachPdfs(

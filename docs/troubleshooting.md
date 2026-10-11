@@ -205,8 +205,16 @@ arcli fc ayuda
 - **Severidad:** frecuente
 - **Síntoma:** error ARCA con referencia a transacción activa.
 - **Causa:** ARCA informa una operación transitoria en curso.
-- **Solución:** esperar unos segundos y reintentar antes de modificar el comprobante.
+- **Solución:** esperar unos segundos y reintentar antes de modificar el comprobante. Si apareció al emitir, sale como `EMISSION_UNCERTAIN`: verificá primero con `arcli ultimos` (ver abajo).
 - **Documentación relacionada:** [Reglas de validación](validation-rules.md), [Limitaciones actuales](limitations.md)
+
+### No se pudo confirmar la emisión (`EMISSION_UNCERTAIN`)
+
+- **Severidad:** crítico
+- **Síntoma:** "No se pudo confirmar la emision: …" al emitir.
+- **Causa:** falló la llamada que emite en ARCA (red, timeout, transacción activa). ARCA pudo haber autorizado el comprobante y perderse la respuesta.
+- **Solución:** **no reintentes todavía**. Corré el `arcli ultimos <tipo> --pv <n>` que muestra la sugerencia: si el comprobante figura, ya está emitido y no hay que repetirlo; si no figura, reintentá.
+- **Documentación relacionada:** [Entrada y salida](input-output.md#emisión-sin-confirmar)
 
 ### El receptor coincide con el emisor
 
@@ -239,7 +247,7 @@ arcli fc ayuda
 - **Severidad:** crítico
 - **Síntoma:** se ven los resultados de algunos comprobantes y después `BATCH_EMISSION_ERROR` ("El lote se interrumpio en el comprobante #3…").
 - **Causa:** la emisión falló a mitad del lote (red, ARCA, transacción activa).
-- **Solución:** **no vuelvas a cargar los comprobantes que ya se procesaron**, porque se duplicarían. Armá un lote solo con los que figuran en "Sin procesar" (`sinProcesar` en el JSON) y reintentá. Si el que falló fue por "Transacción Activa", esperá unos segundos.
+- **Solución:** **no vuelvas a cargar los comprobantes que ya se procesaron**, porque se duplicarían. El que falló puede haberse emitido igual (`sinConfirmar` en el JSON): verificalo con `arcli ultimos` y sumalo solo si no figura. Armá un lote con ese y los que figuran en "Sin procesar" (`sinProcesar`) y reintentá. Si el que falló fue por "Transacción Activa", esperá unos segundos.
 - **Documentación relacionada:** [Entrada y salida](input-output.md#validación-y-errores-del-lote)
 
 ## Terminal

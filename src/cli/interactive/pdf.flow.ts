@@ -5,10 +5,11 @@ import { ConfigService } from '../../modules/config/config.service';
 import { parseConfigValue } from '../../modules/config/config-value-parser';
 import { canHavePdf, resolvePdfDecision } from '../../modules/pdf/pdf-decision';
 import { listMissingIssuerKeys } from '../../modules/pdf/pdf-issuer';
+import { noticePanel, writeTerminalOutput } from '../../ui';
 import { writePdfOutcomes } from '../commands/billing.command.output';
 import { attachPdfs } from '../commands/billing.command.pdf';
 
-import { askText, confirm } from './prompts';
+import { askText, confirm, isPromptCancellation } from './prompts';
 
 type IssuerKey = 'cuit' | 'emisor.domicilio' | 'emisor.inicioActividades' | 'emisor.razonSocial';
 
@@ -90,28 +91,40 @@ export async function offerPdf(
     return;
   }
 
-  if (decision === 'preguntar' && !(await confirm('¿Generamos el PDF del comprobante?', 'Si, generar el PDF', 'No'))) {
-    return;
+  // Ya se emitio: un Ctrl+C aca no puede terminar en "No se emitio nada".
+  try {
+    if (
+      decision === 'preguntar' &&
+      !(await confirm('¿Generamos el PDF del comprobante?', 'Si, generar el PDF', 'No'))
+    ) {
+      return;
+    }
+
+    const description = await askText('Descripcion del comprobante (Enter para "Segun detalle")');
+    const receiverName = await askText('Nombre o razon social del receptor (Enter para omitir)');
+    const receiverAddress = await askText('Domicilio del receptor (Enter para omitir)');
+    const completedConfig = await completeIssuer(config);
+    const withPdf = await attachPdfs({
+      config: completedConfig,
+      inputs: [
+        {
+          ...input,
+          pdf: true,
+          pdfDescription: description || undefined,
+          receiverAddress: receiverAddress || undefined,
+          receiverName: receiverName || undefined,
+        },
+      ],
+      interactive: true,
+      results: [result],
+    });
+
+    writePdfOutcomes([result], withPdf);
+  } catch (error) {
+    if (!isPromptCancellation(error)) {
+      throw error;
+    }
+
+    writeTerminalOutput(noticePanel('El comprobante ya quedo emitido; no se genero el PDF.', 'muted'));
   }
-
-  const description = await askText('Descripcion del comprobante (Enter para "Segun detalle")');
-  const receiverName = await askText('Nombre o razon social del receptor (Enter para omitir)');
-  const receiverAddress = await askText('Domicilio del receptor (Enter para omitir)');
-  const completedConfig = await completeIssuer(config);
-  const withPdf = await attachPdfs({
-    config: completedConfig,
-    inputs: [
-      {
-        ...input,
-        pdf: true,
-        pdfDescription: description || undefined,
-        receiverAddress: receiverAddress || undefined,
-        receiverName: receiverName || undefined,
-      },
-    ],
-    interactive: true,
-    results: [result],
-  });
-
-  writePdfOutcomes([result], withPdf);
 }

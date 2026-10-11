@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ResolvedArcaRuntime } from '../../../services/arca/arca-context.resolver';
+import { EmissionUncertainError } from '../billing.errors';
 import type { BillingCommandInput } from '../billing.schemas';
 import { BillingService } from '../billing.service';
 import { mapBillingResponse } from '../billing-response';
@@ -1192,6 +1193,37 @@ describe('billing.service', () => {
       events: [],
       resultado: null,
     });
+  });
+
+  it('flags a failed emission call as uncertain, because the voucher may have been issued', async () => {
+    const service = new BillingService();
+    const run = service.execute({
+      gateway: {
+        createNextVoucher: async () => {
+          throw new Error('socket hang up');
+        },
+        getQuotation: async () => 1,
+      },
+      input: createBillingInput({ documentNumber: 0, dryRun: false, emit: true }),
+      runtime: createRuntime(),
+    });
+
+    await expect(run).rejects.toBeInstanceOf(EmissionUncertainError);
+    await expect(run).rejects.toThrow('No se pudo confirmar la emision: socket hang up');
+    await expect(run).rejects.toMatchObject({
+      code: 'EMISSION_UNCERTAIN',
+      suggestion: expect.stringContaining('arcli ultimos fb --pv 3'),
+    });
+  });
+
+  it('maps the empty CAE of a rejected voucher to null', () => {
+    const summary = mapBillingResponse({
+      cae: '',
+      caeFchVto: '',
+      response: { FeDetResp: { FECAEDetResponse: [{ Resultado: 'R' }] } },
+    } as never);
+
+    expect(summary).toMatchObject({ cae: null, caeVencimiento: null, status: 'rechazado' });
   });
 
   it('maps ARCA responses into a stable summary', () => {

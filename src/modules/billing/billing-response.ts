@@ -31,8 +31,9 @@ export function mapBillingResponse(response: CreateVoucherResultDto): BillingRes
   });
 
   return {
-    cae: response.cae ?? null,
-    caeVencimiento: response.caeFchVto ?? null,
+    // El SDK devuelve "" en un rechazo; el JSON publico promete null.
+    cae: response.cae || null,
+    caeVencimiento: response.caeFchVto || null,
     errors,
     events,
     observaciones,

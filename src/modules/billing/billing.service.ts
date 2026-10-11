@@ -10,6 +10,7 @@ import { resolveAssociatedPeriod } from './billing.associated-period';
 import { resolveAssociatedVouchers } from './billing.associated-vouchers';
 import { isForeignCurrency, needsOfficialExchangeRate, resolveBillingCurrencyFields } from './billing.currency';
 import { resolveBillingDateRange } from './billing.date-range';
+import { EmissionUncertainError } from './billing.errors';
 import { resolveElectronicCreditOptionals } from './billing.fce';
 import { validateConsumerIdentification, validateIvaConditionForVoucher } from './billing.iva-receptor';
 import {
@@ -69,7 +70,13 @@ export class BillingService {
       };
     }
 
-    const response = await options.gateway.createNextVoucher(payload);
+    let response: Awaited<ReturnType<BillingGateway['createNextVoucher']>>;
+
+    try {
+      response = await options.gateway.createNextVoucher(payload);
+    } catch (error) {
+      throw new EmissionUncertainError({ cause: error, pointOfSale: payload.PtoVta, shortcut: voucherKind.shortcut });
+    }
 
     return {
       dryRun: false,

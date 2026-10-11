@@ -127,7 +127,7 @@ Si el archivo contiene un array, ARCLI procesa un lote del mismo comando.
 **Antes de emitir el primer comprobante, ARCLI valida todos los del lote**: la forma del JSON y las reglas de negocio (IVA receptor por letra, fechas, FCE, montos…).
 
 - Si alguno es inválido, **no se emite ninguno** y el error `BATCH_VALIDATION_ERROR` lista **todos** los ítems con problemas, con su índice (desde 1) y el motivo.
-- Si la emisión se corta a mitad del lote (red, ARCA), ARCLI **muestra primero los comprobantes ya procesados** y después el error `BATCH_EMISSION_ERROR`, que indica en qué ítem falló y cuáles quedaron sin procesar. **No vuelvas a cargar los ya emitidos**: reintentá solo los que quedaron sin procesar.
+- Si la emisión se corta a mitad del lote (red, ARCA), ARCLI **muestra primero los comprobantes ya procesados** y después el error `BATCH_EMISSION_ERROR`, que indica en qué ítem falló y cuáles quedaron sin procesar. **No vuelvas a cargar los ya emitidos**. El que falló puede haberse emitido igual (`detalles.sinConfirmar`): verificalo con `arcli ultimos` antes de reintentarlo, y después reintentá los que quedaron sin procesar.
 
 ```json
 {
@@ -148,8 +148,8 @@ Si el archivo contiene un array, ARCLI procesa un lote del mismo comando.
 ```json
 {
   "codigo": "BATCH_EMISSION_ERROR",
-  "detalles": { "fallo": 3, "procesados": 2, "sinProcesar": [4], "total": 4 },
-  "error": "El lote se interrumpio en el comprobante #3: ...\nProcesados: 2 de 4. Sin procesar: #4."
+  "detalles": { "fallo": 3, "procesados": 2, "sinConfirmar": 3, "sinProcesar": [4], "total": 4 },
+  "error": "El lote se interrumpio en el comprobante #3: ...\nProcesados: 2 de 4. Sin procesar: #4.\nEl #3 puede haberse emitido: verifiquelo con \"arcli ultimos\" antes de reintentarlo."
 }
 ```
 
@@ -311,6 +311,8 @@ Si no hubo emisión real, `respuesta` no se serializa como `null`. En su lugar:
 
 ## Formato de errores
 
+Los errores salen en JSON con `--json` o, sin el flag, si la config tiene `json=true`. Van a stderr y el proceso termina con exit code `1`.
+
 ### Errores JSON de validación
 
 Cuando el error viene de Zod o de validación de entrada:
@@ -337,6 +339,21 @@ Cuando el error viene de Zod o de validación de entrada:
   "error": "Falta la ruta del certificado para testing."
 }
 ```
+
+### Emisión sin confirmar
+
+Si falla la llamada que emite en ARCA (red, timeout, transacción activa), no se sabe si el comprobante quedó autorizado: pudo emitirse y perderse la respuesta. **No reintentes sin verificar**, porque se duplicaría.
+
+```json
+{
+  "codigo": "EMISSION_UNCERTAIN",
+  "detalles": { "causa": "socket hang up" },
+  "error": "No se pudo confirmar la emision: socket hang up",
+  "sugerencia": "Puede haberse emitido igual. Antes de reintentar, verifique con \"arcli ultimos fc --pv 3\": si figura, ya esta emitido y no hay que repetirlo."
+}
+```
+
+En un lote, el mismo caso sale como `BATCH_EMISSION_ERROR` con `detalles.sinConfirmar` (el índice que hay que verificar).
 
 ### Errores transitorios o inesperados
 

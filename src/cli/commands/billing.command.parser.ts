@@ -120,6 +120,41 @@ function parseIvaRateFlags(values: readonly string[] | undefined): {
   };
 }
 
+/**
+ * Emitir o no, por nivel: lo escrito en el comando, despues el archivo y por ultimo la config.
+ * El primer nivel que diga algo decide; solo es error que un mismo nivel pida las dos cosas.
+ */
+function resolveShouldEmit(options: {
+  readonly cliEmit?: boolean;
+  readonly cliPreview?: boolean;
+  readonly defaultEmit?: boolean;
+  readonly fileEmit?: boolean;
+  readonly filePreview?: boolean;
+}): boolean {
+  if (options.cliEmit && options.cliPreview) {
+    throw new InputValidationError('Use --emitir o --previsualizar, pero no ambos a la vez.');
+  }
+
+  if (options.cliEmit !== undefined || options.cliPreview !== undefined) {
+    return options.cliEmit === true;
+  }
+
+  if (options.fileEmit === true && options.filePreview === true) {
+    throw new InputValidationError('En el archivo use "emitir" o "previsualizar", pero no ambos en true.');
+  }
+
+  if (typeof options.fileEmit === 'boolean') {
+    return options.fileEmit;
+  }
+
+  // "previsualizar": false no es lo mismo que "emitir": true; sin "emitir" decide la config.
+  if (options.filePreview === true) {
+    return false;
+  }
+
+  return Boolean(options.defaultEmit);
+}
+
 function resolvePdfFlag(
   commandOptions: Record<string, unknown>,
   fileInput: BillingJsonInput | undefined,
@@ -199,18 +234,13 @@ function parseBillingCommandInputFromSource(
       : typeof fileInput?.emitir === 'boolean' || typeof fileInput?.previsualizar === 'boolean'
         ? 'file'
         : 'default';
-  const shouldEmit =
-    emitirSource === 'cli'
-      ? Boolean(commandOptions.emitir)
-      : typeof fileInput?.emitir === 'boolean'
-        ? fileInput.emitir
-        : Boolean(defaults.defaultEmit);
-  const shouldDryRun =
-    previsualizarSource === 'cli'
-      ? Boolean(commandOptions.previsualizar)
-      : typeof fileInput?.previsualizar === 'boolean'
-        ? fileInput.previsualizar
-        : !shouldEmit;
+  const shouldEmit = resolveShouldEmit({
+    cliEmit: emitirSource === 'cli' ? commandOptions.emitir === true : undefined,
+    cliPreview: previsualizarSource === 'cli' ? commandOptions.previsualizar === true : undefined,
+    defaultEmit: defaults.defaultEmit,
+    fileEmit: fileInput?.emitir,
+    filePreview: fileInput?.previsualizar,
+  });
   const conceptShortcut = resolveConceptShortcut(commandOptions);
   const documentIdentity = resolveDocumentIdentity(commandOptions);
   const ivaShortcut = resolveIvaShortcut(commandOptions);
@@ -232,10 +262,6 @@ function parseBillingCommandInputFromSource(
 
   if ((typeof commandOptions.ivaReceptor === 'string' || typeof commandOptions.ir === 'string') && ivaShortcut) {
     throw new InputValidationError('Use --iva-receptor, --ir o un flag corto --ir-*, pero no varios a la vez.');
-  }
-
-  if (shouldEmit && shouldDryRun) {
-    throw new InputValidationError('Use --emitir o --previsualizar, pero no ambos a la vez.');
   }
 
   if (!resolvedConcept) {
@@ -267,12 +293,11 @@ function parseBillingCommandInputFromSource(
     fileInput?.codigoMoneda,
     defaults.defaultCurrencyCode,
   );
-  const sameCurrency = commandOptions.mismaMoneda === true || fileInput?.mismaMoneda === true;
-  const explicitExchangeRate = pickNumber(
-    commandOptions.cotizacionMoneda,
-    commandOptions.cm,
-    fileInput?.cotizacionMoneda,
-  );
+  // Un flag pisa lo del archivo: --cm descarta "mismaMoneda" del JSON y --misma-moneda, su "cotizacionMoneda".
+  const flagExchangeRate = pickNumber(commandOptions.cotizacionMoneda, commandOptions.cm);
+  const flagSameCurrency = commandOptions.mismaMoneda === true;
+  const sameCurrency = flagSameCurrency || (flagExchangeRate === undefined && fileInput?.mismaMoneda === true);
+  const explicitExchangeRate = flagExchangeRate ?? (flagSameCurrency ? undefined : fileInput?.cotizacionMoneda);
 
   if (sameCurrency && typeof explicitExchangeRate === 'number') {
     throw new InputValidationError(
@@ -297,7 +322,8 @@ function parseBillingCommandInputFromSource(
 
   const flagRates = parseIvaRateFlags(commandOptions.alicuota as string[] | undefined);
   const fileRateAmounts = fileInput?.alicuotas?.map((item) => ({ amount: item.monto, rate: item.tasa }));
-  const ivaRateAmounts = flagRates.ivaRateAmounts ?? fileRateAmounts;
+  // --alicuota TASA tambien pisa las "alicuotas" del archivo.
+  const ivaRateAmounts = flagRates.ivaRateAmounts ?? (flagRates.ivaRate ? undefined : fileRateAmounts);
   const exemptAmount = pickNumber(commandOptions.exento, fileInput?.importeExento);
   const untaxedAmount = pickNumber(commandOptions.nogravado, fileInput?.importeNoGravado);
   // Con varias alicuotas el monto total se puede omitir: es la suma de cada una mas exento y no gravado.
@@ -325,7 +351,7 @@ function parseBillingCommandInputFromSource(
       currencyCode,
       documentNumber: documentIdentity.documentNumber ?? fileInput?.numeroDocumento,
       documentType: documentIdentity.documentType ?? fileInput?.tipoDocumento,
-      dryRun: shouldDryRun,
+      dryRun: !shouldEmit,
       dueDay: pickNumber(commandOptions.dia, fileInput?.dia),
       emit: shouldEmit,
       exchangeRate,

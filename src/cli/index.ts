@@ -5,6 +5,7 @@ import { checkForUpdate } from '../modules/update-check/update-check.service';
 import { formatCliError, writeTerminalError, writeTerminalJsonError } from '../ui';
 
 import { isInteractiveTerminal } from './commands/interactive.command';
+import { shouldPrintErrorAsJson } from './error-output';
 import { createProgram } from './program';
 import { CLI_VERSION } from './version';
 
@@ -43,10 +44,12 @@ program
     }
   })
   .catch((error: unknown) => {
-    if (useJson) {
-      writeTerminalJsonError(formatCliError(error, useJson));
+    const errorAsJson = shouldPrintErrorAsJson(process.argv);
+
+    if (errorAsJson) {
+      writeTerminalJsonError(formatCliError(error, errorAsJson));
     } else {
-      writeTerminalError(formatCliError(error, useJson));
+      writeTerminalError(formatCliError(error, errorAsJson));
     }
 
     process.exitCode = 1;

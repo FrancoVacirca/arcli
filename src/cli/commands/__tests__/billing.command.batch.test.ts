@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { InputValidationError } from '../../../lib/errors/app-error';
 import { BatchEmissionError, BatchValidationError } from '../../../modules/billing/billing.batch';
+import { EmissionUncertainError } from '../../../modules/billing/billing.errors';
 import { emitBatch, validateBatchBeforeEmitting } from '../billing.command.batch';
 
 const batch = (total: number, invalidItems: Array<{ index: number; message: string }> = []) => ({
@@ -82,6 +83,28 @@ describe('emitBatch', () => {
       expect(error.details).toEqual({ fallo: 3, procesados: 2, sinProcesar: [4], total: 4 });
     });
     expect(onPartialResults).toHaveBeenCalledWith(['CAE-a', 'CAE-b']);
+  });
+
+  it('si la emision quedo sin confirmar, pide verificar el que fallo', async () => {
+    const cause = new EmissionUncertainError({ cause: new Error('timeout'), pointOfSale: 3, shortcut: 'fc' });
+    const run = emitBatch({
+      emit: async (input: string) => {
+        if (input === 'b') {
+          throw cause;
+        }
+
+        return `CAE-${input}`;
+      },
+      inputs: ['a', 'b', 'c'],
+      onPartialResults: vi.fn(),
+      plan: batch(3),
+    });
+
+    await run.catch((error: BatchEmissionError) => {
+      expect(error.message).toContain('El #2 puede haberse emitido');
+      expect(error.details).toMatchObject({ fallo: 2, sinConfirmar: 2, sinProcesar: [3] });
+    });
+    await expect(run).rejects.toThrow(BatchEmissionError);
   });
 
   it('con un solo comprobante deja pasar el error original', async () => {

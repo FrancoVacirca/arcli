@@ -73,3 +73,6 @@ Comandos, flags, claves de config y JSON son contrato público. Antes de cambiar
 - **Wizard, no pantalla completa.** Prompts encadenados con `@inquirer`.
 - **`testing` por defecto.** Con la config por defecto, emitir en producción pide `--produccion` y además `--emitir` o confirmar en la terminal. Quien guarda `entorno produccion` y `emitir true` emite sin flags: es a propósito.
 - **Todo visible.** Lo que ARCLI envía a ARCA se puede ver en la vista previa, en `--json` o en `--bruto`.
+- **Lo escrito gana.** Cada dato se resuelve por nivel: el flag del comando, después el JSON de `--cargar` y por último la config. El primer nivel que dice algo decide; solo es error que un mismo nivel pida dos cosas opuestas (por ejemplo `--emitir --previsualizar`).
+- **Formato argentino para montos escritos.** Flags, modo interactivo y config usan `src/lib/numbers/argentine-amount.ts`: punto para miles, coma para decimales. El JSON usa números.
+- **Ante la duda, no duplicar.** Si falla la llamada que emite, no se sabe si ARCA autorizó: `BillingService` lo informa como `EMISSION_UNCERTAIN` con el `arcli ultimos` para verificar, en vez de sugerir reintentar.

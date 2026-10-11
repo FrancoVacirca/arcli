@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { ConfigurationError, InputValidationError } from '../../../lib/errors/app-error';
+import { AppError, ConfigurationError, InputValidationError } from '../../../lib/errors/app-error';
 import { formatCliError } from '../errors.presenter';
 
 describe('errors.presenter', () => {
@@ -26,6 +26,19 @@ describe('errors.presenter', () => {
     expect(output).toContain('ERROR DE ENTRADA');
     expect(output).toContain('Falta el concepto.');
     expect(output).toContain('ayuda');
+  });
+
+  it('shows the suggestion of any app error, in text and JSON', () => {
+    const error = new AppError('No se pudo confirmar la emision: timeout', {
+      code: 'EMISSION_UNCERTAIN',
+      suggestion: 'Verifique con arcli ultimos fc --pv 3.',
+    });
+
+    expect(formatCliError(error, false)).toContain('Verifique con arcli ultimos fc --pv 3.');
+    expect(JSON.parse(formatCliError(error, true))).toMatchObject({
+      codigo: 'EMISSION_UNCERTAIN',
+      sugerencia: 'Verifique con arcli ultimos fc --pv 3.',
+    });
   });
 
   it('keeps json output structured for app errors', () => {

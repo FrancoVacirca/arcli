@@ -1,7 +1,6 @@
 import { ZodError } from 'zod';
 
 import { AppError } from '../../lib/errors/app-error';
-import { PdfError } from '../../modules/pdf/pdf.errors';
 import { errorPanel } from '../components/errorPanel';
 import { renderJson } from '../primitives/renderJson';
 import { bold } from '../primitives/text';
@@ -18,6 +17,8 @@ function formatErrorTitle(code: string): string {
       return 'Lote invalido';
     case 'BATCH_EMISSION_ERROR':
       return 'Lote interrumpido';
+    case 'EMISSION_UNCERTAIN':
+      return 'Emision sin confirmar';
     case 'PDF_GENERATION_ERROR':
     case 'PDF_ISSUER_INCOMPLETE':
     case 'PDF_PLUGIN_MISSING':
@@ -30,7 +31,7 @@ function formatErrorTitle(code: string): string {
 }
 
 function formatErrorHint(error: AppError): string | null {
-  if (error instanceof PdfError && error.suggestion) {
+  if (error.suggestion) {
     return error.suggestion;
   }
 
@@ -42,7 +43,7 @@ function formatErrorHint(error: AppError): string | null {
     case 'BATCH_VALIDATION_ERROR':
       return 'Corrija esos comprobantes en el archivo y vuelva a correr el lote completo.';
     case 'BATCH_EMISSION_ERROR':
-      return 'Los comprobantes de arriba ya se emitieron: no los vuelva a cargar. Reintente solo los que quedaron sin procesar.';
+      return 'Los comprobantes de arriba ya se emitieron: no los vuelva a cargar. Antes de reintentar el que fallo, verifique con `arcli ultimos` si se emitio; despues reintente los que quedaron sin procesar.';
     default:
       return null;
   }
@@ -110,7 +111,7 @@ export function formatCliError(error: unknown, useJson: boolean): string {
         codigo: error.code,
         detalles: formatErrorDetailsAsJson(error.details),
         error: error.message,
-        ...(error instanceof PdfError && error.suggestion ? { sugerencia: error.suggestion } : {}),
+        ...(error.suggestion ? { sugerencia: error.suggestion } : {}),
       });
     }
 

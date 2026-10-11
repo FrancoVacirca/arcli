@@ -3,6 +3,8 @@ import { ZodError } from 'zod';
 import { AppError } from '../../lib/errors/app-error';
 import { summarizeZodError } from '../../ui';
 
+import { EmissionUncertainError } from './billing.errors';
+
 export interface BatchItemError {
   /** Posicion en el lote, empezando en 1. */
   readonly index: number;
@@ -50,11 +52,15 @@ export class BatchEmissionError extends AppError {
       { length: options.total - options.failedIndex },
       (_, offset) => options.failedIndex + 1 + offset,
     );
+    const uncertain = options.cause instanceof EmissionUncertainError;
 
     super(
       [
         `El lote se interrumpio en el comprobante #${options.failedIndex}: ${describeBatchItemError(options.cause)}`,
         `Procesados: ${options.emitted} de ${options.total}.${pending.length > 0 ? ` Sin procesar: ${pending.map((index) => `#${index}`).join(', ')}.` : ''}`,
+        ...(uncertain
+          ? [`El #${options.failedIndex} puede haberse emitido: verifiquelo con "arcli ultimos" antes de reintentarlo.`]
+          : []),
       ].join('\n'),
       {
         code: 'BATCH_EMISSION_ERROR',
@@ -62,6 +68,7 @@ export class BatchEmissionError extends AppError {
           procesados: options.emitted,
           fallo: options.failedIndex,
           sinProcesar: pending,
+          ...(uncertain ? { sinConfirmar: options.failedIndex } : {}),
           total: options.total,
         },
       },

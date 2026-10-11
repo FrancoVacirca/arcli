@@ -10,7 +10,7 @@ import { canHavePdf, type PdfDecision, resolvePdfDecision } from '../../modules/
 import { resolvePdfIssuer } from '../../modules/pdf/pdf-issuer';
 import { exportBillingPdf, toPdfFailure } from '../../services/pdf/pdf-exporter';
 import { PdfPlugin, type PdfRenderer } from '../../services/pdf/pdf-plugin';
-import { confirm } from '../interactive/prompts';
+import { confirm, isPromptCancellation } from '../interactive/prompts';
 import { startSpinner } from '../spinner';
 
 export const PDF_ONLY_FLAGS_WARNING =
@@ -119,8 +119,23 @@ async function loadRenderer(plugin: PdfPlugin, interactive: boolean, deps: PdfSt
  */
 export async function attachPdfs(
   options: PdfStepOptions,
-  deps: PdfStepDependencies = defaultPdfStepDependencies,
+  defaultDeps: PdfStepDependencies = defaultPdfStepDependencies,
 ): Promise<BillingExecutionResult[]> {
+  // El comprobante ya se emitio: Ctrl+C en una pregunta del PDF es "No", no un error del comando.
+  const deps: PdfStepDependencies = {
+    ...defaultDeps,
+    confirm: async (...args) => {
+      try {
+        return await defaultDeps.confirm(...args);
+      } catch (error) {
+        if (isPromptCancellation(error)) {
+          return false;
+        }
+
+        throw error;
+      }
+    },
+  };
   const decisions = await resolveDecisions(options, deps);
   const targets = decisions.flatMap((decision, index) => (decision === 'generar' ? [index] : []));
   const outcomes = new Map<number, PdfOutcome>();

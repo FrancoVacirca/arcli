@@ -22,6 +22,27 @@ function createCommand(args: string[]): Command {
   return command;
 }
 
+function writeJsonInput(content: Record<string, unknown>): string {
+  const directory = mkdtempSync(join(tmpdir(), 'arcli-billing-cli-'));
+  const inputPath = join(directory, 'comprobante.json');
+
+  temporaryDirectories.push(directory);
+  writeFileSync(
+    inputPath,
+    JSON.stringify({
+      concepto: 'servicios',
+      ivaReceptor: 'consumidor-final',
+      montoTotal: 1000,
+      numeroDocumento: 0,
+      tipoDocumento: 'consumidor-final',
+      ...content,
+    }),
+    'utf8',
+  );
+
+  return inputPath;
+}
+
 afterEach(() => {
   for (const directory of temporaryDirectories.splice(0)) {
     rmSync(directory, { force: true, recursive: true });
@@ -103,6 +124,95 @@ describe('billing.command.parser', () => {
     const command = createCommand(['--monto', '1000', '--emitir', '--previsualizar', '--cs', '--ir-cf']);
 
     expect(() => parseBillingCommandInput(command, 'fa')).toThrow(/Use --emitir o --previsualizar/);
+  });
+
+  describe('a written flag wins over the file and the config', () => {
+    it('previews with --previsualizar even if the config emits by default', () => {
+      const input = parseBillingCommandInput(
+        createCommand(['--monto', '1000', '--cs', '--ir-cf', '--previsualizar']),
+        'fc',
+        {
+          defaultEmit: true,
+        },
+      );
+
+      expect(input.emit).toBe(false);
+      expect(input.dryRun).toBe(true);
+    });
+
+    it('previews with --previsualizar even if the file says emitir', () => {
+      const input = parseBillingCommandInput(
+        createCommand(['--cargar', writeJsonInput({ emitir: true }), '--previsualizar']),
+        'fc',
+      );
+
+      expect(input.emit).toBe(false);
+    });
+
+    it('emits with --emitir even if the file says previsualizar', () => {
+      const input = parseBillingCommandInput(
+        createCommand(['--cargar', writeJsonInput({ previsualizar: true }), '--emitir']),
+        'fc',
+      );
+
+      expect(input.emit).toBe(true);
+      expect(input.dryRun).toBe(false);
+    });
+
+    it('rejects a file that asks for emitir and previsualizar', () => {
+      expect(() =>
+        parseBillingCommandInput(
+          createCommand(['--cargar', writeJsonInput({ emitir: true, previsualizar: true })]),
+          'fc',
+        ),
+      ).toThrow(/"emitir" o "previsualizar", pero no ambos/);
+    });
+
+    it('does not emit when the file only says previsualizar false', () => {
+      const input = parseBillingCommandInput(
+        createCommand(['--cargar', writeJsonInput({ previsualizar: false })]),
+        'fc',
+      );
+
+      expect(input.emit).toBe(false);
+    });
+
+    it('uses a single --alicuota instead of the file alicuotas', () => {
+      const input = parseBillingCommandInput(
+        createCommand([
+          '--cargar',
+          writeJsonInput({ alicuotas: [{ monto: 1000, tasa: 21 }], ivaReceptor: 'responsable-inscripto' }),
+          '--alicuota',
+          'reducida',
+          '--cuit',
+          '20111111112',
+        ]),
+        'fa',
+      );
+
+      expect(input.ivaRate).toBe('10.5');
+      expect(input.ivaRateAmounts).toBeUndefined();
+    });
+
+    it('uses --cm instead of the file mismaMoneda', () => {
+      const input = parseBillingCommandInput(
+        createCommand(['--cargar', writeJsonInput({ codigoMoneda: 'USD', mismaMoneda: true }), '--cm', '1.200']),
+        'fc',
+      );
+
+      expect(input.sameCurrency).toBe(false);
+      expect(input.exchangeRate).toBe(1200);
+    });
+
+    it('uses --misma-moneda instead of the file cotizacionMoneda', () => {
+      const input = parseBillingCommandInput(
+        createCommand(['--cargar', writeJsonInput({ codigoMoneda: 'USD', cotizacionMoneda: 1200 }), '--misma-moneda']),
+        'fc',
+      );
+
+      expect(input.sameCurrency).toBe(true);
+      expect(input.exchangeRate).toBeUndefined();
+    });
   });
 
   it('parses --misma-moneda without applying the default exchange rate', () => {

@@ -4,12 +4,21 @@ import { billingCommandSchema } from '../../../modules/billing/billing.schemas';
 import type { BillingExecutionResult } from '../../../modules/billing/billing.types.internal';
 import { getVoucherKindByShortcut } from '../../../modules/billing/voucher-kind-map';
 import type { ArcliConfig } from '../../../modules/config/config.schemas';
+import { writeTerminalOutput } from '../../../ui';
 import { writePdfOutcomes } from '../../commands/billing.command.output';
 import { attachPdfs } from '../../commands/billing.command.pdf';
 import { offerPdf } from '../pdf.flow';
 import { askText, confirm } from '../prompts';
 
-vi.mock('../prompts', () => ({ askText: vi.fn(), confirm: vi.fn() }));
+vi.mock('../prompts', () => ({
+  askText: vi.fn(),
+  confirm: vi.fn(),
+  isPromptCancellation: (error: unknown) => error instanceof Error && error.name === 'ExitPromptError',
+}));
+vi.mock('../../../ui', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../ui')>()),
+  writeTerminalOutput: vi.fn(),
+}));
 vi.mock('../../commands/billing.command.pdf', () => ({ attachPdfs: vi.fn(async ({ results }) => results) }));
 vi.mock('../../commands/billing.command.output', () => ({ writePdfOutcomes: vi.fn() }));
 
@@ -60,6 +69,17 @@ describe('offerPdf', () => {
 
     expect(confirmMock).not.toHaveBeenCalled();
     expect(attachPdfsMock).not.toHaveBeenCalled();
+  });
+
+  it('says the voucher was already issued when Ctrl+C cancels a PDF question', async () => {
+    const cancellation = Object.assign(new Error('User force closed the prompt'), { name: 'ExitPromptError' });
+
+    confirmMock.mockResolvedValueOnce(true);
+    askTextMock.mockRejectedValueOnce(cancellation);
+
+    await expect(offerPdf(CONFIG, input, result)).resolves.toBeUndefined();
+    expect(attachPdfsMock).not.toHaveBeenCalled();
+    expect(vi.mocked(writeTerminalOutput)).toHaveBeenCalledWith(expect.stringContaining('ya quedo emitido'));
   });
 
   it('stops when the user does not want the PDF', async () => {
