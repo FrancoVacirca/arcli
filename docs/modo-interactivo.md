@@ -37,14 +37,14 @@ Arriba del menú se muestran el entorno (`testing` o `produccion`) y el punto de
 
 Primero pregunta solo lo **requerido**:
 
-| Paso | Pregunta         | Detalle                                                                                 |
-| ---- | ---------------- | --------------------------------------------------------------------------------------- |
-| 1    | Comprobante      | Factura A, B o C, comunes o de crédito electrónica (FCE)                                |
-| 2    | Receptor         | Consumidor final, CUIT o DNI. En la A solo CUIT, porque la A no admite consumidor final |
-| 3    | IVA del receptor | Solo las condiciones válidas para la letra elegida. Con consumidor final no se pregunta |
-| 4    | Concepto         | Servicios, productos o ambos. Arranca en `config.concepto` si está configurado          |
-| 5    | Monto total      | Acepta `150000`, `150.000`, `1500,50` o `1500.50`                                       |
-| 6    | CBU              | Solo en facturas FCE y si no hay `config.cbu`                                           |
+| Paso | Pregunta         | Detalle                                                                                    |
+| ---- | ---------------- | ------------------------------------------------------------------------------------------ |
+| 1    | Comprobante      | Factura A, B o C, comunes o de crédito electrónica (FCE)                                   |
+| 2    | Receptor         | Consumidor final, CUIT o DNI. En la A solo CUIT, porque la A no admite consumidor final    |
+| 3    | IVA del receptor | Solo las condiciones válidas para la letra elegida. Con consumidor final no se pregunta    |
+| 4    | Concepto         | Servicios, productos o ambos. Arranca en `config.concepto` si está configurado             |
+| 5    | Monto total      | Acepta `150000`, `150.000`, `1500,50` o `1.500,50` (punto para miles, coma para decimales) |
+| 6    | CBU              | Solo en facturas FCE y si no hay `config.cbu`                                              |
 
 Después, **una sola pregunta con todos los opcionales** (ver abajo). Enter sin marcar nada sigue con los valores por defecto.
 

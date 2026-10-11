@@ -71,5 +71,5 @@ Comandos, flags, claves de config y JSON son contrato público. Antes de cambiar
 - **CLI primero.** El flujo principal se piensa desde la terminal; el modo interactivo es una capa encima y no agrega comandos de emisión.
 - **Una sola ruta de validación.** El asistente arma `BillingCommandInput` y pasa por `BillingService`, igual que los flags: mismas validaciones, vista previa y emisión.
 - **Wizard, no pantalla completa.** Prompts encadenados con `@inquirer`.
-- **`testing` por defecto.** Emitir en producción exige `--produccion --emitir`.
+- **`testing` por defecto.** Con la config por defecto, emitir en producción pide `--produccion` y además `--emitir` o confirmar en la terminal. Quien guarda `entorno produccion` y `emitir true` emite sin flags: es a propósito.
 - **Todo visible.** Lo que ARCLI envía a ARCA se puede ver en la vista previa, en `--json` o en `--bruto`.

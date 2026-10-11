@@ -1,3 +1,4 @@
+import { formatArgentineAmountInput } from '../../lib/numbers/argentine-amount';
 import { isForeignCurrency } from '../billing/billing.currency';
 import type { BillingCommandInput } from '../billing/billing.schemas';
 
@@ -6,10 +7,6 @@ const CONCEPT_FLAGS: Record<BillingCommandInput['concept'], string> = {
   'productos-servicios': '--csp',
   servicios: '--cs',
 };
-
-function formatAmount(value: number): string {
-  return String(value);
-}
 
 function identityFlags(input: BillingCommandInput): string[] {
   if (input.documentType === 'consumidor-final') {
@@ -54,7 +51,7 @@ export function buildEquivalentCommand(
     'arcli',
     input.shortcut,
     '-m',
-    formatAmount(input.totalAmount),
+    formatArgentineAmountInput(input.totalAmount),
     CONCEPT_FLAGS[input.concept],
     ...identityFlags(input),
     '--ir',
@@ -69,16 +66,16 @@ export function buildEquivalentCommand(
     if (input.sameCurrency) {
       parts.push('--misma-moneda');
     } else if (input.exchangeRate) {
-      parts.push('--cm', formatAmount(input.exchangeRate));
+      parts.push('--cm', formatArgentineAmountInput(input.exchangeRate));
     }
   }
   if (input.ivaRate) parts.push('--alicuota', input.ivaRate);
 
   for (const { amount, rate } of input.ivaRateAmounts ?? []) {
-    parts.push('--alicuota', `${rate}:${formatAmount(amount)}`);
+    parts.push('--alicuota', `${rate}:${formatArgentineAmountInput(amount)}`);
   }
-  if (input.exemptAmount) parts.push('--exento', formatAmount(input.exemptAmount));
-  if (input.untaxedAmount) parts.push('--nogravado', formatAmount(input.untaxedAmount));
+  if (input.exemptAmount) parts.push('--exento', formatArgentineAmountInput(input.exemptAmount));
+  if (input.untaxedAmount) parts.push('--nogravado', formatArgentineAmountInput(input.untaxedAmount));
   if (input.serviceStartDate) parts.push('--sd', input.serviceStartDate);
   if (input.serviceEndDate) parts.push('--sh', input.serviceEndDate);
   if (input.paymentDueDate) parts.push('--vto', input.paymentDueDate);

@@ -68,7 +68,8 @@ describe('config-value-parser', () => {
   });
 
   it('parses positive numbers and integers', () => {
-    expect(parseConfigValue('cotizacionPorDefecto', '1234.5')).toBe(1234.5);
+    expect(parseConfigValue('cotizacionPorDefecto', '1.234,5')).toBe(1234.5);
+    expect(parseConfigValue('cotizacionPorDefecto', '1452,123456')).toBe(1452.123456);
     expect(parseConfigValue('puntoVentaPorDefecto', '3')).toBe(3);
   });
 
@@ -80,7 +81,8 @@ describe('config-value-parser', () => {
   });
 
   it('rejects non-positive numbers and integers', () => {
-    expect(() => parseConfigValue('cotizacionPorDefecto', '0')).toThrow(/no es un numero positivo valido/);
+    expect(() => parseConfigValue('cotizacionPorDefecto', '0')).toThrow(/tiene que ser mayor a 0/);
+    expect(() => parseConfigValue('cotizacionPorDefecto', '1234.5')).toThrow(/use coma para los decimales/);
     expect(() => parseConfigValue('puntoVentaPorDefecto', '0')).toThrow(/no es un entero positivo valido/);
     expect(() => parseConfigValue('puntoVentaPorDefecto', 'abc')).toThrow(/no es un entero positivo valido/);
   });

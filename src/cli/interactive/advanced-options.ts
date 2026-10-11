@@ -1,6 +1,6 @@
 import type { BillingCommandInput } from '../../modules/billing/billing.schemas';
 import type { VoucherKindDefinition } from '../../modules/billing/billing.types';
-import { parseAmountInput } from '../../modules/interactive/amount-input';
+import { parseAmountInput, parseExchangeRateInput } from '../../modules/interactive/amount-input';
 import { ivaRateChoices } from '../../modules/interactive/choices';
 import { BACK, type Back } from '../../modules/interactive/wizard';
 
@@ -81,7 +81,7 @@ async function askCurrency(current: AdvancedOptions): Promise<AdvancedOptions | 
 
   return rate === BACK
     ? BACK
-    : { ...current, currencyCode: 'USD', exchangeRate: parseAmountInput(rate), sameCurrency: false };
+    : { ...current, currencyCode: 'USD', exchangeRate: parseExchangeRateInput(rate), sameCurrency: false };
 }
 
 async function askExemptAmounts(current: AdvancedOptions): Promise<AdvancedOptions | Back> {

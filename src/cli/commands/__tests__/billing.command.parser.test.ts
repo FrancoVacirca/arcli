@@ -269,9 +269,49 @@ describe('billing.command.parser', () => {
     expect(input.totalAmount).toBe(1812.5);
   });
 
+  it.each([
+    ['--monto', '1.500,50', 'totalAmount', 1500.5],
+    ['--monto', '15.000', 'totalAmount', 15000],
+    ['--exento', '1500,5', 'exemptAmount', 1500.5],
+    ['--nogravado', '2.000', 'untaxedAmount', 2000],
+  ] as const)('reads %s %s with the Argentine format', (flag, value, field, expected) => {
+    const args = flag === '--monto' ? [flag, value] : ['--monto', '100.000', flag, value];
+    const input = parseBillingCommandInput(createCommand([...args, '--cs', '--ir-ri']), 'fa');
+
+    expect(input[field]).toBe(expected);
+  });
+
+  it('accepts up to 6 decimals in the exchange rate', () => {
+    const input = parseBillingCommandInput(
+      createCommand(['--monto', '100', '--cs', '--ir-ri', '--moneda', 'USD', '--cm', '1.452,123456']),
+      'fa',
+    );
+
+    expect(input.exchangeRate).toBe(1452.123456);
+  });
+
+  it.each([
+    [['--monto', '1500.50'], /--monto "1500.50" no es valido: use coma para los decimales/],
+    [['--monto', '12abc'], /--monto "12abc" no es valido: use punto para miles y coma para decimales/],
+    [['--monto', '1500,555'], /--monto "1500,555" no es valido: use hasta 2 decimales/],
+    [['--monto', '100', '--exento', '10.5'], /--exento "10.5" no es valido/],
+    [['--monto', '100', '--cm', '1452.5'], /--cm "1452.5" no es valido/],
+  ])('rejects amounts that are not in the Argentine format: %j', (args, message) => {
+    expect(() => createCommand(args)).toThrow(message);
+  });
+
+  it('rejects an alicuota amount that is not in the Argentine format', () => {
+    expect(() =>
+      parseBillingCommandInput(
+        createCommand(['--cs', '--ir-ri', '--alicuota', 'general:1210', '--alicuota', 'reducida:552.50']),
+        'fa',
+      ),
+    ).toThrow(/--alicuota "reducida:552.50": el monto no es valido: use coma para los decimales/);
+  });
+
   it('accepts a single alicuota by alias', () => {
     const input = parseBillingCommandInput(
-      createCommand(['--monto', '110.5', '--cs', '--ir-ri', '--alicuota', 'reducida']),
+      createCommand(['--monto', '110,5', '--cs', '--ir-ri', '--alicuota', 'reducida']),
       'fa',
     );
 

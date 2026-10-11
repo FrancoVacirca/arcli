@@ -219,9 +219,11 @@ En moneda extranjera (`--moneda USD`) hay dos formas de informar la cotización:
 
 En pesos la cotización siempre es `1` y `--misma-moneda` no aplica. Detalle en [Moneda y cotización](validation-rules.md#moneda-y-cotización).
 
-`--alicuota` acepta alias: `general` (21), `reducida` (10.5), `incrementada` (27) y `cero` (0). Para una factura con ítems a distintas alícuotas, repetí `--alicuota TASA:MONTO` (por ejemplo `--alicuota general:1210 --alicuota reducida:552.50`); el total se calcula solo. Ver [Varias alícuotas](validation-rules.md#varias-alícuotas-en-un-comprobante).
+`--alicuota` acepta alias: `general` (21), `reducida` (10.5), `incrementada` (27) y `cero` (0). Para una factura con ítems a distintas alícuotas, repetí `--alicuota TASA:MONTO` (por ejemplo `--alicuota general:1210 --alicuota reducida:552,50`); el total se calcula solo. Ver [Varias alícuotas](validation-rules.md#varias-alícuotas-en-un-comprobante).
 
 `--monto` siempre es el total del comprobante. Si informás `--exento` o `--nogravado`, ARCLI los descuenta del total y calcula neto e IVA sobre el resto. Ejemplo: `fb -m 1196 --exento 50 --nogravado 25` da neto 926,45 e IVA 194,55. El flag es `--nogravado`, sin guion, porque el CLI interpreta cualquier `--no-*` como la negación de otro flag.
+
+Los montos usan formato argentino: el punto separa miles y la coma separa decimales. `15000`, `15.000`, `1500,50` y `1.500,50` son válidos; `1500.50` da error, igual que el texto sobrante (`12abc`) y más de 2 decimales. La cotización acepta hasta 6. Vale para `--monto`, `--exento`, `--nogravado`, `--cotizacion-moneda` y el monto de `--alicuota TASA:MONTO`. En el JSON de `--cargar` los montos son números, así que no cambian.
 
 Las fechas usan formato argentino (día primero), con mes y año opcionales. Detalle completo en [Fechas aceptadas](validation-rules.md#fechas-aceptadas).
 

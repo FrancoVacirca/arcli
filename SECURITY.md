@@ -19,6 +19,6 @@ Ni a issues, ni a PRs, ni a capturas:
 
 - Certificados y claves privadas: ARCLI guarda solo las rutas en su configuración, no el contenido.
 - Tickets WSAA: se guardan en disco junto a la configuración (ver [`ticketPath`](docs/configuration.md#ticket-wsaa-ticketpath)).
-- La emisión real: `testing` es el entorno por defecto y emitir en producción exige `--produccion --emitir` juntos.
+- La emisión real: con la config por defecto, `testing` es el entorno y nada se emite sin `--emitir` o sin confirmar la pregunta en la terminal. Si guardás `entorno produccion` y `emitir true`, ARCLI emite en producción sin flags ni confirmación (ver [Configuración](docs/configuration.md#advertencias)).
 
 Buenas prácticas: usá `testing` siempre que puedas y revisá el comando antes de emitir en producción.

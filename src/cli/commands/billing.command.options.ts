@@ -1,16 +1,36 @@
 import { type Command, Option } from 'commander';
 
+import { InputValidationError } from '../../lib/errors/app-error';
+import { EXCHANGE_RATE_DECIMALS, parseArgentineAmount } from '../../lib/numbers/argentine-amount';
+
+/** Montos como en Argentina: punto para miles y coma para decimales. */
+function amountOption(flag: string, maxDecimals?: number): (value: string) => number {
+  return (value) => {
+    const result = parseArgentineAmount(value, { maxDecimals });
+
+    if (!result.ok) {
+      throw new InputValidationError(`${flag} "${value}" no es valido: ${result.reason}.`);
+    }
+
+    return result.value;
+  };
+}
+
 export function registerBillingOptions(command: Command): void {
   command
-    .option('-m, --monto <number>', 'importe total del comprobante', parseFloat)
+    .option(
+      '-m, --monto <number>',
+      'importe total del comprobante, por ejemplo 15000 o 1.500,50',
+      amountOption('--monto'),
+    )
     .option(
       '--alicuota <tasa>',
       'alicuota de IVA para A y B: general (21), reducida (10.5), incrementada (27), cero (0), 5 o 2.5. Repetible como TASA:MONTO para varias alicuotas',
       (value: string, previous: string[] | undefined) => [...(previous ?? []), value],
     )
-    .option('--exento <number>', 'parte exenta del monto total (A y B)', parseFloat)
+    .option('--exento <number>', 'parte exenta del monto total (A y B)', amountOption('--exento'))
     // No puede llamarse --no-gravado: commander interpreta --no-* como negacion de un flag booleano.
-    .option('--nogravado <number>', 'parte no gravada del monto total (A y B)', parseFloat)
+    .option('--nogravado <number>', 'parte no gravada del monto total (A y B)', amountOption('--nogravado'))
     .option('-d, --dia <number>', 'dia de vencimiento o referencia del servicio', (value: string) =>
       Number.parseInt(value, 10),
     )
@@ -24,8 +44,12 @@ export function registerBillingOptions(command: Command): void {
     .option('--csp', 'usar concepto productos y servicios')
     .option('--moneda <codigo>', 'codigo de moneda, por ejemplo ARS o USD')
     .option('--mda <codigo>', 'alias de moneda, por ejemplo ARS o USD')
-    .option('--cm <number>', 'alias de cotizacion de la moneda', parseFloat)
-    .option('--cotizacion-moneda <number>', 'cotizacion de la moneda', parseFloat)
+    .option('--cm <number>', 'alias de cotizacion de la moneda', amountOption('--cm', EXCHANGE_RATE_DECIMALS))
+    .option(
+      '--cotizacion-moneda <number>',
+      'cotizacion de la moneda, por ejemplo 1.452,50',
+      amountOption('--cotizacion-moneda', EXCHANGE_RATE_DECIMALS),
+    )
     .option('--misma-moneda', 'el pago se cancela en la misma moneda extranjera; usa la cotizacion oficial de ARCA')
     .option('--cuit <number>', 'usar CUIT del receptor', (value: string) => Number.parseInt(value, 10))
     .option('--cuil <number>', 'usar CUIL del receptor', (value: string) => Number.parseInt(value, 10))

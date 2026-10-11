@@ -2,6 +2,7 @@ import type { Command } from 'commander';
 
 import { InputValidationError } from '../../lib/errors/app-error';
 import { readJsonFile } from '../../lib/files/read-json-file';
+import { parseArgentineAmount } from '../../lib/numbers/argentine-amount';
 import { type BatchItemError, BatchValidationError, describeBatchItemError } from '../../modules/billing/billing.batch';
 import { isForeignCurrency } from '../../modules/billing/billing.currency';
 import { type BillingCommandInput, billingCommandSchema } from '../../modules/billing/billing.schemas';
@@ -72,11 +73,14 @@ interface RateAmountInput {
   readonly rate: unknown;
 }
 
-function parseAmountText(raw: string): number {
-  const value = raw.trim();
+function parseRateAmount(flagValue: string, raw: string): number {
+  const result = parseArgentineAmount(raw);
 
-  // "552,50" -> 552.5; con punto se toma como decimal, igual que --monto.
-  return Number(value.includes(',') && !value.includes('.') ? value.replace(',', '.') : value);
+  if (!result.ok) {
+    throw new InputValidationError(`--alicuota "${flagValue}": el monto no es valido: ${result.reason}.`);
+  }
+
+  return result.value;
 }
 
 /**
@@ -96,7 +100,7 @@ function parseIvaRateFlags(values: readonly string[] | undefined): {
   if (withAmount.length === 0) {
     if (values.length > 1) {
       throw new InputValidationError(
-        'Para varias alicuotas use --alicuota TASA:MONTO en cada una, por ejemplo --alicuota general:1210 --alicuota reducida:552.50.',
+        'Para varias alicuotas use --alicuota TASA:MONTO en cada una, por ejemplo --alicuota general:1210 --alicuota reducida:552,50.',
       );
     }
 
@@ -111,7 +115,7 @@ function parseIvaRateFlags(values: readonly string[] | undefined): {
     ivaRateAmounts: values.map((value) => {
       const separator = value.indexOf(':');
 
-      return { amount: parseAmountText(value.slice(separator + 1)), rate: value.slice(0, separator) };
+      return { amount: parseRateAmount(value, value.slice(separator + 1)), rate: value.slice(0, separator) };
     }),
   };
 }

@@ -1,34 +1,15 @@
-/**
- * Interpreta montos escritos como en Argentina: `150000`, `150.000`, `1500,50`, `1.500,50` o `1500.50`.
- * Con coma, los puntos son separadores de miles. Sin coma, un punto seguido de exactamente
- * 3 digitos (o varios puntos) tambien son miles; si no, el punto es decimal.
- */
+import { EXCHANGE_RATE_DECIMALS, parseArgentineAmount } from '../../lib/numbers/argentine-amount';
+
+/** Monto escrito en el modo interactivo, con las mismas reglas que los flags: `1.500,50`. */
 export function parseAmountInput(raw: string): number | undefined {
-  const value = raw
-    .trim()
-    .replace(/^\$\s*/, '')
-    .replace(/\s/g, '');
+  const result = parseArgentineAmount(raw);
 
-  if (!/^[\d.,]+$/.test(value)) {
-    return undefined;
-  }
+  return result.ok ? result.value : undefined;
+}
 
-  let normalized: string;
+/** Cotizacion escrita en el modo interactivo: como un monto, pero con hasta 6 decimales. */
+export function parseExchangeRateInput(raw: string): number | undefined {
+  const result = parseArgentineAmount(raw, { maxDecimals: EXCHANGE_RATE_DECIMALS });
 
-  if (value.includes(',')) {
-    if (value.indexOf(',') !== value.lastIndexOf(',')) {
-      return undefined;
-    }
-
-    normalized = value.replace(/\./g, '').replace(',', '.');
-  } else {
-    const dots = value.split('.').length - 1;
-    const isThousands = dots > 1 || /^\d{1,3}\.\d{3}$/.test(value);
-
-    normalized = isThousands ? value.replace(/\./g, '') : value;
-  }
-
-  const amount = Number(normalized);
-
-  return Number.isFinite(amount) && amount > 0 ? Math.round(amount * 100) / 100 : undefined;
+  return result.ok ? result.value : undefined;
 }

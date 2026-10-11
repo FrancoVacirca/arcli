@@ -56,7 +56,7 @@ Comandos, flags, claves de config y formatos JSON son contrato público y no cam
 - No commitear certificados, claves privadas, tokens ni `.env`.
 - Los secretos se resuelven desde rutas de archivo configuradas por el usuario, nunca desde el código.
 - No loguear respuestas de ARCA ni rutas sensibles sin necesidad.
-- `testing` es el entorno por defecto; emitir en producción exige `--produccion --emitir`.
+- `testing` es el entorno por defecto y `emitir` es `false`: sin `--emitir`, en una terminal se pregunta antes de emitir. Con `entorno produccion` y `emitir true` en la config se emite en producción sin flags; es a propósito, para usuarios que no quieren confirmar cada vez.
 
 ## Notas
 

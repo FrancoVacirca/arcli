@@ -190,7 +190,7 @@ function createProgramSafety(): string {
       '  - --previsualizar muestra la solicitud antes de emitir.',
       '  - --emitir habla de verdad con ARCA.',
       '  - --produccion cambia al entorno real.',
-      '  - Para emitir de verdad necesita --produccion junto con --emitir.',
+      '  - Sin --emitir, en una terminal pregunta antes de emitir (salvo emitir=true en la config).',
       '  - Para scripts o pipelines, usá --json y evitá automatizar sobre salida humana.',
     ].join('\n'),
   );

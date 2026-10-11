@@ -1,8 +1,10 @@
 import { parseArgentineDateInputAsArcaDate } from '../../lib/dates/arca-date';
-import { parseAmountInput } from '../../modules/interactive/amount-input';
+import { EXCHANGE_RATE_DECIMALS, parseArgentineAmount } from '../../lib/numbers/argentine-amount';
 
 export function validateAmount(value: string): string | true {
-  return parseAmountInput(value) ? true : 'Ingresa un monto mayor a 0, por ejemplo 150000 o 1500,50.';
+  const result = parseArgentineAmount(value);
+
+  return result.ok ? true : `Monto invalido: ${result.reason}. Por ejemplo 150000, 150.000 o 1.500,50.`;
 }
 
 export function validateCuit(value: string): string | true {
@@ -37,7 +39,11 @@ export function validateOptionalAmount(value: string): string | true {
 }
 
 export function validateExchangeRate(value: string): string | true {
-  const rate = parseAmountInput(value);
+  const result = parseArgentineAmount(value, { maxDecimals: EXCHANGE_RATE_DECIMALS });
 
-  return rate && rate !== 1 ? true : 'Ingresa la cotizacion acordada, por ejemplo 1200 o 1185,50.';
+  if (!result.ok) {
+    return `Cotizacion invalida: ${result.reason}. Por ejemplo 1200 o 1.185,50.`;
+  }
+
+  return result.value !== 1 ? true : 'Ingresa la cotizacion acordada, por ejemplo 1200 o 1.185,50.';
 }

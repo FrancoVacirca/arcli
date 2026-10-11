@@ -74,7 +74,7 @@ ARCLI tiene dos formas de usarse:
 - **Comandos con flags** (`arcli fc -m 1000 …`): el contrato público, pensado para scripts, agentes y uso frecuente.
 - **Modo interactivo** (`arcli` sin argumentos): un asistente que pregunta paso a paso, arma la misma entrada que los flags y la pasa por las mismas validaciones. Ver [Modo interactivo](modo-interactivo.md).
 
-Con flags, `--previsualizar` arma y muestra la solicitud sin llamar a ARCA, y `--emitir` emite de verdad. Son excluyentes. En producción hace falta `--produccion --emitir`.
+Con flags, `--previsualizar` arma y muestra la solicitud sin llamar a ARCA, y `--emitir` emite de verdad. Son excluyentes. El entorno es el de la config (`testing` por defecto) salvo que pases `--testing` o `--produccion`.
 
 ## Formatos de salida
 

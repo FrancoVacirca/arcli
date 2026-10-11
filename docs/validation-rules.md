@@ -241,7 +241,7 @@ ImpTotal = ImpTotConc (--nogravado) + ImpOpEx (--exento) + ImpNeto + ImpIVA
 Repetí `--alicuota TASA:MONTO`, con el importe de cada alícuota **IVA incluido**, igual que `--monto`:
 
 ```bash
-arcli fa --cs --cuit 30709965812 --ir-ri --alicuota general:1210 --alicuota reducida:552.50
+arcli fa --cs --cuit 30709965812 --ir-ri --alicuota general:1210 --alicuota reducida:552,50
 ```
 
 - Cada monto se parte en neto e IVA según su tasa, y se envía una entrada de `Iva` por alícuota. La suma de los netos es `ImpNeto` (10061).

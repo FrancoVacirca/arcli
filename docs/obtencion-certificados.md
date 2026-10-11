@@ -194,7 +194,7 @@ arcli config establecer key.produccion /ruta/a/produccion.key
 arcli config revisar --produccion
 ```
 
-Para emitir de verdad en producción hace falta además `--produccion --emitir` en el
+Para emitir de verdad en producción, pasá además `--produccion --emitir` en el
 comando de facturación — ver [Testing y producción](../README.md#testing-y-producción).
 
 ## Siguiente paso

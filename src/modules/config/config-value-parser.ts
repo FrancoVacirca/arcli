@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { parseArgentineDateInputAsArcaDate } from '../../lib/dates/arca-date';
+import { EXCHANGE_RATE_DECIMALS, parseArgentineAmount } from '../../lib/numbers/argentine-amount';
 import { readPemFile } from '../../lib/security/pem';
 import { IVA_RATE_HINT } from '../billing/billing.schemas';
 import { MAX_RECENT_VOUCHERS } from '../vouchers/voucher-history';
@@ -119,14 +120,14 @@ function parseRecentCount(value: string): number {
   return parsedValue;
 }
 
-function parsePositiveNumber(value: string): number {
-  const parsedValue = Number.parseFloat(value.trim());
+function parseExchangeRate(value: string): number {
+  const result = parseArgentineAmount(value, { maxDecimals: EXCHANGE_RATE_DECIMALS });
 
-  if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
-    throw new Error(`El valor "${value}" no es un numero positivo valido.`);
+  if (!result.ok) {
+    throw new Error(`La cotizacion "${value}" no es valida: ${result.reason}.`);
   }
 
-  return parsedValue;
+  return result.value;
 }
 
 function parsePemPath(value: string, label: 'certificado' | 'clave privada'): string {
@@ -179,7 +180,7 @@ export function parseConfigValue(key: CanonicalConfigKey, value: string): boolea
     case 'conceptoPorDefecto':
       return arcliDefaultConceptSchema.parse(value.trim().toLowerCase());
     case 'cotizacionPorDefecto':
-      return parsePositiveNumber(value);
+      return parseExchangeRate(value);
     case 'cuit':
       return value.trim();
     case 'emisor.condicionIva':

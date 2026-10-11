@@ -168,4 +168,6 @@ Si guardás:
 arcli config establecer emitir true
 ```
 
-ARCLI va a emitir por defecto cuando no pases `--previsualizar`. Es cómodo, pero también hace más fácil emitir sin querer en flujos repetitivos. Si no estás seguro, dejalo en `false`.
+ARCLI va a emitir por defecto cuando no pases `--previsualizar`, sin preguntar. Es cómodo, pero también hace más fácil emitir sin querer en flujos repetitivos. Si no estás seguro, dejalo en `false`.
+
+Combinado con `entorno produccion`, un comando sin flags emite un comprobante real en producción. Si usás esa combinación, pasá `--previsualizar` cuando solo quieras ver la solicitud.

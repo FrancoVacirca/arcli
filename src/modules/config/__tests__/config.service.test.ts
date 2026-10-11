@@ -76,7 +76,7 @@ describe('config.service', () => {
       service.setValue('cuit', '20123456789');
       service.setValue('concepto', 'servicios');
       service.setValue('moneda', 'usd');
-      service.setValue('cotizacion', '1234.5');
+      service.setValue('cotizacion', '1.234,5');
       service.setValue('ivaReceptor', 'consumidor-final');
       service.setValue('emitir', 'si');
       service.setValue('json', 'si');

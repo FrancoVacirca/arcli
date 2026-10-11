@@ -1,4 +1,5 @@
 import { formatArcaDateAsArgentineDate } from '../../lib/dates/arca-date';
+import { formatArgentineAmountInput } from '../../lib/numbers/argentine-amount';
 import { maskPath } from '../../lib/paths/mask-path';
 import {
   type ArcliConfig,
@@ -118,7 +119,8 @@ const FIELD_DEFINITIONS: ReadonlyArray<Omit<ConfigField, 'label'>> = [
   {
     hint: 'solo para moneda extranjera',
     key: 'cotizacion',
-    read: (c) => c.cotizacionPorDefecto?.toString(),
+    read: (c) =>
+      c.cotizacionPorDefecto === undefined ? undefined : formatArgentineAmountInput(c.cotizacionPorDefecto),
   },
   { key: 'ticketPath', path: true, read: (c) => c.ticketPath },
 ];
