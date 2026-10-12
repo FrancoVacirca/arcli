@@ -118,21 +118,26 @@ export class ConfigService {
     const canonicalKey = CONFIG_KEY_ALIASES[key];
     const parsedValue = parseConfigValue(canonicalKey, rawValue);
 
-    this.store.set(canonicalKey, parsedValue);
-
-    const config = this.getConfig();
-    this.store.store = config;
-
-    return config;
+    return this.saveIfValid((draft) => setAtPath(draft, canonicalKey, parsedValue));
   }
 
   public unsetValue(rawKey: string): ArcliConfig {
     const key = this.resolveKey(rawKey);
     const canonicalKey = CONFIG_KEY_ALIASES[key];
 
-    this.store.delete(canonicalKey);
+    return this.saveIfValid((draft) => deleteAtPath(draft, canonicalKey));
+  }
 
-    const config = this.getConfig();
+  /**
+   * Aplica el cambio sobre una copia y la guarda solo si queda valida: un valor invalido no puede dejar el CLI
+   * inutilizable. Una config que ya estaba rota se puede arreglar cambiando o borrando la clave que falla.
+   */
+  private saveIfValid(change: (draft: Record<string, unknown>) => void): ArcliConfig {
+    const draft = structuredClone(this.store.store) as Record<string, unknown>;
+
+    change(draft);
+
+    const config = arcliConfigSchema.parse(draft);
     this.store.store = config;
 
     return config;
@@ -140,5 +145,31 @@ export class ConfigService {
 
   private resolveKey(rawKey: string): ConfigPublicKey {
     return configPublicKeySchema.parse(rawKey.trim());
+  }
+}
+
+function setAtPath(target: Record<string, unknown>, path: string, value: unknown): void {
+  const keys = path.split('.');
+  const last = keys.pop() as string;
+  let node = target;
+
+  for (const key of keys) {
+    const next = node[key];
+    node = (next && typeof next === 'object' ? next : (node[key] = {})) as Record<string, unknown>;
+  }
+
+  node[last] = value;
+}
+
+function deleteAtPath(target: Record<string, unknown>, path: string): void {
+  const keys = path.split('.');
+  const last = keys.pop() as string;
+  const parent = keys.reduce<unknown>(
+    (node, key) => (node && typeof node === 'object' ? (node as Record<string, unknown>)[key] : undefined),
+    target,
+  );
+
+  if (parent && typeof parent === 'object') {
+    delete (parent as Record<string, unknown>)[last];
   }
 }

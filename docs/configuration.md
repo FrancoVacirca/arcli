@@ -78,6 +78,8 @@ arcli config establecer ticketPath /ruta/que/prefieras
 arcli config eliminar ticketPath
 ```
 
+El ticket permite operar en ARCA como tu CUIT mientras dure, así que ARCLI deja la carpeta en `0700` (solo tu usuario). Si elegís otra ubicación, que no sea una carpeta compartida.
+
 ### PDF y datos del emisor
 
 Las claves `pdf`, `pdfCarpeta`, `pdfNavegador` y `emisor.*` solo se usan para generar el PDF. ARCA no recibe los datos del emisor: van impresos en el PDF. Cómo completarlos y qué hace cada clave: [PDF de comprobantes](pdf.md#datos-que-arca-no-guarda).

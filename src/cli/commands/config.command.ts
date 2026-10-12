@@ -113,7 +113,8 @@ export function registerConfigCommand(program: Command): void {
     .argument('<clave>', 'clave publica de configuracion')
     .argument('<valor>', 'valor a guardar')
     .action((key: string, value: string, options: { json?: boolean }) => {
-      const service = createConfigService();
+      // Sin ensureInitialized: si la config quedo invalida, establecer o eliminar la clave es la forma de arreglarla.
+      const service = new ConfigService();
 
       try {
         const config = service.setValue(key, value);
@@ -131,7 +132,8 @@ export function registerConfigCommand(program: Command): void {
     .option('--json', 'imprimir salida JSON')
     .argument('<clave>', 'clave publica de configuracion')
     .action((key: string, options: { json?: boolean }) => {
-      const service = createConfigService();
+      // Sin ensureInitialized: si la config quedo invalida, establecer o eliminar la clave es la forma de arreglarla.
+      const service = new ConfigService();
 
       try {
         const config = service.unsetValue(key);

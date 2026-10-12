@@ -1,7 +1,9 @@
 import type { Context } from '@arcasdk/core';
+import { dirname } from 'node:path';
 
 import type { GlobalCliOptions } from '../../cli/types';
 import { ConfigurationError } from '../../lib/errors/app-error';
+import { restrictFolderToOwner } from '../../lib/files/restrict-to-owner';
 import { ensurePathExists, readPemFile } from '../../lib/security/pem';
 import type { ArcliConfig, ArcliEnvironment } from '../../modules/config/config.schemas';
 import { ConfigService } from '../../modules/config/config.service';
@@ -73,6 +75,10 @@ export class ArcaContextResolver {
       const outputJson = this.resolveOutputJson(config);
       const outputRaw = this.resolveOutputRaw(config);
       const ticketPath = service.resolveTicketPath(config);
+
+      // Los tickets dan acceso a ARCA como este CUIT por unas horas: carpetas de versiones viejas pasan a 0700.
+      restrictFolderToOwner(dirname(service.getPath()));
+      restrictFolderToOwner(ticketPath);
 
       this.ensurePathExists(certPath, 'certificado');
       this.ensurePathExists(keyPath, 'clave privada');

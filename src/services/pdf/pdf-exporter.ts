@@ -10,6 +10,7 @@ import { mapBillingResultToPdfData } from '../../modules/pdf/pdf-data.mapper';
 import { buildPdfFileName } from '../../modules/pdf/pdf-file-name';
 import { resolvePdfIssuer } from '../../modules/pdf/pdf-issuer';
 
+import { escapeHtmlStrings } from './escape-html';
 import type { PdfRenderer } from './pdf-plugin';
 
 export const TESTING_FOOTER = 'COMPROBANTE DE PRUEBA - SIN VALIDEZ FISCAL';
@@ -60,7 +61,7 @@ export async function exportBillingPdf(input: ExportPdfInput): Promise<string> {
     footerText: result.environment === 'testing' ? TESTING_FOOTER : undefined,
     logo: readLogoAsDataUrl(input.config.emisor.logo),
   };
-  const bytes = await input.renderer.render(data, options);
+  const bytes = await input.renderer.render(escapeHtmlStrings(data), options);
   const folder = resolvePdfTargetFolder(input.folder, result.environment);
   const path = join(folder, buildPdfFileName(result.voucherKind, data.puntoVenta, data.cbteDesde));
 

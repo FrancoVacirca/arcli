@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -62,6 +62,50 @@ describe('config.service', () => {
           brutoPorDefecto: false,
         },
       });
+    } finally {
+      service.close();
+    }
+  });
+
+  it('does not save an invalid value, so the CLI keeps working', () => {
+    const service = createService();
+
+    try {
+      service.setValue('cuit', '20123456789');
+
+      expect(() => service.setValue('cuit', 'abc')).toThrow();
+      expect(service.getConfig().cuit).toBe('20123456789');
+      expect(JSON.parse(readFileSync(service.getPath(), 'utf8')).cuit).toBe('20123456789');
+    } finally {
+      service.close();
+    }
+  });
+
+  it('fixes a config that was already broken by setting or deleting the bad key', () => {
+    const service = createService();
+
+    try {
+      writeFileSync(service.getPath(), JSON.stringify({ cuit: 'abc', puntoVentaPorDefecto: 3 }));
+
+      expect(() => service.getConfig()).toThrow();
+      expect(service.unsetValue('cuit').puntoVentaPorDefecto).toBe(3);
+
+      writeFileSync(service.getPath(), JSON.stringify({ cuit: 'abc' }));
+
+      expect(service.setValue('cuit', '20123456789').cuit).toBe('20123456789');
+    } finally {
+      service.close();
+    }
+  });
+
+  it('sets and deletes nested keys', () => {
+    const service = createService();
+
+    try {
+      service.setValue('emitir', 'si');
+
+      expect(service.getConfig().output.emitirPorDefecto).toBe(true);
+      expect(service.unsetValue('emitir').output.emitirPorDefecto).toBe(false);
     } finally {
       service.close();
     }

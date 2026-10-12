@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { OWNER_ONLY_UMASK } from '../lib/files/restrict-to-owner';
 import { renderUpdateNoticePanel } from '../modules/update-check/update-check.presenter';
 import { checkForUpdate } from '../modules/update-check/update-check.service';
 import { formatCliError, writeTerminalError, writeTerminalJsonError } from '../ui';
@@ -9,6 +10,9 @@ import { shouldPrintErrorAsJson } from './error-output';
 import { normalizeHelpArgv } from './help-argv';
 import { createProgram } from './program';
 import { CLI_VERSION } from './version';
+
+// Tickets de ARCA, config y PDFs se crean solo para el usuario (el SDK escribe los tickets con permisos por defecto).
+process.umask(OWNER_ONLY_UMASK);
 
 const program = createProgram();
 const useJson = process.argv.includes('--json');

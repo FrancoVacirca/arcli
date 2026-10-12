@@ -212,6 +212,27 @@ describe('exportBillingPdf', () => {
     });
   });
 
+  it('escapes HTML in every text before rendering, because the plugin template does not', async () => {
+    const render = vi.fn(async () => new Uint8Array([1]));
+
+    await exportBillingPdf({
+      config: { ...config, emisor: { ...config.emisor, razonSocial: 'Gerez & Hijos' } },
+      extras: { descripcion: '<img src=x onerror=alert(1)>', receptorNombre: 'Cliente "SA"' },
+      folder: createTempDir(),
+      renderer: { render },
+      result: createResult('produccion'),
+    });
+
+    const [data] = render.mock.calls[0] as unknown as [
+      { emisor: { razonSocial: string }; items: Array<{ descripcion: string }>; receptor: { razonSocial: string } },
+    ];
+
+    expect(data.emisor.razonSocial).toBe('Gerez &amp; Hijos');
+    expect(data.items[0]?.descripcion).toBe('&lt;img src=x onerror=alert(1)&gt;');
+    expect(data.receptor.razonSocial).toBe('Cliente &quot;SA&quot;');
+    expect(JSON.stringify(data)).not.toMatch(/[<>]/);
+  });
+
   it('writes production PDFs to the folder itself with the logo as data URL', async () => {
     const folder = createTempDir();
     const logo = join(folder, 'logo.png');

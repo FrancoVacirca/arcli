@@ -27,3 +27,13 @@ coverage/
 # Agent tooling
 .agents/
 skills-lock.json
+
+# Certificados, claves y tickets de ARCA: nunca al repo
+*.key
+*.pem
+*.crt
+*.csr
+*.p12
+*.pfx
+TA-*.json
+tickets/
