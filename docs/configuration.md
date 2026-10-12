@@ -148,13 +148,13 @@ Cuando se guarda `cert.*` o `key.*`, ARCLI valida:
 
 No son claves de config. Las de color y `ARCLI_ASCII` cambian solo cómo se ve la salida humana; el JSON no cambia.
 
-| Variable                    | Efecto                                                                                                                       |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `NO_COLOR`                  | Desactiva los colores                                                                                                        |
-| `FORCE_COLOR=1`             | Fuerza los colores aunque la salida no sea una terminal (por defecto, con la salida redirigida no hay colores)               |
-| `ARCLI_ASCII=1`             | Dibuja los paneles con ASCII puro (`+`, `-`, `\|`), para terminales o fuentes que no muestran los caracteres de caja Unicode |
-| `NO_UPDATE_NOTIFIER`        | Desactiva el aviso de nueva versión. Tampoco aparece con `CI`, con `--json` ni si stderr no es una terminal                  |
-| `PUPPETEER_EXECUTABLE_PATH` | Ruta del navegador para el PDF (ver [PDF](pdf.md#el-plugin-de-pdf))                                                          |
+| Variable                    | Efecto                                                                                                                                      |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NO_COLOR`                  | Desactiva los colores                                                                                                                       |
+| `FORCE_COLOR=1`             | Fuerza los colores aunque la salida no sea una terminal (por defecto, con la salida redirigida no hay colores)                              |
+| `ARCLI_ASCII=1`             | Dibuja los paneles con ASCII puro (`+`, `-`, `\|`), para terminales o fuentes que no muestran los caracteres de caja Unicode                |
+| `NO_UPDATE_NOTIFIER`        | Desactiva el aviso de nueva versión, también en el modo interactivo. Tampoco aparece con `CI`, con `--json` ni si stderr no es una terminal |
+| `PUPPETEER_EXECUTABLE_PATH` | Ruta del navegador para el PDF (ver [PDF](pdf.md#el-plugin-de-pdf))                                                                         |
 
 ## Qué conviene guardar
 

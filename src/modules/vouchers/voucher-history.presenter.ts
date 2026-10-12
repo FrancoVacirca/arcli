@@ -58,13 +58,27 @@ export function formatVoucherListRow(pointOfSale: number, voucher: IssuedVoucher
 }
 
 /**
- * Filas compactas para elegir un comprobante: cada columna mide lo justo para el dato mas largo de la lista
- * y las separa `separator`.
+ * Reparte `extra` espacios entre los separadores, a los dos lados del simbolo: ` · ` pasa a `  ·  `, y asi.
+ * Los primeros se llevan el sobrante de la division.
+ */
+function widenSeparators(separator: string, count: number, extra: number): string[] {
+  return Array.from({ length: count }, (_, index) => {
+    const spaces = Math.floor(extra / count) + (index < extra % count ? 1 : 0);
+    const left = Math.floor(spaces / 2);
+
+    return `${' '.repeat(left)}${separator}${' '.repeat(spaces - left)}`;
+  });
+}
+
+/**
+ * Filas para elegir un comprobante: cada columna mide lo justo para el dato mas largo de la lista y las separa
+ * `separator`. Con `width`, los separadores se agrandan para que las filas ocupen ese ancho, si entran.
  */
 export function formatVoucherPickerRows(
   pointOfSale: number,
   vouchers: readonly IssuedVoucher[],
   separator: string,
+  width?: number,
 ): string[] {
   const columns = vouchers.map((voucher) => ({
     cae: voucher.cae ? `CAE ${voucher.cae}` : '',
@@ -75,11 +89,22 @@ export function formatVoucherPickerRows(
   }));
   const receiverWidth = Math.max(0, ...columns.map((column) => column.receiver.length));
   const totalWidth = Math.max(0, ...columns.map((column) => column.total.length));
+  const cells = columns.map((column) =>
+    [
+      column.number,
+      column.date,
+      column.receiver.padEnd(receiverWidth),
+      column.total.padStart(totalWidth),
+      column.cae,
+    ].filter(Boolean),
+  );
+  const natural = Math.max(0, ...cells.map((row) => row.join(separator).length));
+  const gaps = Math.max(0, ...cells.map((row) => row.length - 1));
+  const extra = width === undefined || gaps === 0 ? 0 : Math.max(0, width - natural);
+  const separators = widenSeparators(separator, gaps, extra);
 
-  return columns.map((column) =>
-    [column.number, column.date, column.receiver.padEnd(receiverWidth), column.total.padStart(totalWidth), column.cae]
-      .filter(Boolean)
-      .join(separator),
+  return cells.map((row) =>
+    row.map((cell, index) => (index === 0 ? cell : `${separators[index - 1]}${cell}`)).join(''),
   );
 }
 
@@ -184,9 +209,9 @@ export function formatVoucherDetailAsText(report: VoucherDetailReport): string {
 
   return keyValuePanel(
     voucherKind.displayName,
-    renderKeyValueRows(rows, { labelWidth: resolveKeyValueLabelWidth('compact', rows) }),
+    renderKeyValueRows(rows, { labelWidth: resolveKeyValueLabelWidth('ticket', rows) }),
     voucher.result === 'A' ? 'APROBADO' : voucher.result === 'R' ? 'RECHAZADO' : undefined,
-    'compact',
+    'ticket',
     voucher.result === 'R' ? 'danger' : 'success',
     'ticket',
   );

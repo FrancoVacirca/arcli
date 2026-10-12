@@ -1,12 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { listMissingSetupKeys } from '../../../modules/interactive/config-fields';
+import { checkArcaHealth } from '../../../modules/parameters/health';
+import { checkForUpdate } from '../../../modules/update-check/update-check.service';
+import { stripAnsi } from '../../../ui';
+import { CLI_VERSION } from '../../version';
 import { runConfigMenu, runGuidedSetup } from '../config.flow';
 import { runHistoryFlow } from '../history.flow';
 import { runInteractiveMode } from '../interactive-mode';
 import { runInvoiceFlow } from '../invoice.flow';
 import { chooseOne, confirm } from '../prompts';
 import { runRepeatFlow } from '../repeat.flow';
+import { createInteractiveSession } from '../session';
+import { runUpdateFlow } from '../update.flow';
 
 vi.mock('../prompts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../prompts')>()),
@@ -23,8 +29,13 @@ vi.mock('../status.flow', () => ({ runStatusFlow: vi.fn() }));
 vi.mock('../invoice.flow', () => ({ runInvoiceFlow: vi.fn() }));
 vi.mock('../note.flow', () => ({ runNoteFlow: vi.fn() }));
 vi.mock('../history.flow', () => ({ runHistoryFlow: vi.fn() }));
+vi.mock('../update.flow', () => ({ runUpdateFlow: vi.fn() }));
+vi.mock('../../../modules/parameters/health', () => ({ checkArcaHealth: vi.fn(async () => 'funcionando') }));
+vi.mock('../../../modules/update-check/update-check.service', () => ({ checkForUpdate: vi.fn(async () => null) }));
+const runtime = { config: {}, context: { cuit: 20409509763 }, environment: 'testing', pointOfSale: 3 };
+
 vi.mock('../session', () => ({
-  createInteractiveSession: () => ({ runtime: { environment: 'testing', pointOfSale: 3 } }),
+  createInteractiveSession: vi.fn(() => ({ runtime })),
 }));
 
 const chooseOneMock = vi.mocked(chooseOne);
@@ -55,9 +66,64 @@ describe('runInteractiveMode', () => {
 
     await runInteractiveMode();
 
-    expect(output).toContain('MODO INTERACTIVO');
-    expect(output).toContain('testing · PV 3');
+    expect(output).toContain('ARCA FUNCIONANDO');
+    expect(stripAnsi(output)).toMatch(/━━ 20-40950976-3 · PV 3 ━+ ARCA FUNCIONANDO ━ TESTING ━━/);
+    expect(stripAnsi(output)).toContain(`v${CLI_VERSION}`);
     expect(output).toContain('¡Hasta la proxima!');
+  });
+
+  it('con razon social configurada, la barra la muestra en lugar del CUIT', async () => {
+    vi.mocked(createInteractiveSession).mockReturnValueOnce({
+      runtime: { ...runtime, config: { emisor: { razonSocial: 'GZSOFT SRL' } } },
+    } as never);
+    chooseOneMock.mockResolvedValueOnce('salir');
+
+    await runInteractiveMode();
+
+    expect(stripAnsi(output)).toContain('━━ GZSOFT SRL · PV 3 ━');
+  });
+
+  it('la barra muestra si ARCA anda con demoras', async () => {
+    vi.mocked(checkArcaHealth).mockResolvedValueOnce('con-demoras');
+    chooseOneMock.mockResolvedValueOnce('salir');
+
+    await runInteractiveMode();
+
+    expect(output).toContain('ARCA CON DEMORAS');
+  });
+
+  it('sin version nueva no ofrece actualizar', async () => {
+    chooseOneMock.mockResolvedValueOnce('salir');
+
+    await runInteractiveMode();
+
+    expect(chooseOneMock.mock.calls[0][1]).not.toContainEqual(expect.objectContaining({ value: 'actualizar' }));
+  });
+
+  it('con version nueva, actualizar es la primera opcion y "Cerrar para actualizar" sale', async () => {
+    vi.mocked(checkForUpdate).mockResolvedValueOnce({ currentVersion: '1.8.0', latestVersion: '1.9.0' });
+    vi.mocked(runUpdateFlow).mockResolvedValueOnce(true);
+    chooseOneMock.mockResolvedValueOnce('actualizar');
+
+    await runInteractiveMode();
+
+    expect(chooseOneMock.mock.calls[0][1][0]).toMatchObject({
+      short: 'Actualizar a la version 1.9.0',
+      value: 'actualizar',
+    });
+    expect(runUpdateFlow).toHaveBeenCalledWith({ currentVersion: '1.8.0', latestVersion: '1.9.0' });
+    expect(chooseOneMock).toHaveBeenCalledTimes(1);
+    expect(output).not.toContain('¡Hasta la proxima!');
+  });
+
+  it('"Volver" en actualizar vuelve al menu', async () => {
+    vi.mocked(checkForUpdate).mockResolvedValueOnce({ currentVersion: '1.8.0', latestVersion: '1.9.0' });
+    vi.mocked(runUpdateFlow).mockResolvedValueOnce(false);
+    chooseOneMock.mockResolvedValueOnce('actualizar').mockResolvedValueOnce('salir');
+
+    await runInteractiveMode();
+
+    expect(chooseOneMock).toHaveBeenCalledTimes(2);
   });
 
   it('corre el flujo elegido y vuelve al menu', async () => {

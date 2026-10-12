@@ -15,11 +15,15 @@ import { CLI_VERSION } from './version';
 process.umask(OWNER_ONLY_UMASK);
 
 const program = createProgram();
+const argv = normalizeHelpArgv(process.argv, isInteractiveTerminal());
 const useJson = process.argv.includes('--json');
-const updateCheckPromise = useJson ? Promise.resolve(null) : checkForUpdate(CLI_VERSION).catch(() => null);
+// El modo interactivo muestra la actualizacion como primera opcion del menu, no al cerrar.
+const isInteractiveMode = argv[2] === 'interactivo';
+const updateCheckPromise =
+  useJson || isInteractiveMode ? Promise.resolve(null) : checkForUpdate(CLI_VERSION).catch(() => null);
 
 program
-  .parseAsync(normalizeHelpArgv(process.argv, isInteractiveTerminal()))
+  .parseAsync(argv)
   .then(async () => {
     const updateResult = await updateCheckPromise;
 

@@ -72,9 +72,10 @@ describe('renderPanel', () => {
       ['info', '╭', '├─'],
       ['data', '┌', '├┈'],
     ] as const)('dibuja el borde %s con su linea divisoria unida al borde', (borderType, corner, junction) => {
-      const lines = stripAnsi(
-        renderPanel({ borderType, content: ['x'], footer: 'OK', footerDivider: true, width: 30 }),
-      ).split('\n');
+      const lines = stripAnsi(renderPanel({ borderType, content: ['x'], footer: 'OK', footerDivider: true, width: 30 }))
+        .split('\n')
+        // El ticket va centrado: se saca la sangria.
+        .map((line) => line.trimStart());
 
       expect(lines[0]?.startsWith(corner)).toBe(true);
       expect(lines.some((line) => line.startsWith(junction) && line.length === 30)).toBe(true);
@@ -213,12 +214,22 @@ describe('renderPanel', () => {
       expect(widestLine(output)).toBeLessThanOrEqual(50);
     });
 
-    it('respeta el ancho del preset cuando la terminal es ancha o desconocida', () => {
+    it('el ticket es mas angosto y va centrado en el ancho de las cajas', () => {
       mockColumns(200);
-      expect(widestLine(renderPanel({ content: ['hola'], width: 'standard' }))).toBe(80);
+
+      const lines = stripAnsi(renderPanel({ borderType: 'ticket', content: ['hola'], width: 'ticket' })).split('\n');
+
+      expect(lines[0]).toMatch(/^ {12}╒═+╕$/);
+      expect(lines[0]?.trimStart()).toHaveLength(68);
+    });
+
+    it('todas las cajas miden lo mismo cuando la terminal es ancha o desconocida', () => {
+      mockColumns(200);
+      expect(widestLine(renderPanel({ content: ['hola'], width: 'compact' }))).toBe(92);
+      expect(widestLine(renderPanel({ content: ['x'.repeat(150)], width: 'wide' }))).toBe(92);
 
       mockColumns(undefined);
-      expect(widestLine(renderPanel({ content: ['hola'], width: 'standard' }))).toBe(80);
+      expect(widestLine(renderPanel({ content: ['hola'], width: 'standard' }))).toBe(92);
     });
   });
 

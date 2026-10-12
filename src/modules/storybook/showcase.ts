@@ -231,7 +231,14 @@ function buildBordersScene(): string {
   return [
     sceneTitle('Bordes', 'Un estilo por tipo de panel; ARCLI_ASCII=1 los cambia por ASCII'),
     ...boxes,
-    `${colorize('Barra de estado (modo interactivo):', 'muted')}\n${statusBar('Modo interactivo', 'testing · PV 3', 'warning')}`,
+    `${colorize('Barra de estado (modo interactivo):', 'muted')}\n${statusBar(
+      [{ text: '20-40950976-3' }, { text: 'PV 3' }],
+      [
+        { color: 'success', text: 'ARCA FUNCIONANDO' },
+        { color: 'testing', text: 'TESTING' },
+      ],
+      { rightSeparator: 'rule' },
+    )}`,
     `${colorize('Seccion (arcli ejemplos):', 'muted')}\n${sectionHeading('Factura C')}`,
     `${colorize('Comando para copiar:', 'muted')}\n${command}`,
   ].join('\n\n');

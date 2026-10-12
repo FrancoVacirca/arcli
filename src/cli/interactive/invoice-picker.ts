@@ -36,7 +36,7 @@ type PickerChoice = IssuedVoucher | typeof BY_NUMBER | typeof LOAD_MORE;
 const COLUMN_SEPARATOR = ' · ';
 
 /**
- * Linea punteada tenue que enmarca el listado, del mismo ancho que la barra "MODO INTERACTIVO".
+ * Linea punteada tenue que enmarca el listado, del mismo ancho que la barra de estado de ARCA.
  * @inquirer deja un espacio antes de cada separador; por eso se resta uno al ancho.
  */
 function listRule(): Separator {
@@ -137,7 +137,8 @@ export async function pickInvoice(
 
     // El listado y "cargar mas" van entre lineas punteadas; buscar a mano queda afuera.
     if (invoices.length > 0) {
-      const rows = formatVoucherPickerRows(pointOfSale, invoices, COLUMN_SEPARATOR);
+      // Las filas llegan hasta el final de la linea punteada; el cursor "❯ " ocupa dos columnas.
+      const rows = formatVoucherPickerRows(pointOfSale, invoices, COLUMN_SEPARATOR, statusBarWidth() - 2);
 
       choices.push(
         listRule(),

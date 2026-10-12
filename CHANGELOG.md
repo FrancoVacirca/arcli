@@ -8,6 +8,14 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ## [Sin publicar]
 
+### Agregado
+
+- **Modo interactivo, estado de ARCA en la barra:** la barra de arriba del menú ya no dice "Modo interactivo": muestra **ARCA funcionando**, **con demoras** (más de 3 segundos), **con problemas** (algún servidor no responde OK) o **sin respuesta**, en color, seguido del entorno (`TESTING` en naranja, `PRODUCCION` en celeste). A la izquierda, la razón social del emisor (o el CUIT, si no está configurada) y el punto de venta.
+- **Versión debajo del logo** (`v1.8.0 | LcsGrz`), en el modo interactivo y en la ayuda.
+- **Mismo ancho para todo:** las cajas de la salida en texto, la barra de estado y el logo (ahora centrado) ocupan 92 columnas, o menos si la terminal es más angosta. Antes cada caja medía distinto según su contenido. Los comprobantes (vista previa, resultado de la emisión y `consultar`) mantienen su ancho de ticket, de 68 a 80 columnas, y van centrados. El JSON no cambia.
+- **Modo interactivo, listas de comprobantes:** las filas ocupan todo el ancho de la línea punteada que las enmarca.
+- **Modo interactivo, actualizar:** si hay una versión nueva, la primera opción del menú es **Actualizar a la versión X.Y.Z**. Muestra tu versión, la nueva y sus novedades, y con **Cerrar para actualizar** copia `npm install -g arcli@latest` al portapapeles y cierra el asistente para que lo ejecutes. En el modo interactivo el aviso de nueva versión ya no aparece al salir.
+
 ### Cambiado
 
 - **Enteros estrictos, y es un cambio que rompe:** `--pv`, `--punto-venta`, `--ar`, `--apv`, `--at`, `--dia` y `--cantidad` aceptan solo dígitos; antes `--pv 3a` se leía como 3. `--cuit`, `--cuil` y `--dni` aceptan además guiones y puntos (`20-11111111-2`), como el modo interactivo; antes `--cuit 20111111112xyz` pasaba.

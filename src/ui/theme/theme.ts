@@ -3,7 +3,7 @@ import type { Spacing as BoxenSpacing } from 'boxen';
 /**
  * Tipo de borde segun lo que se muestra:
  * - common: paneles de contenido (configuracion, observaciones, sugerencias, avisos FCE)
- * - ticket: comprobante, como common pero con la linea de corte punteada antes del estado
+ * - ticket: comprobante, como common pero con la linea de corte punteada antes del estado; va centrado
  * - error: errores del CLI o de ARCA (redondeado con franja gruesa a la izquierda)
  * - attention: observaciones y avisos (como error, con la franja a trazos)
  * - tip: sugerencias (como error, con la franja fina punteada)
@@ -51,8 +51,19 @@ export interface UiBorderStyle {
   /** Alineacion del titulo sobre el borde; por defecto, centrado. */
   readonly titleAlignment?: 'center' | 'left';
 }
-export type UiColorToken = 'danger' | 'debug' | 'info' | 'muted' | 'neutral' | 'subtle' | 'success' | 'warning';
-export type UiWidthPreset = 'compact' | 'standard' | 'wide';
+export type UiColorToken =
+  | 'danger'
+  | 'debug'
+  | 'highlight'
+  | 'info'
+  | 'muted'
+  | 'neutral'
+  | 'production'
+  | 'subtle'
+  | 'success'
+  | 'testing'
+  | 'warning';
+export type UiWidthPreset = 'compact' | 'standard' | 'ticket' | 'wide';
 export interface UiWidthRange {
   readonly max: number;
   readonly min: number;
@@ -80,6 +91,8 @@ export interface UiTheme {
   };
   readonly widths: Readonly<Record<UiWidthPreset, UiWidthRange>>;
 }
+
+const CONTENT_WIDTH: UiWidthRange = { max: 92, min: 92 };
 
 export const UI_THEME: UiTheme = {
   badgeBrackets: ['[', ']'],
@@ -266,14 +279,20 @@ export const UI_THEME: UiTheme = {
   colors: {
     danger: '\u001B[31m',
     debug: '\u001B[95m',
+    // Naranja amarillento (paleta de 256 colores): para invitar a una accion, como actualizar arcli.
+    highlight: '\u001B[38;5;214m',
     info: '\u001B[36m',
     muted: '\u001B[2m',
     // Color por defecto de la terminal: claro en fondos oscuros y oscuro en fondos claros.
     // Un blanco fijo (\u001B[37m) casi no se leia en terminales con fondo claro.
     neutral: '\u001B[39m',
+    // Entornos en la barra del modo interactivo (paleta de 256 colores): celeste para produccion.
+    production: '\u001B[38;5;117m',
     // Gris (bright black): para titulos de datos crudos, que tienen que verse pero sin competir.
     subtle: '\u001B[90m',
     success: '\u001B[32m',
+    // Naranja para testing; mas rojizo que `highlight`, para no confundirlo con el boton de actualizar.
+    testing: '\u001B[38;5;208m',
     warning: '\u001B[33m',
   },
   headingLineMinWidth: 18,
@@ -293,9 +312,13 @@ export const UI_THEME: UiTheme = {
     gap: 2,
     labelWidth: 30,
   },
+  // Un solo ancho para todas las cajas, igual al de la barra de estado y al que centra el logo, asi todo ocupa
+  // el mismo espacio. En una terminal mas angosta se achica (ver renderPanel y fitToTerminal).
   widths: {
-    compact: { min: 68, max: 80 },
-    standard: { min: 80, max: 100 },
-    wide: { min: 92, max: 116 },
+    compact: CONTENT_WIDTH,
+    standard: CONTENT_WIDTH,
+    // Los comprobantes son mas angostos, como un ticket, y van centrados en CONTENT_WIDTH.
+    ticket: { max: 80, min: 68 },
+    wide: CONTENT_WIDTH,
   },
 };

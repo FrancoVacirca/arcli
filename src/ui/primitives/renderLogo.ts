@@ -1,3 +1,6 @@
+import { UI_THEME } from '../theme/theme';
+
+import { fitToTerminal } from './terminalWidth';
 import { colorize } from './text';
 
 export const ARCLI_ASCII_BANNER = [
@@ -16,16 +19,37 @@ export const ARCLI_ASCII_BANNER = [
 // una columna vacia en las 8 filas: 12, 23, 34, 43).
 const ARCLI_BANNER_AR_CLI_SPLIT_COLUMN = 23;
 
+// Ultima columna con trazo de ARCLI_ASCII_BANNER (el final de la "I"): la firma termina justo debajo.
+const BANNER_LAST_COLUMN = 50;
+const CREDIT = 'LcsGrz';
+
+/** Debajo del logo, en gris y alineado al final de la "I": `v1.8.0 | LcsGrz`, o solo la firma sin version. */
+function renderLogoFooter(version: string | undefined): string {
+  const footer = version ? `v${version} | ${CREDIT}` : CREDIT;
+
+  return colorize(footer.padStart(BANNER_LAST_COLUMN + 1), 'muted');
+}
+
 function renderLogoWidth(): number {
   return ARCLI_ASCII_BANNER.split('\n')[0]?.length ?? 0;
 }
 
-export function renderLogo(): string {
+/** Sangria para centrar el logo en el ancho de las cajas y de la barra de estado. */
+function logoIndent(): string {
+  const visibleWidth = BANNER_LAST_COLUMN + 1;
+
+  return ' '.repeat(Math.max(0, Math.floor((fitToTerminal(UI_THEME.widths.wide.min) - visibleWidth) / 2)));
+}
+
+/** El logo de ARCLI, centrado; con `version`, la muestra debajo, junto a la firma. */
+export function renderLogo(version?: string): string {
   const columns = process.stdout.columns;
 
   // En una terminal mas angosta que el dibujo, cada linea se partiria: se muestra solo el nombre.
   if (columns && columns < renderLogoWidth()) {
-    return `\n${colorize('AR', 'info')}${colorize('CLI', 'neutral')}\n`;
+    const suffix = version ? ` ${colorize(`v${version}`, 'muted')}` : '';
+
+    return `\n${colorize('AR', 'info')}${colorize('CLI', 'neutral')}${suffix}\n`;
   }
 
   const logo = ARCLI_ASCII_BANNER.split('\n').map((line) => {
@@ -35,7 +59,7 @@ export function renderLogo(): string {
     return `${colorize(ar, 'info')}${colorize(cli, 'neutral')}`;
   });
 
-  const credit = '-LcsGrz'.padStart(renderLogoWidth() - 1);
+  const indent = logoIndent();
 
-  return `\n\n${[...logo, credit].join('\n')}\n\n`;
+  return `\n\n${[...logo, renderLogoFooter(version)].map((line) => `${indent}${line}`).join('\n')}\n\n`;
 }

@@ -31,7 +31,28 @@ El modo interactivo no agrega comandos de emisión ni cambia flags, claves de co
 7. **Configuración**
 8. **Salir**
 
-Arriba del menú se muestran el entorno (`testing` o `produccion`) y el punto de venta configurados. **Si falta algo obligatorio** (CUIT, certificado y clave de testing o punto de venta), al abrir el asistente propone hacer la [configuración guiada](#configuración).
+Si hay una versión nueva de ARCLI, el menú suma arriba de todo **Actualizar a la versión X.Y.Z** (ver [Actualizar](#actualizar)).
+
+Debajo del logo va la versión de ARCLI. Arriba del menú, la barra de estado muestra a la izquierda quién emite (la razón social de `emisor.razonSocial` o, si no está, el CUIT) y el punto de venta, y a la derecha cómo está ARCA y el entorno (`TESTING` en naranja o `PRODUCCION` en celeste):
+
+| Estado                 | Cuándo                                                                          |
+| ---------------------- | ------------------------------------------------------------------------------- |
+| **ARCA funcionando**   | Los servidores de facturación (app, base de datos y autenticación) responden OK |
+| **ARCA con demoras**   | Responden OK, pero tardaron más de 3 segundos                                   |
+| **ARCA con problemas** | Alguno de los servidores no responde OK                                         |
+| **ARCA sin respuesta** | Error de red, o ARCA no contestó en 5 segundos                                  |
+| **ARCA sin verificar** | Falta completar la configuración, así que no se puede consultar                 |
+
+La consulta es la misma de `arcli estado` sin el punto de venta (no pide autenticación) y se hace al abrir el asistente. **Si falta algo obligatorio** (CUIT, certificado y clave de testing o punto de venta), al abrir el asistente propone hacer la [configuración guiada](#configuración).
+
+## Actualizar
+
+Al abrir el asistente se consulta npm por una versión nueva (no aparece con `CI` ni `NO_UPDATE_NOTIFIER`). Si hay, **Actualizar a la versión X.Y.Z** es la primera opción del menú, en naranja. Adentro muestra tu versión, la nueva y las novedades de cada versión intermedia (de las 3 más nuevas, sacadas del [CHANGELOG](../CHANGELOG.md)), y el comando para actualizar.
+
+- **Cerrar para actualizar**: copia `npm install -g arcli@latest` al portapapeles y cierra el asistente, para que lo pegues y lo ejecutes. ARCLI no se actualiza solo porque no puede reemplazarse mientras corre, y porque no sabe si lo instalaste con npm, yarn o pnpm. Si no puede copiar (en Linux usa `wl-copy`, `xclip` o `xsel`), muestra el comando para escribirlo.
+- **Volver atrás**: vuelve al menú.
+
+Con el asistente, el aviso de nueva versión no se repite al salir. En los comandos con flags sigue apareciendo al final, como antes.
 
 ## Emitir factura
 

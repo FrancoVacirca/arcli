@@ -39,6 +39,8 @@ function keysHelpTip(extra: readonly HelpKey[]): (keys: HelpKey[]) => string {
  * @inquirer la redibuja con el prefijo "done", sin esas lineas, y las respuestas quedan juntas.
  */
 const PROMPT_PREFIX = { idle: `\n\n${styleText('blue', '?')}` };
+/** Una sola linea arriba: para una pregunta que ya tiene una linea en blanco fija antes, como el menu bajo la barra. */
+const COMPACT_PROMPT_PREFIX = { idle: `\n${styleText('blue', '?')}` };
 
 type PromptStatus = 'done' | 'idle' | 'loading';
 
@@ -61,15 +63,17 @@ const TEXT_THEME = { prefix: PROMPT_PREFIX };
 
 /**
  * Una lista simple. Con `escapeValue`, Esc la cierra devolviendo ese valor (por ejemplo, "volver", "no" o
- * "salir") y la ayuda de teclas lo muestra con `escapeLabel`; sin el, Esc no hace nada.
+ * "salir") y la ayuda de teclas lo muestra con `escapeLabel`; sin el, Esc no hace nada. Con `compactTop`, una
+ * sola linea en blanco arriba en lugar de dos.
  */
 export async function chooseOne<T>(
   message: string,
   choices: ReadonlyArray<Choice<T> | Separator>,
   defaultValue?: T,
-  options: { readonly escapeLabel?: string; readonly escapeValue?: T } = {},
+  options: { readonly compactTop?: boolean; readonly escapeLabel?: string; readonly escapeValue?: T } = {},
 ): Promise<T> {
-  const { escapeLabel = 'volver', escapeValue } = options;
+  const { compactTop = false, escapeLabel = 'volver', escapeValue } = options;
+  const prefix = compactTop ? COMPACT_PROMPT_PREFIX : PROMPT_PREFIX;
   const config = {
     choices: [...choices],
     default: defaultValue,
@@ -78,8 +82,8 @@ export async function chooseOne<T>(
     pageSize: 12,
     theme:
       escapeValue === undefined
-        ? MENU_THEME
-        : { prefix: PROMPT_PREFIX, style: listStyle([['esc', escapeLabel] as HelpKey]) },
+        ? { ...MENU_THEME, prefix }
+        : { prefix, style: listStyle([['esc', escapeLabel] as HelpKey]) },
   };
 
   if (escapeValue === undefined) {

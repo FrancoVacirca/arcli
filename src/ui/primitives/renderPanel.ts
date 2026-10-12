@@ -5,7 +5,7 @@ import { UI_THEME, type UiBorderStyle, type UiBorderType, type UiWidthPreset } f
 import { renderDivider } from './renderDivider';
 import { renderFooter } from './renderFooter';
 import { renderSubtitle } from './renderSubtitle';
-import { resolveTerminalColumns } from './terminalWidth';
+import { fitToTerminal, resolveTerminalColumns } from './terminalWidth';
 import {
   bold,
   centerLineBlock,
@@ -30,6 +30,8 @@ export interface RenderPanelProps {
   readonly footerDivider?: boolean;
   readonly maxWidth?: UiWidthPreset | number;
   readonly padding?: Partial<BoxenSpacing>;
+  /** Solo `command`: deja las lineas en blanco (con su barra) en lugar de sacarlas. */
+  readonly preserveBlankLines?: boolean;
   readonly subtitle?: string;
   readonly subtitleColor?: UiTextColor;
   readonly title?: string;
@@ -125,9 +127,9 @@ function renderCommandBlock(props: RenderPanelProps): string {
   const lines = typeof props.content === 'string' ? props.content.split('\n') : [...props.content];
   const titleLines = props.title ? [formatTitle(props.title, props.titleColor) ?? ''] : [];
 
-  return [...titleLines, ...lines.filter((line) => stripAnsi(line).trim().length > 0)]
-    .map((line) => `${bar}${line}`)
-    .join('\n');
+  const contentLines = props.preserveBlankLines ? lines : lines.filter((line) => stripAnsi(line).trim().length > 0);
+
+  return [...titleLines, ...contentLines].map((line) => `${bar}${line}`.trimEnd()).join('\n');
 }
 
 function formatTitle(title: string | undefined, color: UiTextColor | undefined): string | undefined {
@@ -227,5 +229,19 @@ export function renderPanel(props: RenderPanelProps): string {
     width: panelWidth,
   });
 
-  return footerDividerLine && borderStyle.junction ? joinDividers(box, borderStyle.junction) : box;
+  const panel = footerDividerLine && borderStyle.junction ? joinDividers(box, borderStyle.junction) : box;
+
+  return borderType === 'ticket' ? centerInContentWidth(panel, panelWidth) : panel;
+}
+
+/** Centra el panel en el ancho comun de las cajas y la barra de estado (o el de la terminal, si es menor). */
+function centerInContentWidth(panel: string, panelWidth: number): string {
+  const indent = ' '.repeat(Math.max(0, Math.floor((fitToTerminal(UI_THEME.widths.wide.min) - panelWidth) / 2)));
+
+  return indent
+    ? panel
+        .split('\n')
+        .map((line) => `${indent}${line}`)
+        .join('\n')
+    : panel;
 }

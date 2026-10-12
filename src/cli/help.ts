@@ -5,6 +5,8 @@ import type { VoucherFamily, VoucherShortcut } from '../modules/billing/billing.
 import { getVoucherKindByShortcut } from '../modules/billing/voucher-kind-map';
 import { renderLogo } from '../ui';
 
+import { CLI_VERSION } from './version';
+
 const FAMILY_LABELS: Record<VoucherFamily, string> = {
   factura: 'Factura',
   'factura-credito-electronica': 'Factura de credito electronica',
@@ -715,5 +717,5 @@ export function configureSpanishHelp(command: Command): void {
 }
 
 export function createProgramHeader(): string {
-  return renderLogo();
+  return renderLogo(CLI_VERSION);
 }

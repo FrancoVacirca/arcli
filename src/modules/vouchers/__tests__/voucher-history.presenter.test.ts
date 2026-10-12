@@ -50,6 +50,22 @@ describe('voucher-history.presenter', () => {
     expect(rows[0].indexOf('$')).toBe(rows[1].indexOf('$'));
   });
 
+  it('con un ancho, agranda los separadores para que las filas lo ocupen', () => {
+    const [natural] = formatVoucherPickerRows(3, [voucher], ' · ');
+    const [wide] = formatVoucherPickerRows(3, [voucher], ' · ', natural.length + 9);
+
+    expect(wide).toHaveLength(natural.length + 9);
+    expect(wide).toMatch(
+      /^00003-00000012 {2}· {3}01\/10\/2026 {2}· {2}Consumidor final {2}· {2}.+ {2}· {2}CAE 86400940834444$/,
+    );
+  });
+
+  it('si no entran en el ancho, quedan como estan', () => {
+    const [natural] = formatVoucherPickerRows(3, [voucher], ' · ');
+
+    expect(formatVoucherPickerRows(3, [voucher], ' · ', 20)).toEqual([natural]);
+  });
+
   it('formatea numero y receptor', () => {
     expect(formatVoucherNumber(3, 12)).toBe('00003-00000012');
     expect(formatReceiver(voucher)).toBe('Consumidor final');

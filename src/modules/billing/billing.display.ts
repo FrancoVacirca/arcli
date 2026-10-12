@@ -166,14 +166,14 @@ function formatFriendlyPayloadRows(result: BillingExecutionResult): Array<readon
 export function formatPayloadTable(result: BillingExecutionResult): string {
   const rows = formatFriendlyPayloadRows(result);
 
-  return renderTable(rows, { labelWidth: resolveKeyValueLabelWidth('compact', rows) }).trimEnd();
+  return renderTable(rows, { labelWidth: resolveKeyValueLabelWidth('ticket', rows) }).trimEnd();
 }
 
 export function formatPayloadPreview(result: BillingExecutionResult): string {
   const payloadTable = formatPayloadTable(result);
   const footer = result.dryRun ? toneText('SIN EMITIR', 'warning') : undefined;
 
-  return keyValuePanel(result.voucherKind.displayName, [payloadTable], footer, 'compact', undefined, 'ticket');
+  return keyValuePanel(result.voucherKind.displayName, [payloadTable], footer, 'ticket', undefined, 'ticket');
 }
 
 export function formatResultPanel(
@@ -191,7 +191,7 @@ export function formatResultPanel(
     ['Eventos', result.response.events.length],
     ['Errores', result.response.errors.length],
   ];
-  const labelWidth = resolveKeyValueLabelWidth('compact', [...summaryRows, ...countRows]);
+  const labelWidth = resolveKeyValueLabelWidth('ticket', [...summaryRows, ...countRows]);
   const rows = [
     ...renderKeyValueRows(summaryRows, { labelWidth }),
     '',
@@ -199,5 +199,5 @@ export function formatResultPanel(
   ];
   const footer = toneText(status.label, status.tone);
 
-  return statusPanel(result.voucherKind.displayName, rows, footer, 'compact', status.tone, 'ticket');
+  return statusPanel(result.voucherKind.displayName, rows, footer, 'ticket', status.tone, 'ticket');
 }

@@ -24,7 +24,7 @@ function isUpdateCheckDisabled(): boolean {
   return Boolean(process.env.CI) || Boolean(process.env.NO_UPDATE_NOTIFIER) || process.stderr.isTTY !== true;
 }
 
-function isNewerVersion(latestVersion: string, currentVersion: string): boolean {
+export function isNewerVersion(latestVersion: string, currentVersion: string): boolean {
   const parse = (version: string) => version.split('.').map((part) => Number.parseInt(part, 10) || 0);
   const [latestMajor, latestMinor, latestPatch] = parse(latestVersion);
   const [currentMajor, currentMinor, currentPatch] = parse(currentVersion);
@@ -73,6 +73,8 @@ function createCacheStore(cwd?: string): Conf<UpdateCheckCache> {
 
 export interface CheckForUpdateOptions {
   readonly cwd?: string;
+  /** Cada cuanto se consulta el registry; por defecto, una vez por dia. */
+  readonly maxAgeMs?: number;
 }
 
 export async function checkForUpdate(
@@ -84,7 +86,7 @@ export async function checkForUpdate(
   }
 
   const cache = createCacheStore(options.cwd);
-  const isCacheStale = Date.now() - cache.get('lastCheckedAt') > CHECK_INTERVAL_MS;
+  const isCacheStale = Date.now() - cache.get('lastCheckedAt') > (options.maxAgeMs ?? CHECK_INTERVAL_MS);
   let latestVersion = cache.get('latestVersion');
 
   if (isCacheStale) {

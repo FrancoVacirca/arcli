@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { stripAnsi } from '../../primitives/text';
 import { sectionHeading } from '../sectionHeading';
@@ -15,10 +15,30 @@ describe('lineas de encabezado', () => {
   it('la barra de estado lleva titulo y estado y ocupa el ancho disponible', () => {
     Object.defineProperty(process.stdout, 'columns', { configurable: true, value: 60, writable: true });
 
-    const bar = stripAnsi(statusBar('Modo interactivo', 'testing · PV 3'));
+    const bar = stripAnsi(statusBar([{ text: '20-40950976-3' }, { text: 'PV 3' }], [{ text: 'ARCA' }]));
 
-    expect(bar).toMatch(/^━━ MODO INTERACTIVO ━+ testing · PV 3 ━━$/);
+    expect(bar).toMatch(/^━━ 20-40950976-3 · PV 3 ━+ ARCA ━━$/);
     expect(bar).toHaveLength(60);
+  });
+
+  it('cada dato puede ir en color', () => {
+    // El hook de pre-commit corre con NO_COLOR, que gana sobre FORCE_COLOR.
+    vi.stubEnv('NO_COLOR', '');
+    vi.stubEnv('FORCE_COLOR', '1');
+
+    try {
+      expect(statusBar([{ color: 'success', text: 'ARCA FUNCIONANDO' }])).toContain('\u001B[32m');
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it('los datos de un lado se pueden separar con un tramo de la barra', () => {
+    const bar = stripAnsi(
+      statusBar([{ text: 'PV 3' }], [{ text: 'ARCA FUNCIONANDO' }, { text: 'TESTING' }], { rightSeparator: 'rule' }),
+    );
+
+    expect(bar).toMatch(/━ ARCA FUNCIONANDO ━ TESTING ━━$/);
   });
 
   it('el titulo de seccion es una sola linea con el nombre', () => {
@@ -33,7 +53,9 @@ describe('lineas de encabezado', () => {
   it('con ARCLI_ASCII=1 usa caracteres ASCII', () => {
     process.env.ARCLI_ASCII = '1';
 
-    expect(stripAnsi(statusBar('Modo interactivo', 'testing'))).toMatch(/^== MODO INTERACTIVO =+ testing ==$/);
+    expect(stripAnsi(statusBar([{ text: 'ARCA FUNCIONANDO' }], [{ text: 'testing' }]))).toMatch(
+      /^== ARCA FUNCIONANDO =+ testing ==$/,
+    );
     expect(stripAnsi(sectionHeading('Factura C'))).toMatch(/^-- FACTURA C -+$/);
   });
 });
