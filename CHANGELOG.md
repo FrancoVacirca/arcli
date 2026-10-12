@@ -8,6 +8,18 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ## [Sin publicar]
 
+## [2.0.0] - 2026-10-12
+
+Versión mayor: sale de una auditoría del proyecto. Lo que rompe es cómo se escriben algunos valores en los flags:
+
+- **Montos en formato argentino:** punto para miles y coma para decimales (`15.000`, `1.500,50`). `-m 1500.50` ahora da error; escribí `1500,50`.
+- **Enteros solo con dígitos:** `--pv 3a` da error en vez de leerse como 3.
+- **`--dia` no se combina con `--fecha` ni `--servicio-hasta`.**
+- **Varias alícuotas:** la suma tiene que coincidir exacta con `--monto`.
+- **Un error de red al emitir** sale como `EMISSION_UNCERTAIN`, no como `TRANSIENT_ERROR`/`UNEXPECTED_ERROR`.
+
+El resto son correcciones: evitar comprobantes duplicados, fecha argentina en cualquier zona horaria, `ImpTotal` exacto, PDF escapado, archivos privados y validaciones más estrictas.
+
 ### Agregado
 
 - **Modo interactivo, estado de ARCA en la barra:** la barra de arriba del menú ya no dice "Modo interactivo": muestra **ARCA funcionando**, **con demoras** (más de 3 segundos), **con problemas** (algún servidor no responde OK) o **sin respuesta**, en color, seguido del entorno (`TESTING` en naranja, `PRODUCCION` en celeste). A la izquierda, la razón social del emisor (o el CUIT, si no está configurada) y el punto de venta.
@@ -273,7 +285,8 @@ Primera versión publicada en npm.
 - `llms.txt`: referencia condensada para que un agente de IA con acceso a terminal ejecute el CLI.
 - Publicación con npm Trusted Publishers (OIDC).
 
-[Sin publicar]: https://github.com/LcsGrz/arcli/compare/v1.8.0...HEAD
+[Sin publicar]: https://github.com/LcsGrz/arcli/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/LcsGrz/arcli/compare/v1.8.0...v2.0.0
 [1.8.0]: https://github.com/LcsGrz/arcli/compare/v1.7.1...v1.8.0
 [1.7.1]: https://github.com/LcsGrz/arcli/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/LcsGrz/arcli/compare/v1.6.0...v1.7.0
