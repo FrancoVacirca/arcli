@@ -7,18 +7,26 @@ on:
       - master
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  validate:
+  test:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        # 22 es el minimo de "engines"; 24 es el que usa el release.
+        node-version: [22, 24]
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
-          node-version: 22
+          node-version: ${{ matrix.node-version }}
           cache: yarn
 
       - name: Enable Corepack
@@ -38,3 +46,12 @@ jobs:
 
       - name: Build
         run: yarn build
+
+  # La proteccion de main exige un check llamado "validate": este job lo da cuando pasan las dos versiones de Node.
+  validate:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Todas las versiones de Node pasaron
+        run: echo "ok"

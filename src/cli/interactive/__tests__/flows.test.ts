@@ -277,6 +277,57 @@ describe('flujos del modo interactivo', () => {
       });
     });
 
+    it('copia exento y no gravado de la factura', async () => {
+      script = createScript([
+        [/tipo de factura queres repetir/, 'Factura A'],
+        [/Cual repetimos/, '00003-00000014'],
+        [/Condicion frente al IVA/, 'Responsable inscripto'],
+        [/Mismo monto/, 'Si'],
+        [/Periodo del servicio/, 'Solo hoy'],
+        [/Agregamos/, []],
+      ]);
+
+      const session = createSession([
+        invoice({ documentNumber: 30709965812, documentTypeCode: 80, exemptAmount: 50, total: 196, untaxedAmount: 25 }),
+      ]);
+      const state = await runWizard(repeatSteps(session, 3, today), {
+        advanced: { currencyCode: 'ARS', sameCurrency: false },
+      });
+
+      expect(buildInvoiceInput(state as NonNullable<typeof state>, session)).toMatchObject({
+        exemptAmount: 50,
+        totalAmount: 196,
+        untaxedAmount: 25,
+      });
+    });
+
+    it('con varias alicuotas no ofrece el mismo monto y pide elegir la alicuota', async () => {
+      script = createScript([
+        [/tipo de factura queres repetir/, 'Factura A'],
+        [/Cual repetimos/, '00003-00000014'],
+        [/Condicion frente al IVA/, 'Responsable inscripto'],
+        [/Monto total/, '1.210'],
+        [/Periodo del servicio/, 'Solo hoy'],
+        [/Agregamos/, []],
+      ]);
+
+      const session = createSession([
+        invoice({
+          documentNumber: 30709965812,
+          documentTypeCode: 80,
+          ivaAmount: 262.5,
+          netAmount: 1500,
+          total: 1762.5,
+        }),
+      ]);
+      const state = await runWizard(repeatSteps(session, 3, today), {
+        advanced: { currencyCode: 'ARS', sameCurrency: false },
+      });
+
+      expect(state?.totalAmount).toBe(1210);
+      expect(script.chooseManyStep.mock.calls[0][2]).toEqual(['alicuota']);
+    });
+
     it('si la factura era en dolares arranca con la moneda marcada', async () => {
       script = createScript([
         [/tipo de factura queres repetir/, 'Factura C'],
@@ -320,6 +371,45 @@ describe('flujos del modo interactivo', () => {
         shortcut: 'ncb',
         totalAmount: 121,
       });
+    });
+
+    it('una NC sobre una factura en dolares va en dolares y, si la anula entera, copia el exento', async () => {
+      script = createScript([
+        [/tipo de factura/, 'Factura B'],
+        [/A que la asociamos/, 'A una factura'],
+        [/Sobre que Factura B/, '00003-00000014'],
+        [/Total o parcial/, 'Anular el total'],
+      ]);
+
+      const session = createSession([invoice({ currency: 'DOL', exchangeRate: 1450, exemptAmount: 10, total: 131 })]);
+      const state = await runWizard(noteSteps(session, 3), { kind: 'credito' });
+
+      expect(buildNoteInput(state as NonNullable<typeof state>, session, 3)).toMatchObject({
+        currencyCode: 'DOL',
+        exchangeRate: 1450,
+        exemptAmount: 10,
+        totalAmount: 131,
+      });
+    });
+
+    it('con varias alicuotas no ofrece anular el total', async () => {
+      script = createScript([
+        [/tipo de factura/, 'Factura B'],
+        [/A que la asociamos/, 'A una factura'],
+        [/Sobre que Factura B/, '00003-00000014'],
+        [/Monto de la nota de credito/, '100'],
+        [/Alicuota de IVA de la factura/, '21%'],
+      ]);
+
+      const session = createSession([invoice({ ivaAmount: 262.5, netAmount: 1500, total: 1762.5 })]);
+      const state = await runWizard(noteSteps(session, 3), { kind: 'credito' });
+      const input = buildNoteInput(state as NonNullable<typeof state>, session, 3);
+
+      expect(input.totalAmount).toBe(100);
+      expect(input.exemptAmount).toBeUndefined();
+      expect(script.chooseStep.mock.calls.map(([message]) => message)).not.toContainEqual(
+        expect.stringMatching(/Total o parcial/),
+      );
     });
 
     it('en FCE no ofrece periodo, pregunta el IVA receptor y la anulacion', async () => {

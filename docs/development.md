@@ -72,8 +72,10 @@ yarn dev storybook colores      # o: bordes, componentes, comprobantes, configur
 
 Hay dos workflows en `.github/workflows/`:
 
-- **CI** (`ci.yml`): en cada push y pull request corre lint, typecheck, tests con cobertura y build.
-- **Release** (`release.yml`): se dispara a mano con `workflow_dispatch`, repite las validaciones y publica en npm.
+- **CI** (`ci.yml`): en cada push y pull request corre lint, typecheck, tests con cobertura y build, con Node 22 (el mínimo de `engines`) y Node 24.
+- **Release** (`release.yml`): se dispara a mano con `workflow_dispatch`, solo desde `main`; repite las validaciones y publica en npm.
+
+Las actions están fijadas por SHA (con la versión en un comentario), para que un tag movido no cambie lo que corre. Para actualizarlas, reemplazá el SHA por el del tag nuevo. Los dos workflows tienen permisos mínimos (`contents: read`; el release suma `id-token: write`).
 
 `Release` publica con [npm Trusted Publishers](https://docs.npmjs.com/trusted-publishers) (OIDC), sin `NPM_TOKEN`. El paquete `arcli` en npm tiene que tener este repo y `release.yml` como publicador de confianza. El job necesita `id-token: write` y npm 11.5.1 o superior (Node 24).
 

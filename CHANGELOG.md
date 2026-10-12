@@ -19,6 +19,14 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ### Corregido
 
+- **Modo interactivo, notas y repetir factura copian más de la original:**
+  - Una NC o ND sobre una factura en dólares va en dólares, con la cotización de la factura; antes salía en pesos.
+  - "Anular el total" copia también exento y no gravado.
+  - "Repetir factura" copia exento y no gravado.
+  - Si la factura tiene varias alícuotas o tributos, ARCA no devuelve el detalle para reproducirla. En ese caso se avisa, no se ofrece "anular el total" ni "mismo monto", y se pide elegir la alícuota.
+- **Salida de terminal sin secuencias de control:** observaciones de ARCA, datos del JSON o errores de npm ya no pueden mover el cursor, borrar la pantalla, pisar una línea ni meter hipervínculos. Solo pasan colores, saltos de línea y tabs. `--json` no cambia.
+- **Rutas absolutas en la config:** `cert.*`, `key.*` y `ticketPath` se guardan resueltas, como `pdfCarpeta`. Antes una ruta relativa dependía de la carpeta desde donde se corría ARCLI.
+- **Clave privada cifrada:** `config establecer key.*` la rechaza con un mensaje claro y cómo descifrarla. Antes se aceptaba y fallaba recién al hablar con ARCA.
 - **PDF: textos escapados.** La plantilla de `@arcasdk/pdf` no escapa HTML y Chromium la renderiza con JavaScript: una razón social o descripción con `<script>` (por ejemplo, de un JSON de terceros) se ejecutaba, y un `&` legítimo se veía mal. Ahora todos los textos se escapan antes de generar el PDF.
 - **Tickets de ARCA y config solo para tu usuario:** ARCLI crea sus archivos con permisos `0600`/`0700` (umask `077`), incluidos los tickets que escribe el SDK, y deja en `0700` la carpeta de config y la de tickets que ya existían. Antes quedaban `0644`/`0755`, y en Linux otro usuario del equipo podía leer un ticket y usarlo para emitir durante su validez. Los PDFs nuevos también quedan solo para tu usuario.
 - **`config establecer` ya no guarda valores inválidos:** antes `config establecer cuit abc` lo guardaba igual y dejaba el CLI inutilizable, incluso `config eliminar`. Ahora se valida antes de guardar, y una config que ya estaba rota se arregla con `config establecer` o `config eliminar` de la clave que falla.

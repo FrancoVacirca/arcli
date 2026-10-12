@@ -15,8 +15,9 @@ import {
   noteKindChoices,
   receiverChoices,
 } from '../../modules/interactive/choices';
+import { copyInvoiceAmounts } from '../../modules/interactive/invoice-copy';
 import { BACK, type Back, runWizard, type WizardStep } from '../../modules/interactive/wizard';
-import { inferIvaRate, type IssuedVoucher, resolveDocumentType } from '../../modules/vouchers/voucher-history';
+import { type IssuedVoucher, resolveDocumentType } from '../../modules/vouchers/voucher-history';
 import { noticePanel, writeTerminalOutput } from '../../ui';
 
 import { pickInvoice } from './invoice-picker';
@@ -37,6 +38,8 @@ export interface NoteState {
   readonly concept?: BillingConcept;
   readonly documentNumber?: number;
   readonly documentType?: BillingCommandInput['documentType'];
+  /** Anula la factura entera: la nota copia exento y no gravado. */
+  readonly annulsTotal?: boolean;
   readonly invoice?: IssuedVoucher;
   readonly invoiceKind?: VoucherKindDefinition;
   /** Punto de venta de la factura asociada; ingresada a mano puede no ser el configurado. */
@@ -54,18 +57,22 @@ export interface NoteState {
 
 const isPeriod = (state: NoteState): boolean => state.target === 'periodo';
 
-async function askNoteAmount(state: NoteState): Promise<Back | number | undefined> {
+async function askNoteAmount(
+  state: NoteState,
+): Promise<Back | { readonly annulsTotal: boolean; readonly totalAmount: number | undefined }> {
   const invoice = state.invoice;
   const label = state.kind === 'debito' ? 'Monto de la nota de debito:' : 'Monto de la nota de credito:';
+  // Con varias alicuotas o tributos no se puede armar una nota igual a la factura: solo parcial.
+  const canAnnulTotal = Boolean(invoice && !copyInvoiceAmounts(invoice, state.invoiceKind?.letter ?? 'c').limitation);
 
-  if (state.kind === 'credito' && invoice) {
+  if (state.kind === 'credito' && invoice && canAnnulTotal) {
     const scope = await chooseStep('¿Total o parcial?', [
       { name: `Anular el total (${formatMoneyLabel(invoice.total)})`, value: 'total' as const },
       { name: 'Parcial (ingresar monto)', value: 'parcial' as const },
     ]);
 
     if (scope === BACK || scope === 'total') {
-      return scope === BACK ? BACK : invoice.total;
+      return scope === BACK ? BACK : { annulsTotal: true, totalAmount: invoice.total };
     }
   }
 
@@ -83,7 +90,7 @@ async function askNoteAmount(state: NoteState): Promise<Back | number | undefine
     },
   });
 
-  return answer === BACK ? BACK : parseAmountInput(answer);
+  return answer === BACK ? BACK : { annulsTotal: false, totalAmount: parseAmountInput(answer) };
 }
 
 /** Pasos del flujo de notas; cada uno se puede deshacer con "Volver". */
@@ -146,7 +153,15 @@ export function noteSteps(session: InteractiveSession, pointOfSale: number): Arr
           return BACK;
         }
 
-        // La nota hereda de la factura el receptor, el concepto y la alicuota (si se puede deducir).
+        const copy = copyInvoiceAmounts(invoice, invoiceKind.letter);
+
+        if (copy.limitation) {
+          writeTerminalOutput(
+            noticePanel(`${copy.limitation} La nota solo puede ser parcial; revisa la alicuota.`, 'warning'),
+          );
+        }
+
+        // La nota hereda de la factura el receptor, el concepto, la moneda y la alicuota (si se puede deducir).
         return {
           concept: CONCEPTS_BY_CODE[invoice.concept ?? 2] ?? 'servicios',
           documentNumber: documentType === 'consumidor-final' ? undefined : invoice.documentNumber,
@@ -154,7 +169,7 @@ export function noteSteps(session: InteractiveSession, pointOfSale: number): Arr
           invoice,
           invoicePointOfSale: picked.pointOfSale,
           ivaCondition: documentType === 'consumidor-final' ? 'consumidor-final' : undefined,
-          ivaRate: invoiceKind.letter === 'c' ? undefined : inferIvaRate(invoice.netAmount, invoice.ivaAmount),
+          ivaRate: copy.ivaRate,
         };
       },
       skip: isPeriod,
@@ -216,9 +231,9 @@ export function noteSteps(session: InteractiveSession, pointOfSale: number): Arr
     {
       name: 'monto',
       run: async (state) => {
-        const totalAmount = await askNoteAmount(state);
+        const amount = await askNoteAmount(state);
 
-        return totalAmount === BACK ? BACK : { totalAmount };
+        return amount === BACK ? BACK : amount;
       },
     },
     {
@@ -271,6 +286,8 @@ export function buildNoteInput(
   const invoiceKind = state.invoiceKind as VoucherKindDefinition;
   const noteKind = noteKindChoices(state.kind ?? 'credito', invoiceKind);
   const invoice = state.invoice;
+  // Una nota va en la moneda de su factura; si la anula entera, tambien copia exento y no gravado.
+  const copy = !isPeriod(state) && invoice ? copyInvoiceAmounts(invoice, invoiceKind.letter) : undefined;
 
   return billingCommandSchema.parse({
     associatedPeriod: isPeriod(state) ? { desde: state.periodFrom, hasta: state.periodTo } : undefined,
@@ -286,12 +303,16 @@ export function buildNoteInput(
         : undefined,
     cancellation: state.cancellation ?? false,
     concept: state.concept,
+    currencyCode: copy?.currencyCode,
     documentNumber: state.documentType === 'consumidor-final' ? undefined : state.documentNumber,
     documentType: state.documentType,
+    exchangeRate: copy?.exchangeRate,
+    exemptAmount: state.annulsTotal ? copy?.exemptAmount : undefined,
     ivaCondition: state.ivaCondition,
     ivaRate: state.ivaRate === '21' && !session.runtime.config.alicuotaPorDefecto ? undefined : state.ivaRate,
     shortcut: noteKind.shortcut,
     totalAmount: state.totalAmount,
+    untaxedAmount: state.annulsTotal ? copy?.untaxedAmount : undefined,
   });
 }
 

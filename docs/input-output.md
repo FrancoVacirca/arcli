@@ -313,6 +313,8 @@ Si no hubo emisión real, `respuesta` no se serializa como `null`. En su lugar:
 
 Los errores salen en JSON con `--json` o, sin el flag, si la config tiene `json=true`. Van a stderr y el proceso termina con exit code `1`.
 
+Un comprobante **rechazado por ARCA no es un error del comando**: sale como resultado normal (stdout, `estado: "rechazado"`, con `errores` y `observaciones`) y el exit code es `0`. Para saber si se aprobó, revisá `estado` o `resultado`; el exit code solo dice si ARCLI pudo hacer la operación.
+
 ### Errores JSON de validación
 
 Cuando el error viene de Zod o de validación de entrada:

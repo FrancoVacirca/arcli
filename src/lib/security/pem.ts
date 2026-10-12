@@ -14,7 +14,7 @@ function acceptedPemHeaders(kind: PemKind): string[] {
     return ['BEGIN CERTIFICATE'];
   }
 
-  return ['BEGIN PRIVATE KEY', 'BEGIN RSA PRIVATE KEY', 'BEGIN EC PRIVATE KEY', 'BEGIN ENCRYPTED PRIVATE KEY'];
+  return ['BEGIN PRIVATE KEY', 'BEGIN RSA PRIVATE KEY', 'BEGIN EC PRIVATE KEY'];
 }
 
 export function ensurePathExists(filePath: string, label: PemKind): void {
@@ -27,6 +27,14 @@ export function ensurePathExists(filePath: string, label: PemKind): void {
 
 export function ensurePemFormat(content: string, filePath: string, label: PemKind): void {
   const normalizedContent = content.trim();
+
+  // El SDK no recibe passphrase: con una clave cifrada fallaria recien al hablar con ARCA, con un error confuso.
+  if (label === 'clave privada' && normalizedContent.includes('-----BEGIN ENCRYPTED PRIVATE KEY-----')) {
+    throw new ConfigurationError(
+      `La clave privada esta cifrada con contrasena y ARCLI no puede usarla: ${maskPath(filePath)}. Generala sin contrasena o descifrala con "openssl pkey -in clave.key -out clave-sin-pass.key".`,
+      { path: maskPath(filePath) },
+    );
+  }
   const hasAcceptedHeader = acceptedPemHeaders(label).some((header) =>
     normalizedContent.includes(`-----${header}-----`),
   );

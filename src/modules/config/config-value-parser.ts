@@ -130,12 +130,13 @@ function parseExchangeRate(value: string): number {
   return result.value;
 }
 
+// Ruta absoluta, como pdfCarpeta: una relativa dependeria de la carpeta desde donde se corre arcli.
 function parsePemPath(value: string, label: 'certificado' | 'clave privada'): string {
-  const normalizedValue = parseNonEmptyString(value);
+  const path = resolve(parseNonEmptyString(value));
 
-  readPemFile(normalizedValue, label);
+  readPemFile(path, label);
 
-  return normalizedValue;
+  return path;
 }
 
 // La fecha de inicio de actividades es vieja: se pide con anio para no completarla con el actual.
@@ -213,7 +214,7 @@ export function parseConfigValue(key: CanonicalConfigKey, value: string): boolea
     case 'puntoVentaPorDefecto':
       return parsePositiveInteger(value);
     case 'ticketPath':
-      return parseNonEmptyString(value);
+      return resolve(parseNonEmptyString(value));
     case 'cert.produccion':
     case 'cert.testing':
       return parsePemPath(value, 'certificado');

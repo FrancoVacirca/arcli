@@ -1,6 +1,6 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { parseConfigValue } from '../config-value-parser';
@@ -102,6 +102,29 @@ describe('config-value-parser', () => {
 
     expect(parseConfigValue('cert.testing', certPath)).toBe(certPath);
     expect(parseConfigValue('key.produccion', keyPath)).toBe(keyPath);
+  });
+
+  it('stores cert, key and ticket paths as absolute, so they do not depend on the current folder', () => {
+    const keyPath = writePemFile('key.pem', '-----BEGIN PRIVATE KEY-----\nKEY\n-----END PRIVATE KEY-----');
+    const previous = process.cwd();
+
+    try {
+      process.chdir(dirname(keyPath));
+
+      expect(parseConfigValue('key.testing', basename(keyPath))).toBe(join(process.cwd(), basename(keyPath)));
+      expect(parseConfigValue('ticketPath', 'tickets')).toBe(join(process.cwd(), 'tickets'));
+    } finally {
+      process.chdir(previous);
+    }
+  });
+
+  it('rejects an encrypted private key with a clear message', () => {
+    const keyPath = writePemFile(
+      'cifrada.key',
+      '-----BEGIN ENCRYPTED PRIVATE KEY-----\nKEY\n-----END ENCRYPTED PRIVATE KEY-----',
+    );
+
+    expect(() => parseConfigValue('key.testing', keyPath)).toThrow(/cifrada con contrasena/);
   });
 
   it('rejects cert and key paths with invalid PEM content', () => {

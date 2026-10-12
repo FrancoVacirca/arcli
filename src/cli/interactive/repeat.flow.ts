@@ -3,9 +3,10 @@ import type { BillingConcept } from '../../modules/billing/billing.schemas';
 import type { VoucherKindDefinition } from '../../modules/billing/billing.types';
 import { parseAmountInput } from '../../modules/interactive/amount-input';
 import { invoiceKindChoices, ivaConditionChoices } from '../../modules/interactive/choices';
+import { copyInvoiceAmounts } from '../../modules/interactive/invoice-copy';
 import { currentMonthPeriod, previousMonthPeriod, type ServicePeriod } from '../../modules/interactive/periods';
 import { BACK, runWizard, type WizardStep } from '../../modules/interactive/wizard';
-import { inferIvaRate, type IssuedVoucher, resolveDocumentType } from '../../modules/vouchers/voucher-history';
+import { type IssuedVoucher, resolveDocumentType } from '../../modules/vouchers/voucher-history';
 import { noticePanel, writeTerminalOutput } from '../../ui';
 
 import { askAdvancedOptions } from './advanced-options';
@@ -75,11 +76,21 @@ export function repeatSteps(
           return BACK;
         }
 
+        const copy = copyInvoiceAmounts(original, voucherKind.letter);
+
+        if (copy.limitation) {
+          writeTerminalOutput(
+            noticePanel(`${copy.limitation} Revisa la alicuota y el monto antes de emitir.`, 'warning'),
+          );
+        }
+
         return {
           advanced: {
             currencyCode: 'ARS',
-            ivaRate: voucherKind.letter === 'c' ? undefined : inferIvaRate(original.netAmount, original.ivaAmount),
+            exemptAmount: copy.exemptAmount,
+            ivaRate: copy.ivaRate,
             sameCurrency: false,
+            untaxedAmount: copy.untaxedAmount,
           },
           concept: CONCEPTS_BY_CODE[original.concept ?? 2] ?? 'servicios',
           documentNumber: documentType === 'consumidor-final' ? undefined : original.documentNumber,
@@ -108,10 +119,14 @@ export function repeatSteps(
       name: 'monto',
       run: async (state) => {
         const original = state.original as IssuedVoucher;
-        const scope = await chooseStep('¿Mismo monto?', [
-          { name: `Si, ${formatMoneyLabel(original.total)}`, value: 'mismo' as const },
-          { name: 'No, ingresar otro monto', value: 'otro' as const },
-        ]);
+        // Si no se puede reproducir (varias alicuotas, tributos), "mismo monto" no daria la misma factura.
+        const reproducible = !copyInvoiceAmounts(original, state.voucherKind?.letter ?? 'c').limitation;
+        const scope = reproducible
+          ? await chooseStep('¿Mismo monto?', [
+              { name: `Si, ${formatMoneyLabel(original.total)}`, value: 'mismo' as const },
+              { name: 'No, ingresar otro monto', value: 'otro' as const },
+            ])
+          : ('otro' as const);
 
         if (scope === BACK || scope === 'mismo') {
           return scope === BACK ? BACK : { totalAmount: original.total };
@@ -184,7 +199,11 @@ export function repeatSteps(
         const advanced = await askAdvancedOptions(state.advanced, {
           concept: state.concept ?? 'servicios',
           defaultIvaRate: state.advanced.ivaRate ?? config.alicuotaPorDefecto ?? '21',
-          preselected: foreign ? ['divisas'] : [],
+          // Sin alicuota deducida de la factura, que la elija en lugar de caer en la de la config.
+          preselected: [
+            ...(foreign ? (['divisas'] as const) : []),
+            ...(!state.advanced.ivaRate && state.voucherKind?.letter !== 'c' ? (['alicuota'] as const) : []),
+          ],
           voucherKind: state.voucherKind as VoucherKindDefinition,
         });
 
