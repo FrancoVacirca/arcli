@@ -29,7 +29,7 @@ Con la salida redirigida (pipe o archivo) no hay colores, así que `--json` se p
 
 ## Modo interactivo (no usar desde un agente)
 
-`arcli` sin argumentos en una TTY abre un asistente con prompts (`arcli interactivo` lo abre explícito). Sin TTY o con `--json`, `arcli` sin argumentos muestra la ayuda y `arcli interactivo` falla. Un agente siempre tiene que usar los comandos con flags de abajo.
+`arcli` sin argumentos en una TTY abre un asistente con prompts (`arcli interactivo` lo abre explícito). Sin TTY, `arcli` sin argumentos muestra la ayuda y `arcli interactivo` falla. `arcli interactivo` acepta solo `--testing`/`--produccion`: `--json` y `--bruto` se ignoran con un aviso. Un agente siempre tiene que usar los comandos con flags de abajo.
 
 ## Comandos de facturación (shortcut de 2-4 letras)
 
@@ -65,7 +65,7 @@ Shortcuts (`family` = comando alternativo `arcli <family> <letra>`, ej. `arcli f
 - Padrón: `arcli padron <cuit> [--json]` consulta en ARCA (`ws_sr_constancia_inscripcion`) nombre, domicilio fiscal, `condicionIva` (`responsable-inscripto`, `responsable-monotributo`, `sujeto-exento` o `null` si no se puede deducir), impuestos y actividades. CUIT inexistente: error `TAXPAYER_NOT_FOUND`. Al facturar con `--cuit` y sin `--ir`/`ivaReceptor`, se usa la condición del padrón antes que el `ivaReceptor` de la config; si el padrón no responde o no la informa, se usa la config con un aviso en `avisos`, y sin config es `INPUT_VALIDATION_ERROR`. Se desactiva con `arcli config establecer consultarPadron false`. Para no depender del padrón, pasá `--ir` explícito.
 - Régimen FCE: `arcli fce-obligado <cuit> [--fecha <fecha>] [--json]` consulta en ARCA (`wsfecred`) si el receptor está obligado a recibir FCE y desde qué monto. Con `arcli config establecer verificarFce true`, cada factura con CUIT hace esa consulta y devuelve avisos en `avisos` (JSON) sin bloquear. Requiere autorizar `wsfecred` en ARCA además de `wsfe`.
 - Ejecución: `--previsualizar` (solo arma y muestra la solicitud) vs `--emitir` (real contra ARCA) — son mutuamente excluyentes. El entorno sale de `config.entorno` (`testing` por defecto) salvo `--testing`/`--produccion`. Sin `--emitir` ni `--previsualizar` decide `config.emitir` (o `"emitir"` del JSON); si tampoco hay, en una terminal pregunta y con `--json` o sin TTY no emite. `--produccion --emitir` emite de verdad sin confirmación adicional, y lo mismo pasa sin flags si la config tiene `entorno produccion` y `emitir true`. Para no depender de la config, pasá siempre `--testing` o `--produccion` y `--emitir` o `--previsualizar` explícitos.
-- Salida: `--json` (estructurada, para scripts/agentes — desactiva el aviso de nueva versión), `--bruto` (incluye la respuesta cruda de ARCA).
+- Salida: `--json` (estructurada, para scripts/agentes — desactiva el aviso de nueva versión), `--bruto` (incluye la respuesta cruda de ARCA). `--bruto` solo existe en los comandos de facturación; en `padron`, `fce-obligado`, `ultimos`, `consultar`, `parametros` y `estado` se ignora con un aviso en stderr. En todos los comandos, sin `--json` decide la clave de config `json`.
 - `--cargar <path.json>`: carga uno o un array de comprobantes desde un JSON en vez de flags (ver forma abajo). Los flags pisan lo que venga del archivo.
 - PDF: `--exportar-pdf` (alias `--pdf`) genera el PDF con QR después de emitir; `--sin-pdf` no lo genera; sin flag decide `config pdf` (`preguntar` por defecto, que sin TTY o con `--json` no genera). Datos que solo van en el PDF (ARCA no los recibe): `--descripcion <texto>`, `--receptor-nombre <texto>`, `--receptor-domicilio <texto>`. Requiere el plugin (`arcli pdf instalar`, ~160 MB; desde un agente instalarlo antes, porque sin TTY nunca se descarga solo) y `emisor.razonSocial`, `emisor.domicilio`, `emisor.inicioActividades` en la config. Detalle: `docs/pdf.md`.
 
@@ -155,14 +155,14 @@ que viene en `sugerencia`), `TRANSIENT_ERROR` (consultas: reintentar), `UNEXPECT
 `{indice, error}`) y `BATCH_EMISSION_ERROR` (se cortó a mitad: los resultados ya procesados salen antes por
 stdout; si viene `detalles.sinConfirmar`, verificar ese índice con `arcli ultimos` antes de reintentarlo;
 después reintentar `detalles.sinProcesar`, nunca los ya emitidos). El proceso termina con
-exit code `1` en cualquier error. Resumen: `0` aprobado (u observado), `1` error, `2` rechazado por ARCA.
+exit code `1` en cualquier error. Los errores de uso (opción desconocida, valor faltante, comando inexistente) también salen en este JSON como `INPUT_VALIDATION_ERROR`, con el mensaje de commander en `error`. Resumen: `0` aprobado (u observado), `1` error, `2` rechazado por ARCA.
 
 ## Comando `config`
 
 ```bash
 arcli config                              # ver config actual (agregar --json)
 arcli config revisar [--testing|--produccion]   # valida credenciales + contexto real
-arcli config ruta                         # path del archivo de config
+arcli config ruta [--json]                # path del archivo de config ({"ruta": ...})
 arcli config establecer <clave> <valor>
 arcli config eliminar <clave>
 ```

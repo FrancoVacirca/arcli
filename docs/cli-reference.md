@@ -121,9 +121,14 @@ Hay varias combinaciones de flags que no podés usar juntas (entorno, modo de ej
 
 ## Flags globales
 
-Estos flags aplican a cualquier comando de comprobantes.
+Usalos cuando necesitás controlar el entorno, la salida o el modo de inspección del resultado. Cada comando acepta solo los que usa:
 
-Usalos cuando necesitás controlar el entorno, la salida o el modo de inspección del resultado.
+| Comando                                                                  | Flags globales que acepta                        |
+| ------------------------------------------------------------------------ | ------------------------------------------------ |
+| comprobantes (`fa`, `fc`, `nca`, `factura`, ...)                         | `--testing`, `--produccion`, `--json`, `--bruto` |
+| `padron`, `fce-obligado`, `ultimos`, `consultar`, `parametros`, `estado` | `--testing`, `--produccion`, `--json`            |
+| `interactivo`                                                            | `--testing`, `--produccion`                      |
+| `config` (y sus subcomandos), `pdf` (y sus subcomandos)                  | `--json`                                         |
 
 ### Emisión en producción
 
@@ -136,7 +141,9 @@ Para emitir en producción hay que pasar `--produccion` y `--emitir` juntos.
 | `--json`       | ninguno | `boolean` | `config.json` (`false` por defecto)  | Devuelve salida estructurada                  |
 | `--bruto`      | ninguno | `boolean` | `config.bruto` (`false` por defecto) | Agrega respuesta cruda de ARCA cuando exista  |
 
-Si pasás una de estas opciones a un comando que no la usa (por ejemplo `arcli config ruta --json`), el comando corre igual y en stderr aparece un aviso: ``Aviso: --json no aplica a `arcli config ruta`, se ignora.``
+Si pasás una de estas opciones a un comando que no la usa (por ejemplo `arcli padron 20201797064 --bruto`), el comando corre igual y en stderr aparece un aviso: ``Aviso: --bruto no aplica a `arcli padron`, se ignora.``
+
+Todos los comandos con `--json` lo resuelven igual: el flag o, si no está, la clave de config `json`. También los errores de uso (opción desconocida, valor faltante, comando que no existe): con `--json` o `json=true` salen como `INPUT_VALIDATION_ERROR` en el [formato de error JSON](input-output.md#errores-json-de-uso); sin JSON, en texto como siempre.
 
 ## Flags de comprobantes
 

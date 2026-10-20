@@ -3,10 +3,10 @@
 import { OWNER_ONLY_UMASK } from '../lib/files/restrict-to-owner';
 import { renderUpdateNoticePanel } from '../modules/update-check/update-check.presenter';
 import { checkForUpdate } from '../modules/update-check/update-check.service';
-import { formatCliError, writeTerminalError, writeTerminalJsonError } from '../ui';
+import { writeTerminalError } from '../ui';
 
 import { isInteractiveTerminal } from './commands/interactive.command';
-import { shouldPrintErrorAsJson } from './error-output';
+import { reportCliError, shouldPrintErrorAsJson } from './error-output';
 import { normalizeHelpArgv } from './help-argv';
 import { createProgram } from './program';
 import { CLI_VERSION } from './version';
@@ -14,7 +14,10 @@ import { CLI_VERSION } from './version';
 // Tickets de ARCA, config y PDFs se crean solo para el usuario (el SDK escribe los tickets con permisos por defecto).
 process.umask(OWNER_ONLY_UMASK);
 
-const program = createProgram();
+let errorsAsJson: boolean | undefined;
+// Se decide recien al fallar (puede leer la config) y una sola vez: commander y el catch lo consultan.
+const shouldPrintErrorsAsJson = (): boolean => (errorsAsJson ??= shouldPrintErrorAsJson(process.argv));
+const program = createProgram({ errorsAsJson: shouldPrintErrorsAsJson });
 const argv = normalizeHelpArgv(process.argv, isInteractiveTerminal());
 const useJson = process.argv.includes('--json');
 // El modo interactivo muestra la actualizacion como primera opcion del menu, no al cerrar.
@@ -32,13 +35,5 @@ program
     }
   })
   .catch((error: unknown) => {
-    const errorAsJson = shouldPrintErrorAsJson(process.argv);
-
-    if (errorAsJson) {
-      writeTerminalJsonError(formatCliError(error, errorAsJson));
-    } else {
-      writeTerminalError(formatCliError(error, errorAsJson));
-    }
-
-    process.exitCode = 1;
+    process.exitCode = reportCliError(error, shouldPrintErrorsAsJson());
   });

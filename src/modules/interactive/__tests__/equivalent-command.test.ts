@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { describe, expect, it } from 'vitest';
 
 import { parseBillingCommandInput, registerBillingOptions } from '../../../cli/commands/billing.command.parser';
-import { registerGlobalOptions } from '../../../cli/commands/billing.command.shared';
+import { registerGlobalOptions } from '../../../cli/global-options';
 import { type BillingCommandInput, billingCommandSchema } from '../../billing/billing.schemas';
 import { buildEquivalentCommand } from '../equivalent-command';
 

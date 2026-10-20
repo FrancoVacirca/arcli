@@ -6,10 +6,10 @@ import { ArcaClientFactory } from '../../services/arca/arca-client.factory';
 import { ArcaContextResolver } from '../../services/arca/arca-context.resolver';
 import { ArcaFceObligationGateway } from '../../services/arca/arca-fce-obligation.gateway';
 import { writeTerminalJson, writeTerminalOutput } from '../../ui';
+import { getGlobalOptions, registerQueryOptions } from '../global-options';
 import { configureSpanishHelp, createFceObligationHelp } from '../help';
 import { startSpinner } from '../spinner';
 
-import { getGlobalOptions, registerGlobalOptions } from './billing.command.shared';
 import { parseCuitArgument } from './cuit-argument';
 
 export function registerFceObligationCommand(program: Command): void {
@@ -20,7 +20,7 @@ export function registerFceObligationCommand(program: Command): void {
     .option('-f, --fecha <fecha>', 'fecha de emision a consultar; por defecto hoy')
     .addHelpText('after', createFceObligationHelp());
 
-  registerGlobalOptions(command);
+  registerQueryOptions(command);
   configureSpanishHelp(command);
 
   command.action(async (rawCuit: string, options: { fecha?: string }, self: Command) => {

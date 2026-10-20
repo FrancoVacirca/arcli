@@ -10,9 +10,11 @@ import {
   formatConfigDoctor,
   formatConfigDoctorAsText,
   formatConfigPath,
+  formatConfigPathAsJson,
   writeTerminalJson,
   writeTerminalOutput,
 } from '../../ui';
+import { registerJsonOption, resolveOutputJson } from '../global-options';
 import { configureSpanishHelp, createConfigHelp } from '../help';
 import { startSpinner } from '../spinner';
 
@@ -53,14 +55,6 @@ export function buildRuntimeChecks(config: ArcliConfig): ConfigDoctorRuntimeChec
   });
 }
 
-/**
- * `--json` o, sin el flag, `json=true` de la config, como el resto de los comandos. La opcion la parsea el
- * programa: hay que leerla con `optsWithGlobals`.
- */
-function wantsJson(command: Command, config: ArcliConfig): boolean {
-  return command.optsWithGlobals<{ json?: boolean }>().json ?? config.output.jsonPorDefecto;
-}
-
 export function registerConfigCommand(program: Command): void {
   const configCommand = program
     .command('config')
@@ -68,13 +62,17 @@ export function registerConfigCommand(program: Command): void {
 
   configureSpanishHelp(configCommand);
 
-  configCommand.option('--json', 'imprimir salida JSON').action((_options: unknown, command: Command) => {
+  registerJsonOption(configCommand).action((_options: unknown, command: Command) => {
     const service = createConfigService();
 
     try {
       const config = service.getConfig();
       const paths = service.resolvePaths(config);
-      printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), wantsJson(command, config));
+      printConfigResult(
+        formatConfigAsText(config, paths),
+        formatConfig(config, paths),
+        resolveOutputJson(command, config),
+      );
     } finally {
       service.close();
     }
@@ -85,14 +83,13 @@ export function registerConfigCommand(program: Command): void {
   const revisarCommand = configCommand
     .command('revisar')
     .description('revisar configuracion, defaults, credenciales y validacion de cada entorno')
-    .option('--json', 'imprimir salida JSON')
     .action((_options: unknown, command: Command) => {
       const service = createConfigService();
       let spinner: ReturnType<typeof startSpinner> = null;
 
       try {
         const config = service.getConfig();
-        const useJson = wantsJson(command, config);
+        const useJson = resolveOutputJson(command, config);
         spinner = useJson ? null : startSpinner('Generando revision...');
         const report = buildConfigDoctorReport(config, buildRuntimeChecks(config));
         spinner?.stop();
@@ -104,26 +101,31 @@ export function registerConfigCommand(program: Command): void {
         service.close();
       }
     });
+  registerJsonOption(revisarCommand);
   configureSpanishHelp(revisarCommand);
 
-  const rutaCommand = configCommand
-    .command('ruta')
-    .description('mostrar la ruta del archivo de configuracion')
-    .action(() => {
-      const service = createConfigService();
+  const rutaCommand = registerJsonOption(
+    configCommand.command('ruta').description('mostrar la ruta del archivo de configuracion'),
+  ).action((_options: unknown, command: Command) => {
+    const service = createConfigService();
 
-      try {
-        writeTerminalOutput(formatConfigPath(service.getPath()));
-      } finally {
-        service.close();
-      }
-    });
+    try {
+      const path = service.getPath();
+
+      printConfigResult(
+        formatConfigPath(path),
+        formatConfigPathAsJson(path),
+        resolveOutputJson(command, service.getConfig()),
+      );
+    } finally {
+      service.close();
+    }
+  });
   configureSpanishHelp(rutaCommand);
 
   const establecerCommand = configCommand
     .command('establecer')
     .description('guardar un valor de configuracion')
-    .option('--json', 'imprimir salida JSON')
     .argument('<clave>', 'clave publica de configuracion')
     .argument('<valor>', 'valor a guardar')
     .action((key: string, value: string, _options: unknown, command: Command) => {
@@ -133,17 +135,21 @@ export function registerConfigCommand(program: Command): void {
       try {
         const config = service.setValue(key, value);
         const paths = service.resolvePaths(config);
-        printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), wantsJson(command, config));
+        printConfigResult(
+          formatConfigAsText(config, paths),
+          formatConfig(config, paths),
+          resolveOutputJson(command, config),
+        );
       } finally {
         service.close();
       }
     });
+  registerJsonOption(establecerCommand);
   configureSpanishHelp(establecerCommand);
 
   const eliminarCommand = configCommand
     .command('eliminar')
     .description('eliminar un valor de configuracion')
-    .option('--json', 'imprimir salida JSON')
     .argument('<clave>', 'clave publica de configuracion')
     .action((key: string, _options: unknown, command: Command) => {
       // Sin ensureInitialized: si la config quedo invalida, establecer o eliminar la clave es la forma de arreglarla.
@@ -152,10 +158,15 @@ export function registerConfigCommand(program: Command): void {
       try {
         const config = service.unsetValue(key);
         const paths = service.resolvePaths(config);
-        printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), wantsJson(command, config));
+        printConfigResult(
+          formatConfigAsText(config, paths),
+          formatConfig(config, paths),
+          resolveOutputJson(command, config),
+        );
       } finally {
         service.close();
       }
     });
+  registerJsonOption(eliminarCommand);
   configureSpanishHelp(eliminarCommand);
 }

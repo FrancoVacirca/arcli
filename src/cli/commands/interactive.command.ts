@@ -1,10 +1,9 @@
 import type { Command } from 'commander';
 
 import { InputValidationError } from '../../lib/errors/app-error';
+import { getGlobalOptions, registerEnvironmentOptions } from '../global-options';
 import { configureSpanishHelp } from '../help';
 import { runInteractiveMode } from '../interactive/interactive-mode';
-
-import { getGlobalOptions, registerGlobalOptions } from './billing.command.shared';
 
 export function isInteractiveTerminal(): boolean {
   return Boolean(process.stdin.isTTY && process.stdout.isTTY);
@@ -15,18 +14,20 @@ export function registerInteractiveCommand(program: Command): void {
     .command('interactivo')
     .description('asistente paso a paso para emitir comprobantes; tambien se abre con "arcli" sin argumentos');
 
-  registerGlobalOptions(command);
+  // Solo el entorno: el asistente no tiene salida JSON ni respuesta bruta.
+  registerEnvironmentOptions(command);
   configureSpanishHelp(command);
 
   command.action(async (_options: unknown, self: Command) => {
-    const options = getGlobalOptions(self);
-
-    if (options.json || !isInteractiveTerminal()) {
+    if (!isInteractiveTerminal()) {
       throw new InputValidationError(
-        'El modo interactivo necesita una terminal interactiva y no admite --json. Use los comandos con flags.',
+        'El modo interactivo necesita una terminal interactiva. Use los comandos con flags.',
       );
     }
 
-    await runInteractiveMode(options);
+    // `--json` y `--bruto` se ignoran con un aviso: al asistente le llega solo el entorno.
+    const { produccion, testing } = getGlobalOptions(self);
+
+    await runInteractiveMode({ produccion, testing });
   });
 }

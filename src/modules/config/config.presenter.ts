@@ -86,6 +86,11 @@ export function formatConfigPath(configPath: string): string {
   return configPath;
 }
 
+/** `{ "ruta": "..." }`, como `ruta` en el JSON de `pdf desinstalar`. */
+export function formatConfigPathAsJson(configPath: string): string {
+  return JSON.stringify({ ruta: configPath }, null, 2);
+}
+
 const NOT_SET = 'no configurado';
 
 type PublicConfigValue = (config: PublicConfigSnapshot) => number | string;

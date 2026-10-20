@@ -4,4 +4,5 @@ export {
   formatConfigDoctor,
   formatConfigDoctorAsText,
   formatConfigPath,
+  formatConfigPathAsJson,
 } from '../../modules/config/config.presenter';

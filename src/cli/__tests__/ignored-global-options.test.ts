@@ -8,6 +8,9 @@ vi.mock('../../modules/config/config.service', () => ({
   ConfigService: class {
     public close(): void {}
     public ensureInitialized(): void {}
+    public getConfig(): { output: { jsonPorDefecto: boolean } } {
+      return { output: { jsonPorDefecto: false } };
+    }
     public getPath(): string {
       return '/tmp/arcli/config.json';
     }
@@ -30,8 +33,8 @@ async function stderrOf(argv: string[]): Promise<string> {
 
 describe('opciones globales que no aplican', () => {
   it('avisa sin cortar la ejecucion cuando el comando no usa la opcion', async () => {
-    expect(await stderrOf(['config', 'ruta', '--produccion', '--json'])).toContain(
-      'Aviso: --produccion, --json no aplican a `arcli config ruta`, se ignoran.',
+    expect(await stderrOf(['config', 'ruta', '--produccion', '--bruto'])).toContain(
+      'Aviso: --produccion, --bruto no aplican a `arcli config ruta`, se ignoran.',
     );
   });
 

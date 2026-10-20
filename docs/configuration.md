@@ -113,6 +113,7 @@ arcli config
 
 ```bash
 arcli config ruta
+arcli config ruta --json   # {"ruta": "..."}
 ```
 
 ### Revisar configuración activa

@@ -415,6 +415,19 @@ Cuando el error viene de Zod o de validación de entrada:
 }
 ```
 
+### Errores JSON de uso
+
+Una opción desconocida, un valor faltante o un comando que no existe también sale en JSON cuando corresponde (`--json` o `json=true` en la config), con exit code `1`. El mensaje es el de commander, en una sola línea. `--ayuda` y `--version` no son errores.
+
+```json
+{
+  "codigo": "INPUT_VALIDATION_ERROR",
+  "detalles": null,
+  "error": "unknown option '--montoo' (Did you mean --monto?)",
+  "sugerencia": "Usá \"arcli ayuda\" o \"arcli <comando> --ayuda\" para ver comandos y opciones."
+}
+```
+
 ### Errores JSON de configuración
 
 ```json
