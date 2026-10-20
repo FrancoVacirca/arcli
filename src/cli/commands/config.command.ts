@@ -15,7 +15,7 @@ import {
   writeTerminalOutput,
 } from '../../ui';
 import { registerJsonOption, resolveOutputJson } from '../global-options';
-import { configureSpanishHelp, createConfigHelp } from '../help';
+import { configureSpanishHelp, createConfigHelp, createConfigSetHelp } from '../help';
 import { startSpinner } from '../spinner';
 
 function createConfigService(): ConfigService {
@@ -128,6 +128,7 @@ export function registerConfigCommand(program: Command): void {
     .description('guardar un valor de configuracion')
     .argument('<clave>', 'clave publica de configuracion')
     .argument('<valor>', 'valor a guardar')
+    .addHelpText('after', createConfigSetHelp())
     .action((key: string, value: string, _options: unknown, command: Command) => {
       // Sin ensureInitialized: si la config quedo invalida, establecer o eliminar la clave es la forma de arreglarla.
       const service = new ConfigService();

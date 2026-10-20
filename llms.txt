@@ -54,7 +54,7 @@ Shortcuts (`family` = comando alternativo `arcli <family> <letra>`, ej. `arcli f
 - Concepto: `--concepto <tipo>` (`productos`/`servicios`/`productos-servicios`) o atajos `--cs` `--cp` `--csp`. Uno solo, no combinar `--concepto` con un atajo.
 - IVA receptor: `--iva-receptor <tipo>` / `--ir <tipo>` (alias) o un atajo `--ir-ce|--ir-cf|--ir-il|--ir-ina|--ir-ms|--ir-mtip|--ir-pe|--ir-ri|--ir-rm|--ir-se|--ir-snc`. Usar exactamente una forma.
   Valores válidos: `cliente-del-exterior`, `consumidor-final`, `iva-liberado`, `iva-no-alcanzado`, `monotributista-social`, `monotributo-trabajador-independiente-promovido`, `proveedor-del-exterior`, `responsable-inscripto`, `responsable-monotributo`, `sujeto-exento`, `sujeto-no-categorizado`.
-  El IVA receptor tiene que ser válido para la letra: `A` solo admite `responsable-inscripto`, `responsable-monotributo`, `monotributista-social` y `monotributo-trabajador-independiente-promovido`; `B` admite el resto; `C` admite todos. Letras `A` y `B` siempre discriminan IVA al 21%.
+  El IVA receptor tiene que ser válido para la letra: `A` solo admite `responsable-inscripto`, `responsable-monotributo`, `monotributista-social` y `monotributo-trabajador-independiente-promovido`; `B` admite el resto; `C` admite todos. Letras `A` y `B` discriminan IVA a la alícuota de `--alicuota` (por defecto 21%, ver abajo).
 - IVA (solo letras A y B): `--alicuota general|reducida|incrementada|cero` o el número `0|2.5|5|10.5|21|27` (default `config.alicuota` o 21; la config no aplica a C). Varias alícuotas: repetir `--alicuota TASA:MONTO` con el monto IVA incluido de cada una (`--alicuota general:1210 --alicuota reducida:552,50`); `--monto` pasa a ser opcional y, si se pasa, tiene que coincidir con la suma. En JSON: `alicuotas: [{tasa, monto}]`. Además, `--exento <monto>` y `--nogravado <monto>` (sin guion). `--monto` es siempre el total; exento y no gravado se descuentan y el IVA se calcula sobre el resto. En letra C esos flags dan error.
 - Identidad del receptor: `--cuit <n>` / `--cuil <n>` / `--dni <n>` / `--consumidor-final` (alias `--cfinal`, documento 0). Usar como máximo una. Desde $10.000.000 (total × cotización) no se puede usar `--consumidor-final`: identificar con `--dni`/`--cuit`/`--cuil` y `--ir-cf`.
 - Punto de venta: `--punto-venta <n>` (alias `--pv`). Si no se pasa, usa el default de config.
@@ -67,15 +67,17 @@ Shortcuts (`family` = comando alternativo `arcli <family> <letra>`, ej. `arcli f
 - Ejecución: `--previsualizar` (solo arma y muestra la solicitud) vs `--emitir` (real contra ARCA) — son mutuamente excluyentes. El entorno sale de `config.entorno` (`testing` por defecto) salvo `--testing`/`--produccion`. Sin `--emitir` ni `--previsualizar` decide `config.emitir` (o `"emitir"` del JSON); si tampoco hay, en una terminal pregunta y con `--json` o sin TTY no emite. `--produccion --emitir` emite de verdad sin confirmación adicional, y lo mismo pasa sin flags si la config tiene `entorno produccion` y `emitir true`. Para no depender de la config, pasá siempre `--testing` o `--produccion` y `--emitir` o `--previsualizar` explícitos.
 - Salida: `--json` (estructurada, para scripts/agentes — desactiva el aviso de nueva versión), `--bruto` (incluye la respuesta cruda de ARCA). `--bruto` solo existe en los comandos de facturación; en `padron`, `fce-obligado`, `ultimos`, `consultar`, `parametros` y `estado` se ignora con un aviso en stderr. En todos los comandos, sin `--json` decide la clave de config `json`.
 - `--cargar <path.json>`: carga uno o un array de comprobantes desde un JSON en vez de flags (ver forma abajo). Los flags pisan lo que venga del archivo.
-- PDF: `--exportar-pdf` (alias `--pdf`) genera el PDF con QR después de emitir; `--sin-pdf` no lo genera; sin flag decide `config pdf` (`preguntar` por defecto, que sin TTY o con `--json` no genera). Datos que solo van en el PDF (ARCA no los recibe): `--descripcion <texto>`, `--receptor-nombre <texto>`, `--receptor-domicilio <texto>`. Requiere el plugin (`arcli pdf instalar`, ~160 MB; desde un agente instalarlo antes, porque sin TTY nunca se descarga solo) y `emisor.razonSocial`, `emisor.domicilio`, `emisor.inicioActividades` en la config. Detalle: `docs/pdf.md`.
+- PDF: `--exportar-pdf` (alias `--pdf`) genera el PDF con QR después de emitir; `--sin-pdf` no lo genera; sin flag decide `config pdf` (`preguntar` por defecto, que sin TTY o con `--json` no genera). Datos que solo van en el PDF (ARCA no los recibe): `--descripcion <texto>`, `--receptor-nombre <texto>`, `--receptor-domicilio <texto>`. Requiere el plugin (`arcli pdf instalar`, ~160 MB; desde un agente instalarlo antes, porque sin TTY nunca se descarga solo) y `emisor.razonSocial`, `emisor.domicilio`, `emisor.inicioActividades` en la config. Detalle: https://github.com/LcsGrz/arcli/blob/main/docs/pdf.md.
 
 ## Modo no interactivo
 
-Sin `--emitir` ni `--previsualizar`, si la sesión es interactiva (TTY) arcli muestra una vista
-previa y pregunta si emitir. **Con `--json`, o cuando stdin/stdout no son un TTY (scripts,
-agentes, CI), nunca pregunta** — se comporta como si fuera dry-run salvo que se pase
-`--emitir` explícitamente. Para invocar desde un agente, siempre pasar `--emitir` o
-`--previsualizar` de forma explícita y no depender del prompt.
+Sin `--emitir` ni `--previsualizar`, decide `"emitir"` del JSON de `--cargar` y, si no está,
+`config.emitir`. Si nada pide emitir y la sesión es interactiva (TTY), arcli muestra una vista
+previa y pregunta. **Con `--json`, o cuando stdin/stdout no son un TTY (scripts, agentes, CI),
+nunca pregunta**: no emite, salvo que `config.emitir` sea `true`, y en ese caso emite sin
+confirmar (en producción también, si `config.entorno` es `produccion`). Para invocar desde un
+agente, siempre pasar `--emitir` o `--previsualizar` (y `--testing` o `--produccion`) de forma
+explícita y no depender de la config ni del prompt.
 
 ## Forma del JSON de `--cargar` (un objeto o un array de estos)
 
@@ -101,7 +103,7 @@ agentes, CI), nunca pregunta** — se comporta como si fuera dry-run salvo que s
 Las claves son las de este ejemplo más `emitir`, `fechaComprobante`, `servicioDesde`, `servicioHasta` (fechas como en los
 flags; `dia` no se combina con `fechaComprobante` ni `servicioHasta`), `alicuotaIva`, `alicuotas` (`[{tasa, monto}]`),
 `importeExento`, `importeNoGravado`, `mismaMoneda`, `vencimientoPago`, `cbu`, `aliasCbu`, `transferencia` y, solo en notas,
-`comprobanteAsociado` (`{atajo|tipo, puntoVenta, numero, cuit, fecha}`), `periodoAsociado` (`{desde, hasta}`) y `anulacion`. Lista y equivalencia con los flags: `docs/input-output.md`.
+`comprobanteAsociado` (`{atajo|tipo, puntoVenta, numero, cuit, fecha}`), `periodoAsociado` (`{desde, hasta}`) y `anulacion`. Lista y equivalencia con los flags: https://github.com/LcsGrz/arcli/blob/main/docs/input-output.md.
 Una clave desconocida (`montototal`, `vencimiento`, `moneda`) o un tipo incorrecto (`"puntoVenta": "3"`, `"emitir": "true"`,
 `null`) es `INPUT_VALIDATION_ERROR` (en un lote, `BATCH_VALIDATION_ERROR` con el índice): no se ignora. Números sin comillas.
 
@@ -151,14 +153,19 @@ de ARCA, no se envió nada; `detalles.entorno` y `detalles.vencimiento`, la guí
 (`--cargar` con un array, aunque tenga un solo elemento) `BATCH_VALIDATION_ERROR` (no se emitió ninguno; `detalles.comprobantes` lista cada
 `{indice, error}`) y `BATCH_EMISSION_ERROR` (se cortó a mitad: los resultados ya procesados salen antes por
 stdout; si viene `detalles.sinConfirmar`, verificar ese índice con `arcli ultimos` antes de reintentarlo;
-después reintentar `detalles.sinProcesar`, nunca los ya emitidos). El proceso termina con
-exit code `1` en cualquier error. Los errores de uso (opción desconocida, valor faltante, comando inexistente) también salen en este JSON como `INPUT_VALIDATION_ERROR`, con el mensaje de commander en `error`. Resumen: `0` aprobado (u observado), `1` error, `2` rechazado por ARCA.
+después reintentar `detalles.sinProcesar`, nunca los ya emitidos). En consultas: `TAXPAYER_NOT_FOUND` (`padron`),
+`PADRON_SERVICE_NOT_AUTHORIZED` (`padron`; al facturar no corta, usa la config con un aviso), `FCE_SERVICE_NOT_AUTHORIZED`
+y `FCE_OBLIGATION_ERROR` (`fce-obligado`; con `verificarFce` al facturar salen como aviso), `ARCA_UNAVAILABLE` (`estado`),
+`ARCA_PARAMETERS_ERROR` (`parametros <tabla>`) y `ARCA_QUOTATION_ERROR` (`parametros cotizacion` o `--misma-moneda`).
+`PDF_PLUGIN_INSTALL_ERROR` sale de `arcli pdf instalar`. `sugerencia` está siempre: `null` si no hay nada que sugerir.
+Qué hacer con cada código: tabla "Códigos de error" de https://github.com/LcsGrz/arcli/blob/main/docs/input-output.md. Los errores de uso (opción desconocida, valor faltante, comando inexistente) también salen en este JSON como `INPUT_VALIDATION_ERROR`, con el mensaje de commander en `error`. El proceso termina con
+exit code `1` en cualquier error. Resumen: `0` aprobado (u observado), `1` error, `2` rechazado por ARCA.
 
 ## Comando `config`
 
 ```bash
 arcli config                              # ver config actual (agregar --json)
-arcli config revisar [--testing|--produccion]   # valida credenciales + contexto real
+arcli config revisar                      # valida credenciales y contexto de los dos entornos (agregar --json)
 arcli config ruta [--json]                # path del archivo de config ({"ruta": ...})
 arcli config establecer <clave> <valor>
 arcli config eliminar <clave>
@@ -173,16 +180,19 @@ Para el PDF: `pdf` (`siempre`/`preguntar`/`nunca`), `pdfCarpeta` (por defecto `~
 por CUIT emisor, los de testing en `testing/<CUIT>/`, y nunca se pisa un PDF existente: se suma `-2`, `-3`), `pdfNavegador` (ruta a Chrome/Chromium/Edge), `emisor.razonSocial`, `emisor.domicilio`,
 `emisor.inicioActividades` (fecha con año), `emisor.iibb`, `emisor.condicionIva`, `emisor.logo` (PNG o JPG).
 
-`config revisar` también avisa si un certificado ya venció o vence en menos de 30 días. Además, a menos de 30 días
-de vencer, cada comando que va a ARCA avisa en stderr (nunca en stdout) y la facturación lo suma a `avisos` del JSON.
+`config revisar` también avisa si un certificado ya venció o vence en menos de 30 días. Con `--json` devuelve
+`{ok, chequeos: [{categoria: "ok"|"warning"|"error", etiqueta, detalle}]}`; `ok: false` sale igual con exit code `0`.
+`arcli config --json` devuelve la config con las rutas enmascaradas (`cert`, `key` y `emisor` como objetos).
+Además, a menos de 30 días de vencer, cada comando que va a ARCA avisa en stderr (nunca en stdout) y la facturación
+lo suma a `avisos` del JSON.
 
 ## Otros comandos
 
 - `arcli ultimos <tipo> [--cantidad N] [--pv N] [--json]`: últimos comprobantes emitidos (de 1 a 50; por defecto `config.comprobantesPorLista` o 15), del más nuevo al más viejo. `tipo` es el atajo (`fb`, `nca`…).
 - `arcli consultar <tipo> <numero> [--pv N] [--json]`: detalle de un comprobante emitido (CAE, vencimiento, importes, receptor). Si no existe, el error es `VOUCHER_NOT_FOUND`. Sirve para verificar después de emitir.
 - `arcli pdf [estado|instalar|desinstalar] [--json]`: plugin que genera los PDFs. `arcli pdf instalar` lo descarga sin preguntar (sirve en scripts).
-- `arcli estado [--json]`: si ARCA responde (servidores app/db/auth, latencia) y si el punto de venta configurado está habilitado. `listo: true` = se puede emitir. En testing ARCA no informa puntos de venta (`puntoVenta.estado: "sin-datos"`).
-- `arcli parametros [tabla] [--json]`: tablas de ARCA vigentes: `puntos-venta`, `comprobantes`, `documentos`, `alicuotas`, `iva-receptor`, `monedas`, `conceptos`, `opcionales`, `tributos`. `arcli parametros cotizacion USD` da la cotización oficial (`{moneda, cotizacion, fecha}`).
+- `arcli estado [--json]`: si ARCA responde y si el punto de venta configurado está habilitado: `{entorno, latenciaMs, listo, puntoVenta: {estado, numero, tipoEmision}, servidores: {aplicacion, baseDeDatos, autenticacion}}`. `listo: true` = se puede emitir; `listo: false` sale igual con exit code `0`, así que hay que leer `listo`. En testing ARCA no informa puntos de venta (`puntoVenta.estado: "sin-datos"`). Si ARCA no responde: error `ARCA_UNAVAILABLE`.
+- `arcli parametros [tabla] [--json]`: tablas de ARCA vigentes: `puntos-venta`, `comprobantes`, `documentos`, `alicuotas`, `iva-receptor`, `monedas`, `conceptos`, `opcionales`, `tributos`. Sin tabla: `{tablas: [{tabla, descripcion}]}`; con tabla: `{entorno, tabla, valores: [{id, descripcion, detalle, vigenteHasta}]}`. `arcli parametros cotizacion USD` da la cotización oficial (`{cotizacion, entorno, fecha, moneda}`, con `moneda` en código ARCA: `DOL`).
 - `arcli ejemplos`: comandos listos para copiar por cada tipo de comprobante.
 - `arcli storybook [escena]`: demos visuales de la UI (sin llamar a ARCA).
 - `arcli <cualquier comando> ayuda` o `--ayuda`: ayuda contextual con ejemplos (nota: el flag
@@ -190,10 +200,12 @@ de vencer, cada comando que va a ARCA avisa en stderr (nunca en stdout) y la fac
 
 ## Más detalle
 
-- `docs/cli-reference.md`: referencia completa de comandos y flags.
-- `docs/configuration.md`: config persistente, claves soportadas, ticketPath.
-- `docs/validation-rules.md` y `docs/input-output.md`: reglas de validación y formatos de entrada/salida.
-- `docs/troubleshooting.md`: errores comunes de ARCA y como resolverlos.
-- `docs/pdf.md`: PDF de comprobantes, plugin, carpeta y nombre del archivo.
-- `docs/modo-interactivo.md`: asistente interactivo (un agente no debe usarlo).
-- `AGENTS.md`: para agentes que van a modificar el código de este repo (no para usar el CLI).
+Los docs no vienen en el paquete de npm: están en GitHub.
+
+- https://github.com/LcsGrz/arcli/blob/main/docs/cli-reference.md: referencia completa de comandos y flags.
+- https://github.com/LcsGrz/arcli/blob/main/docs/configuration.md: config persistente, claves soportadas, ticketPath.
+- https://github.com/LcsGrz/arcli/blob/main/docs/validation-rules.md y https://github.com/LcsGrz/arcli/blob/main/docs/input-output.md: reglas de validación y formatos de entrada/salida, con el JSON de cada comando y los códigos de error.
+- https://github.com/LcsGrz/arcli/blob/main/docs/troubleshooting.md: errores comunes de ARCA y como resolverlos.
+- https://github.com/LcsGrz/arcli/blob/main/docs/pdf.md: PDF de comprobantes, plugin, carpeta y nombre del archivo.
+- https://github.com/LcsGrz/arcli/blob/main/docs/modo-interactivo.md: asistente interactivo (un agente no debe usarlo).
+- https://github.com/LcsGrz/arcli/blob/main/AGENTS.md: para agentes que van a modificar el código de este repo (no para usar el CLI).

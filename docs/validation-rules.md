@@ -63,7 +63,7 @@ Si el formato no coincide, ARCLI corta antes de armar el payload.
 
 ### Emisión en producción
 
-Para emitir realmente en `produccion`, ARCLI exige `--produccion` y `--emitir` juntos.
+ARCLI no tiene una regla aparte para producción: emite si `--emitir` lo pide o, sin `--emitir` ni `--previsualizar`, si lo pide `"emitir"` del JSON de `--cargar` o `config.emitir`. Con `entorno produccion` y `emitir true` en la config, un comando sin flags emite en producción sin preguntar. Si nada pide emitir, en una terminal se muestra la vista previa y se pregunta; con `--json` o sin terminal no se emite. Detalle en [Emisión en producción](cli-reference.md#emisión-en-producción).
 
 ## 2. Reglas de negocio
 
@@ -165,12 +165,14 @@ Período asociado (`--periodo-desde` y `--periodo-hasta`):
 - desde ≤ hasta (10207), y ambas posteriores al 01/01/2006 (10206)
 - hasta ≤ fecha de la nota (10208)
 
-Comprobante asociado, que necesita:
+Comprobante asociado (si no se usa el período), que necesita:
 
 - `--ac` o `--at`
 - `--apv` o `--asociado-punto-venta`
 - `--ar`
-- `--acuit`
+- `--acuit`, salvo en NC/ND FCE, donde se puede omitir y toma el CUIT emisor
+
+Con período asociado no hace falta ninguno de estos flags, `--acuit` incluido.
 
 Además:
 

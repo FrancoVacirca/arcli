@@ -71,7 +71,8 @@ Con un solo comprobante, `detalles.campos` lista cada problema con su ruta en el
       { "mensaje": "La clave \"vencimiento\" no existe: ¿quisiste decir \"vencimientoPago\"?", "ruta": ["vencimiento"] }
     ]
   },
-  "error": "En el JSON de --cargar: ..."
+  "error": "En el JSON de --cargar: ...",
+  "sugerencia": null
 }
 ```
 
@@ -206,7 +207,8 @@ Si el archivo contiene un array, ARCLI procesa un lote del mismo comando. **Un a
       }
     ]
   },
-  "error": "2 de 4 comprobantes del lote tienen errores. No se emitio ninguno.\n\n#2: ..."
+  "error": "2 de 4 comprobantes del lote tienen errores. No se emitio ninguno.\n\n#2: ...",
+  "sugerencia": null
 }
 ```
 
@@ -214,7 +216,8 @@ Si el archivo contiene un array, ARCLI procesa un lote del mismo comando. **Un a
 {
   "codigo": "BATCH_EMISSION_ERROR",
   "detalles": { "fallo": 3, "procesados": 2, "sinConfirmar": 3, "sinProcesar": [4], "total": 4 },
-  "error": "El lote se interrumpio en el comprobante #3: ...\nProcesados: 2 de 4. Sin procesar: #4.\nEl #3 puede haberse emitido: verifiquelo con \"arcli ultimos\" antes de reintentarlo."
+  "error": "El lote se interrumpio en el comprobante #3: ...\nProcesados: 2 de 4. Sin procesar: #4.\nEl #3 puede haberse emitido: verifiquelo con \"arcli ultimos\" antes de reintentarlo.",
+  "sugerencia": null
 }
 ```
 
@@ -398,9 +401,219 @@ Si no hubo emisión real, `respuesta` no se serializa como `null`. En su lugar:
 | `importes`                | `object`         | `total`, `neto`, `iva`, `exento`, `noGravado` y `tributos`            |
 | `resultado`               | `string \| null` | `A` aprobado, `R` rechazado                                           |
 
+## Padrón (`padron`)
+
+`arcli padron <cuit> --json` devuelve los datos de la constancia de inscripción. Los campos que ARCA no informa salen en `null` (o `[]` en las listas):
+
+```json
+{
+  "actividades": [{ "descripcion": "SERVICIOS DE CONSULTORES EN INFORMATICA", "id": 620100 }],
+  "avisos": [],
+  "categoriaMonotributo": null,
+  "condicionIva": "responsable-inscripto",
+  "cuit": 20201797064,
+  "domicilio": "AV SIEMPRE VIVA 742, CABA, CP 1000, CIUDAD AUTONOMA BUENOS AIRES",
+  "entorno": "testing",
+  "estadoClave": "ACTIVO",
+  "impuestos": [{ "activo": true, "descripcion": "IVA", "id": 30 }],
+  "nombre": "PEREZ JUAN",
+  "tipoPersona": "fisica"
+}
+```
+
+| Campo                  | Tipo                             | Descripción                                                                                                          |
+| ---------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `actividades`          | `{ descripcion, id }[]`          | Actividades; la primera es la principal                                                                              |
+| `avisos`               | `string[]`                       | Observaciones de ARCA sobre la constancia                                                                            |
+| `categoriaMonotributo` | `string \| null`                 | Categoría, si es monotributista                                                                                      |
+| `condicionIva`         | `string \| null`                 | `responsable-inscripto`, `responsable-monotributo` o `sujeto-exento`; `null` si no se puede deducir de los impuestos |
+| `cuit`                 | `number`                         | CUIT consultado                                                                                                      |
+| `domicilio`            | `string \| null`                 | Domicilio fiscal en una línea                                                                                        |
+| `entorno`              | `"testing" \| "produccion"`      | Entorno consultado                                                                                                   |
+| `estadoClave`          | `string \| null`                 | Estado de la clave fiscal según ARCA, por ejemplo `ACTIVO`                                                           |
+| `impuestos`            | `{ activo, descripcion, id }[]`  | Impuestos inscriptos                                                                                                 |
+| `nombre`               | `string \| null`                 | Razón social, o apellido y nombre                                                                                    |
+| `tipoPersona`          | `"fisica" \| "juridica" \| null` | Tipo de persona                                                                                                      |
+
+Si el CUIT no figura, es el error `TAXPAYER_NOT_FOUND` (ver [códigos](#códigos-de-error)).
+
+## Régimen FCE (`fce-obligado`)
+
+`arcli fce-obligado <cuit> --json`:
+
+```json
+{
+  "cuit": 30546689979,
+  "entorno": "testing",
+  "fecha": "20261019",
+  "montoDesde": 3958316,
+  "obligado": true
+}
+```
+
+| Campo        | Tipo      | Descripción                                                    |
+| ------------ | --------- | -------------------------------------------------------------- |
+| `cuit`       | `number`  | CUIT consultado                                                |
+| `fecha`      | `string`  | Fecha consultada, formato ARCA `yyyymmdd` (`--fecha` o hoy)    |
+| `montoDesde` | `number`  | Monto en pesos desde el que corresponde FCE                    |
+| `obligado`   | `boolean` | `true` si el receptor está obligado a recibir FCE en esa fecha |
+| `entorno`    | `string`  | `testing` o `produccion`                                       |
+
+## Estado de ARCA (`estado`)
+
+`arcli estado --json`:
+
+```json
+{
+  "entorno": "produccion",
+  "latenciaMs": 412,
+  "listo": true,
+  "puntoVenta": { "estado": "habilitado", "numero": 3, "tipoEmision": "CAE" },
+  "servidores": { "aplicacion": "OK", "autenticacion": "OK", "baseDeDatos": "OK" }
+}
+```
+
+| Campo                    | Tipo             | Descripción                                                                                     |
+| ------------------------ | ---------------- | ----------------------------------------------------------------------------------------------- |
+| `listo`                  | `boolean`        | Se puede emitir: los tres servidores en `OK` y el punto de venta `habilitado` o `sin-datos`     |
+| `latenciaMs`             | `number`         | Lo que tardó ARCA en responder el estado de los servidores                                      |
+| `servidores`             | `object`         | `aplicacion`, `baseDeDatos` y `autenticacion`, tal como los informa ARCA (`OK` si andan)        |
+| `puntoVenta.estado`      | `string`         | `habilitado`, `bloqueado`, `de-baja`, `no-encontrado`, `sin-datos` (testing) o `sin-configurar` |
+| `puntoVenta.numero`      | `number \| null` | Punto de venta de la config; `null` si no hay                                                   |
+| `puntoVenta.tipoEmision` | `string \| null` | Tipo de emisión que informa ARCA, si encontró el punto de venta                                 |
+| `entorno`                | `string`         | `testing` o `produccion`                                                                        |
+
+`listo: false` **no es un error**: el comando sale con exit code `0`. Revisá `listo` en el JSON. Si ARCA no responde, sí es error: `ARCA_UNAVAILABLE`, con exit code `1`.
+
+## Tablas de ARCA (`parametros`)
+
+`arcli parametros --json` lista las tablas (no consulta ARCA ni necesita config):
+
+```json
+{
+  "tablas": [
+    { "descripcion": "Alicuotas de IVA", "tabla": "alicuotas" },
+    { "descripcion": "Cotizacion oficial de ARCA", "tabla": "cotizacion" }
+  ]
+}
+```
+
+`arcli parametros <tabla> --json` devuelve los valores vigentes:
+
+```json
+{
+  "entorno": "testing",
+  "tabla": "alicuotas",
+  "valores": [{ "descripcion": "21%", "detalle": null, "id": "5", "vigenteHasta": null }]
+}
+```
+
+| Campo                    | Tipo             | Descripción                                                                               |
+| ------------------------ | ---------------- | ----------------------------------------------------------------------------------------- |
+| `valores[].id`           | `string`         | Código de ARCA                                                                            |
+| `valores[].descripcion`  | `string`         | Descripción de ARCA                                                                       |
+| `valores[].detalle`      | `string \| null` | Dato propio de la tabla: clase de comprobante en `iva-receptor`, estado en `puntos-venta` |
+| `valores[].vigenteHasta` | `string \| null` | Fin de vigencia, `yyyymmdd`; `null` si no vence                                           |
+
+En testing, `puntos-venta` sale con `valores: []`: ARCA no informa puntos de venta en ese entorno.
+
+`arcli parametros cotizacion <moneda> --json`:
+
+```json
+{ "cotizacion": 1452.5, "entorno": "produccion", "fecha": "20261017", "moneda": "DOL" }
+```
+
+`moneda` es el código de ARCA (`USD` sale como `DOL`) y `fecha` (`yyyymmdd`) puede ser `null`.
+
+## Configuración (`config` y `config revisar`)
+
+`arcli config --json` (y `config establecer` o `config eliminar` con `--json`, que devuelven la config resultante) muestra la config con las rutas enmascaradas. Las claves sin valor no aparecen:
+
+```json
+{
+  "alicuota": "21",
+  "cert": { "testing": ".../certs/testing.crt" },
+  "concepto": "servicios",
+  "consultarPadron": true,
+  "cotizacion": 1,
+  "cuit": "20409509763",
+  "emisor": { "razonSocial": "Ana Gomez", "domicilio": "Calle 1, CABA" },
+  "emitir": false,
+  "entorno": "testing",
+  "json": false,
+  "key": { "testing": ".../certs/testing.key" },
+  "moneda": "PES",
+  "pdf": "preguntar",
+  "pdfCarpeta": ".../arcli/comprobantes",
+  "puntoVenta": 3,
+  "bruto": false,
+  "ticketPath": ".../arcli/tickets"
+}
+```
+
+Las claves son las de [configuración](configuration.md), salvo que `cert.*`, `key.*` y `emisor.*` van anidadas en los objetos `cert`, `key` y `emisor` (vacíos si no hay nada). `emitir`, `entorno`, `json`, `bruto`, `pdf`, `pdfCarpeta`, `moneda`, `cotizacion`, `consultarPadron` y `ticketPath` siempre aparecen, con su valor por defecto si no se configuraron; el resto, solo si tiene valor.
+
+`arcli config revisar --json`:
+
+```json
+{
+  "chequeos": [
+    { "categoria": "ok", "detalle": "Entorno por defecto: testing.", "etiqueta": "Entorno" },
+    {
+      "categoria": "warning",
+      "detalle": "Configure un punto de venta por defecto con \"arcli config establecer puntoVenta <valor>\".",
+      "etiqueta": "Punto de venta"
+    },
+    {
+      "categoria": "error",
+      "detalle": "Falta el CUIT. Configurelo con \"arcli config establecer cuit <valor>\". Si quiere una guia rapida, use \"arcli config revisar\".",
+      "etiqueta": "Validacion testing"
+    }
+  ],
+  "ok": false
+}
+```
+
+`categoria` es `ok`, `warning` o `error`, y `ok` es `true` solo si todos los chequeos son `ok`. `ok: false` **no es un error**: el comando sale con exit code `0`. Revisá `ok` y las `categoria` en el JSON.
+
+## Plugin de PDF (`pdf estado`)
+
+`arcli pdf --json`, `arcli pdf estado --json` y `arcli pdf instalar --json` (al terminar) devuelven:
+
+```json
+{
+  "instalado": true,
+  "navegador": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "origenNavegador": "sistema",
+  "ruta": "/Users/ana/Library/Preferences/arcli/plugins/pdf",
+  "version": "0.2.1",
+  "versionInstalada": "0.2.1"
+}
+```
+
+| Campo              | Tipo             | Descripción                                                                                  |
+| ------------------ | ---------------- | -------------------------------------------------------------------------------------------- |
+| `instalado`        | `boolean`        | El plugin está instalado                                                                     |
+| `navegador`        | `string \| null` | Navegador que usa para el PDF; `null` si no encontró ninguno                                 |
+| `origenNavegador`  | `string \| null` | `config` (`pdfNavegador`), `entorno` (`PUPPETEER_EXECUTABLE_PATH`), `sistema` o `descargado` |
+| `ruta`             | `string`         | Carpeta del plugin                                                                           |
+| `version`          | `string`         | Versión del plugin que usa esta versión de arcli                                             |
+| `versionInstalada` | `string \| null` | Versión instalada; `null` si no está instalado                                               |
+
+`arcli pdf desinstalar --json` devuelve `{ "desinstalado": true, "ruta": "..." }`.
+
 ## Formato de errores
 
 Los errores salen en JSON con `--json` o, sin el flag, si la config tiene `json=true`. Van a stderr y el proceso termina con exit code `1`.
+
+Todos tienen las mismas cuatro claves:
+
+| Campo        | Tipo                      | Descripción                                                                              |
+| ------------ | ------------------------- | ---------------------------------------------------------------------------------------- |
+| `codigo`     | `string`                  | Código estable del error (ver [códigos](#códigos-de-error))                              |
+| `detalles`   | `object \| array \| null` | Datos del error: un objeto, la lista de campos en errores de validación de Zod, o `null` |
+| `error`      | `string`                  | Mensaje para mostrar                                                                     |
+| `sugerencia` | `string \| null`          | Qué hacer; `null` cuando no hay nada que sugerir                                         |
 
 Un comprobante **rechazado por ARCA no es un error del comando**: sale como resultado normal (stdout, `estado: "rechazado"`, con `errores` y `observaciones`), pero el exit code es `2`.
 
@@ -409,6 +622,30 @@ Un comprobante **rechazado por ARCA no es un error del comando**: sale como resu
 | `0`       | Todo bien: comprobantes aprobados (también `observado`, que tiene CAE) o vista previa |
 | `1`       | Error: entrada inválida, configuración, red o ARCA sin respuesta                      |
 | `2`       | ARCA rechazó al menos un comprobante. En un lote, revisá `estado` de cada uno         |
+
+Dos comandos de diagnóstico informan un problema sin que sea un error: `arcli config revisar` con `ok: false` y `arcli estado` con `listo: false` salen por stdout con exit code `0`. Para saber si está todo listo, leé `ok` o `listo` en el JSON, no el exit code.
+
+### Códigos de error
+
+| Código                          | Comando                                                   | Qué pasó                                                                                                        | Qué hacer                                                                                                                                |
+| ------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `INPUT_VALIDATION_ERROR`        | todos                                                     | Flags, argumentos o JSON de `--cargar` inválidos o incompletos                                                  | Corregí lo que indican `error` y `detalles`; no se emitió nada                                                                           |
+| `CONFIGURATION_ERROR`           | todos los que usan ARCA, `config`                         | Falta o es inválido un dato de la config: CUIT, certificado, clave, `config.json` corrupto                      | `arcli config revisar` y `arcli config establecer`                                                                                       |
+| `BATCH_VALIDATION_ERROR`        | facturación con lote                                      | Algún comprobante del lote es inválido; no se emitió ninguno                                                    | Corregí los índices de `detalles.comprobantes` y corré el lote completo ([detalle](#validación-y-errores-del-lote))                      |
+| `BATCH_EMISSION_ERROR`          | facturación con lote                                      | El lote se cortó a mitad; los procesados salen antes por stdout                                                 | No reemitas los procesados; verificá `detalles.sinConfirmar` con `arcli ultimos` y reintentá `detalles.sinProcesar`                      |
+| `EMISSION_UNCERTAIN`            | facturación                                               | Falló la llamada que emite: puede haberse emitido igual                                                         | Verificá con el `arcli ultimos` de `sugerencia` antes de reintentar ([detalle](#emisión-sin-confirmar))                                  |
+| `TRANSIENT_ERROR`               | todos los que usan ARCA                                   | WSAA o ARCA informan un estado pasajero (ticket vigente, transacción activa)                                    | Esperá unos segundos y reintentá sin cambiar nada                                                                                        |
+| `UNEXPECTED_ERROR`              | todos                                                     | Error sin código propio: red, login en WSAA (certificado vencido o no autorizado), respuesta inesperada de ARCA | Leé `error`; si es de red o de ARCA, reintentá más tarde                                                                                 |
+| `ARCA_UNAVAILABLE`              | `estado`                                                  | ARCA no respondió a la consulta de estado                                                                       | Reintentá en unos minutos; si persiste, ARCA está caído                                                                                  |
+| `ARCA_PARAMETERS_ERROR`         | `parametros <tabla>`                                      | ARCA devolvió un error al consultar una tabla o los puntos de venta (`detalles.errores`)                        | Revisá el mensaje de ARCA; suele ser pasajero o de permisos del certificado                                                              |
+| `ARCA_QUOTATION_ERROR`          | `parametros cotizacion`, facturación con `--misma-moneda` | ARCA no devolvió una cotización válida para la moneda                                                           | Revisá el código de moneda (`arcli parametros monedas`) o pasá la cotización con `--cm` en lugar de `--misma-moneda`                     |
+| `VOUCHER_NOT_FOUND`             | `consultar`                                               | El comprobante no existe en ese punto de venta y entorno                                                        | Revisá tipo, número, `--pv` y entorno; `arcli ultimos` lista los emitidos                                                                |
+| `TAXPAYER_NOT_FOUND`            | `padron`                                                  | El CUIT no figura en el padrón de ese entorno                                                                   | Revisá el número; en testing el padrón tiene datos ficticios (`sugerencia` trae un CUIT de prueba)                                       |
+| `PADRON_SERVICE_NOT_AUTHORIZED` | `padron`                                                  | El certificado no está autorizado para `ws_sr_constancia_inscripcion`                                           | Autorizalo como `wsfe` ([certificados](obtencion-certificados.md)). Al facturar no corta: se usa `ivaReceptor` de la config con un aviso |
+| `FCE_SERVICE_NOT_AUTHORIZED`    | `fce-obligado`                                            | El certificado no está autorizado para `wsfecred`                                                               | Autorizalo como `wsfe` ([certificados](obtencion-certificados.md)). Con `verificarFce` al facturar no corta: sale como aviso             |
+| `FCE_OBLIGATION_ERROR`          | `fce-obligado`                                            | ARCA no pudo informar si el receptor está obligado a FCE (`detalles.errors`)                                    | Revisá el CUIT y la fecha; los códigos de ARCA vienen en el mensaje. Al facturar sale como aviso                                         |
+| `PDF_PLUGIN_INSTALL_ERROR`      | `pdf instalar`                                            | No se pudo descargar el plugin o el navegador                                                                   | Revisá la conexión o el proxy de npm y reintentá                                                                                         |
+| `PDF_*` en `pdf.error`          | facturación con PDF                                       | No es un error del comando: el comprobante se emitió y falló solo el PDF                                        | Ver [errores del PDF](#errores-del-pdf); no reemitas                                                                                     |
 
 ### Errores JSON de validación
 
@@ -423,7 +660,8 @@ Cuando el error viene de Zod o de validación de entrada:
       "ruta": ["montoTotal"]
     }
   ],
-  "error": "Hay parametros invalidos o incompletos en la entrada."
+  "error": "Hay parametros invalidos o incompletos en la entrada.",
+  "sugerencia": null
 }
 ```
 
@@ -446,7 +684,8 @@ Una opción desconocida, un valor faltante o un comando que no existe también s
 {
   "codigo": "CONFIGURATION_ERROR",
   "detalles": null,
-  "error": "Falta la ruta del certificado para testing."
+  "error": "Falta la ruta del certificado para testing.",
+  "sugerencia": null
 }
 ```
 

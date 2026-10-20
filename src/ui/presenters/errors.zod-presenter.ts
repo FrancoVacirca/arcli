@@ -91,6 +91,7 @@ export function formatZodError(error: ZodError, useJson: boolean): string {
         ruta: formatPublicIssuePath(issue.path),
       })),
       error: 'Hay parametros invalidos o incompletos en la entrada.',
+      sugerencia: null,
     });
   }
 

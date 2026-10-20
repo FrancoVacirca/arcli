@@ -26,12 +26,15 @@ function errorOf(action: () => unknown): InputValidationError {
   throw new Error('se esperaba un InputValidationError');
 }
 
-/** Bloques ```json de un documento que parecen entradas de `--cargar` (no salidas ni errores). */
+/**
+ * Bloques ```json de un documento que parecen entradas de `--cargar` (no salidas ni errores). La salida de
+ * `arcli config --json` tambien puede traer `concepto`, pero siempre trae `entorno`, que no es una clave de entrada.
+ */
 function documentedInputs(markdown: string): unknown[] {
   return [...markdown.matchAll(/```json\n([\s\S]*?)```/g)]
     .map((match) => JSON.parse(match[1] ?? '') as unknown)
     .flatMap((value) => (Array.isArray(value) ? value : [value]))
-    .filter((value) => typeof value === 'object' && value !== null && 'concepto' in value);
+    .filter((value) => typeof value === 'object' && value !== null && 'concepto' in value && !('entorno' in value));
 }
 
 describe('billing.json-input', () => {

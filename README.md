@@ -33,7 +33,7 @@ npm install -g arcli
 
 ## Configuración
 
-Necesitás tu CUIT, un punto de venta y un certificado con su clave privada de ARCA. Si todavía no los tenés, seguí [Cómo obtener los certificados](docs/obtencion-certificados.md).
+Necesitás tu CUIT, un punto de venta y un certificado con su clave privada de ARCA. Si todavía no los tenés, seguí [Cómo obtener los certificados](https://github.com/LcsGrz/arcli/blob/main/docs/obtencion-certificados.md).
 
 Lo más simple es correr `arcli` y seguir la configuración guiada. Para hacerlo por comandos (por ejemplo, en un servidor):
 
@@ -45,7 +45,7 @@ arcli config establecer key.testing /ruta/a/la/clave.key
 arcli config revisar
 ```
 
-`arcli config revisar` verifica que el entorno activo esté listo para emitir. Todas las claves disponibles están en [Configuración](docs/configuration.md).
+`arcli config revisar` verifica que el entorno activo esté listo para emitir. Todas las claves disponibles están en [Configuración](https://github.com/LcsGrz/arcli/blob/main/docs/configuration.md).
 
 ## Uso
 
@@ -60,7 +60,7 @@ Otras consultas: `arcli ultimos`, `arcli consultar`, `arcli estado`, `arcli para
 
 <p align="center"><img src="https://raw.githubusercontent.com/LcsGrz/arcli/main/docs/assets/demo/comandos.gif" alt="Vista previa de una Factura C y emisión con salida JSON filtrada con jq" width="760"></p>
 
-La prioridad de los valores es `flags > JSON > config > defaults`. Ver el [modelo mental](docs/mental-model.md) y la [referencia del CLI](docs/cli-reference.md).
+La prioridad de los valores es `flags > JSON > config > defaults`. Ver el [modelo mental](https://github.com/LcsGrz/arcli/blob/main/docs/mental-model.md) y la [referencia del CLI](https://github.com/LcsGrz/arcli/blob/main/docs/cli-reference.md).
 
 ### Testing y producción
 
@@ -68,14 +68,14 @@ Por defecto se usa el entorno `testing`, con `cert.testing` y `key.testing`. Par
 
 ## Documentación
 
-El índice completo está en [docs/](docs/README.md). Lo principal:
+El índice completo está en [docs/](https://github.com/LcsGrz/arcli/blob/main/docs/README.md). Lo principal:
 
-- [Modo interactivo](docs/modo-interactivo.md) y [Patrones de uso](docs/usage-patterns.md)
-- [Referencia del CLI](docs/cli-reference.md) y [Configuración](docs/configuration.md)
-- [Entrada y salida](docs/input-output.md): formato del JSON
-- [PDF de comprobantes](docs/pdf.md)
-- [Cómo obtener los certificados](docs/obtencion-certificados.md)
-- [Troubleshooting](docs/troubleshooting.md), [Reglas de validación](docs/validation-rules.md) y [Limitaciones](docs/limitations.md)
+- [Modo interactivo](https://github.com/LcsGrz/arcli/blob/main/docs/modo-interactivo.md) y [Patrones de uso](https://github.com/LcsGrz/arcli/blob/main/docs/usage-patterns.md)
+- [Referencia del CLI](https://github.com/LcsGrz/arcli/blob/main/docs/cli-reference.md) y [Configuración](https://github.com/LcsGrz/arcli/blob/main/docs/configuration.md)
+- [Entrada y salida](https://github.com/LcsGrz/arcli/blob/main/docs/input-output.md): formato del JSON
+- [PDF de comprobantes](https://github.com/LcsGrz/arcli/blob/main/docs/pdf.md)
+- [Cómo obtener los certificados](https://github.com/LcsGrz/arcli/blob/main/docs/obtencion-certificados.md)
+- [Troubleshooting](https://github.com/LcsGrz/arcli/blob/main/docs/troubleshooting.md), [Reglas de validación](https://github.com/LcsGrz/arcli/blob/main/docs/validation-rules.md) y [Limitaciones](https://github.com/LcsGrz/arcli/blob/main/docs/limitations.md)
 - [llms.txt](llms.txt): referencia condensada para agentes de IA con acceso a terminal
 - [Changelog](CHANGELOG.md)
 
@@ -88,11 +88,11 @@ yarn install
 yarn dev --ayuda
 ```
 
-Antes de abrir un PR: `yarn typecheck`, `yarn lint` y `yarn test`. Más en la [guía de desarrollo](docs/development.md) y la [arquitectura](docs/architecture.md).
+Antes de abrir un PR: `yarn typecheck`, `yarn lint` y `yarn test`. Más en la [guía de desarrollo](https://github.com/LcsGrz/arcli/blob/main/docs/development.md) y la [arquitectura](https://github.com/LcsGrz/arcli/blob/main/docs/architecture.md).
 
 ## Contribuir
 
-Leé [CONTRIBUTING.md](CONTRIBUTING.md). Para vulnerabilidades, ver [SECURITY.md](SECURITY.md); no subas certificados, claves ni tokens reales a issues ni PRs.
+Leé [CONTRIBUTING.md](https://github.com/LcsGrz/arcli/blob/main/CONTRIBUTING.md). Para vulnerabilidades, ver [SECURITY.md](https://github.com/LcsGrz/arcli/blob/main/SECURITY.md); no subas certificados, claves ni tokens reales a issues ni PRs.
 
 ## Agradecimientos
 

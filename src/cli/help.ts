@@ -7,7 +7,10 @@ import {
   getVoucherKindByShortcut,
   VOUCHER_LETTERS,
 } from '../modules/billing/voucher-kind-map';
+import type { ConfigPublicKey } from '../modules/config/config.schemas';
+import { CONFIG_LABELS, CONFIG_SECTIONS } from '../modules/config/config.sections';
 import { buildMinimalFamilyExample, buildMinimalShortcutExample } from '../modules/examples/examples';
+import { CONFIG_FIELDS } from '../modules/interactive/config-fields';
 import { renderLogo } from '../ui';
 
 import { CLI_VERSION } from './version';
@@ -465,6 +468,61 @@ function createFamilyFrequentErrors(family: VoucherFamily): string {
   return section('Errores frecuentes', lines.join('\n'));
 }
 
+const BOOLEAN_CONFIG_VALUES = 'true/false, si/no o 1/0';
+
+/** Valores de las claves que el asistente no edita o que, siendo booleanas, aceptan mas formas que si/no. */
+const CONFIG_VALUE_OVERRIDES: Partial<Record<ConfigPublicKey, string>> = {
+  alicuota: 'general, reducida, incrementada, cero o el numero: 0, 2.5, 5, 10.5, 21, 27; por defecto 21',
+  bruto: BOOLEAN_CONFIG_VALUES,
+  consultarPadron: `${BOOLEAN_CONFIG_VALUES}; por defecto si`,
+  emitir: BOOLEAN_CONFIG_VALUES,
+  json: BOOLEAN_CONFIG_VALUES,
+  verificarFce: BOOLEAN_CONFIG_VALUES,
+};
+
+function describeConfigValues(key: ConfigPublicKey): string | undefined {
+  const override = CONFIG_VALUE_OVERRIDES[key];
+
+  if (override) {
+    return override;
+  }
+
+  const field = CONFIG_FIELDS.find((candidate) => candidate.key === key);
+
+  if (!field) {
+    return undefined;
+  }
+
+  if (field.choices) {
+    return field.choices.join(', ');
+  }
+
+  return field.path ? 'ruta' : field.hint;
+}
+
+/** Todas las claves publicas, por seccion, con su nombre y valores: sale de la misma tabla que `arcli config`. */
+function createConfigKeysSection(): string {
+  const lines = CONFIG_SECTIONS.flatMap((configSection) => [
+    `  ${configSection.label}`,
+    ...configSection.keys.map((key) => {
+      const values = describeConfigValues(key);
+
+      return `    - ${key}: ${CONFIG_LABELS[key]}${values ? ` (${values})` : ''}`;
+    }),
+  ]);
+
+  return section(
+    'Claves',
+    [...lines, '  Guardar: arcli config establecer <clave> <valor>. Borrar: arcli config eliminar <clave>.'].join('\n'),
+  );
+}
+
+export function createConfigSetHelp(): string {
+  return ['', createConfigKeysSection(), '', section('Ejemplo', '  - arcli config establecer puntoVenta 3'), ''].join(
+    '\n',
+  );
+}
+
 export function createConfigHelp(): string {
   return [
     '',
@@ -497,19 +555,7 @@ export function createConfigHelp(): string {
       ].join('\n'),
     ),
     '',
-    section(
-      'Defaults que podes guardar',
-      [
-        '  - entorno: testing o produccion por defecto cuando no pasas --testing/--produccion.',
-        '  - cuit, puntoVenta, concepto, ivaReceptor: datos de facturacion que se repiten siempre.',
-        '  - cert.testing, cert.produccion, key.testing, key.produccion: rutas a certificado/clave por entorno.',
-        '  - moneda, cotizacion: defaults cuando no pasas --moneda/--cm.',
-        '  - alicuota: alicuota de IVA por defecto para letras A y B.',
-        '  - emitir, json, bruto: defaults de ejecucion y salida (true/false, si/no o 1/0).',
-        '  - ticketPath: carpeta donde se cachea el ticket WSAA.',
-        '  - Guardar: arcli config establecer <clave> <valor>. Borrar: arcli config eliminar <clave>.',
-      ].join('\n'),
-    ),
+    createConfigKeysSection(),
     '',
     section(
       'Ejemplos',
@@ -547,6 +593,7 @@ export function createStorybookHelp(): string {
       'Escenas disponibles',
       [
         '  - arcli storybook',
+        '  - arcli storybook bordes',
         '  - arcli storybook colores',
         '  - arcli storybook componentes',
         '  - arcli storybook comprobantes',
@@ -613,7 +660,7 @@ export function createFceObligationHelp(): string {
     '',
     section(
       'Ejemplos',
-      ['  - arcli fce-obligado 30709965812', '  - arcli fce-obligado 30709965812 --fecha 15/10 --json'].join('\n'),
+      ['  - arcli fce-obligado 30546689979', '  - arcli fce-obligado 30546689979 --fecha 15/10 --json'].join('\n'),
     ),
     '',
     section(

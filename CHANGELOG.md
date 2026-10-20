@@ -23,6 +23,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - **`config revisar` revisa los dos entornos:** valida el entorno por defecto y cualquier otro que tenga `cert` o `key` configurados, cada uno en su línea (`Validacion testing`, `Validacion produccion`). La línea `Revision activa` del JSON ya no existe. Ya no recibe `--testing` ni `--produccion`: antes los aceptaba pero los ignoraba y revisaba siempre testing.
 - **Exit code `2` cuando ARCA rechaza un comprobante:** antes salía con `0` y había que leer `estado` para enterarse. En un lote, `2` si ARCA rechazó al menos uno. `observado` sigue saliendo con `0`. Si un script trataba cualquier exit distinto de `0` como error de ARCLI, ahora también corta en un rechazo.
 - **PDFs en una subcarpeta por CUIT emisor:** `~/arcli/comprobantes/20123456789/factura-c_0003-00000125.pdf` (en testing, `testing/20123456789/`). Si el archivo ya existe no se pisa: se guarda con `-2`, `-3` y así.
+- **`sugerencia` siempre en el JSON de error:** todos los errores con `--json` traen las mismas cuatro claves (`codigo`, `detalles`, `error`, `sugerencia`), con `sugerencia: null` cuando no hay nada que sugerir. Antes faltaba en los errores sin sugerencia (`CONFIGURATION_ERROR`, `INPUT_VALIDATION_ERROR`…) y era `null` solo en los inesperados. Si un script chequeaba si la clave existe, ahora tiene que chequear si es `null`.
 - **`--bruto` solo en los comandos de facturación:** `padron`, `fce-obligado`, `ultimos`, `consultar`, `parametros`, `estado` e `interactivo` ya no lo declaran (no lo usaban): pasado ahí, el comando corre igual y avisa en stderr que se ignora. Ya no aparece en su ayuda.
 - **`arcli interactivo --json` ya no falla:** el asistente acepta solo `--testing` y `--produccion`; `--json` y `--bruto` se ignoran con un aviso. Sin terminal interactiva sigue fallando, con o sin `--json`.
 - **Comando equivalente del modo interactivo:** siempre lleva `--testing` o `--produccion`. Antes, en testing no llevaba nada, y si la config pasaba a producción el comando pegado emitía ahí.
@@ -41,6 +42,8 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - **`--dia` corría un mes de más** a fin de mes: `--dia 15` el 31/03 daba el 15/05 en vez del 15/04, y ARCA lo aceptaba con las fechas de servicio y vencimiento equivocadas. Si el día no existe en ese mes (`--dia 31` con abril), ahora da error.
 - **`--json` con `FORCE_COLOR`:** con `FORCE_COLOR=1` en el entorno, el JSON redirigido a un archivo o a otro programa salía con colores y no se podía parsear. Ahora solo se colorea en una terminal.
 - **`--json` en `config`:** `config`, `config revisar`, `config establecer` y `config eliminar` ignoraban `--json` y salían en texto.
+- **`config --ayuda` listaba la mitad de las claves:** mostraba 15 de 30. Ahora `config --ayuda` y `config establecer --ayuda` listan todas, por sección, con sus valores posibles.
+- **Links de `llms.txt` y del README en el paquete de npm:** apuntaban a `docs/`, que no se publica en npm. Ahora son links a GitHub.
 - **`config establecer` con un valor inválido** (`puntoVenta abc`, `comprobantesPorLista 99`) sale como error de entrada (`INPUT_VALIDATION_ERROR`) y no como error inesperado.
 
 ## [2.0.0] - 2026-10-12

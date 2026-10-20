@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { z, ZodError } from 'zod';
 
 import { AppError, ConfigurationError, InputValidationError } from '../../../lib/errors/app-error';
 import { formatCliError } from '../errors.presenter';
@@ -63,5 +64,17 @@ describe('errors.presenter', () => {
     expect(output).toContain('"codigo": "CONFIGURATION_ERROR"');
     expect(output).toContain('"error": "Mensaje de prueba"');
     expect(output).toContain('"ruta": "/tmp/test.key"');
+  });
+
+  it.each([
+    ['app error without suggestion', new ConfigurationError('Falta el CUIT.')],
+    ['input error', new InputValidationError('Falta el concepto.')],
+    ['zod error', z.object({ monto: z.number() }).safeParse({}).error as ZodError],
+    ['unexpected error', new Error('boom')],
+  ])('always includes sugerencia in JSON, null when there is none (%s)', (_name, error) => {
+    const json = JSON.parse(formatCliError(error, true)) as Record<string, unknown>;
+
+    expect(Object.keys(json).sort()).toEqual(['codigo', 'detalles', 'error', 'sugerencia']);
+    expect(json.sugerencia).toBeNull();
   });
 });

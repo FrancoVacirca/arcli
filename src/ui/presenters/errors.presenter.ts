@@ -113,7 +113,8 @@ export function formatCliError(error: unknown, useJson: boolean): string {
         codigo: error.code,
         detalles: formatErrorDetailsAsJson(error.details),
         error: error.message,
-        ...(error.suggestion ? { sugerencia: error.suggestion } : {}),
+        // Siempre presente: `null` cuando no hay que sugerir, igual que en los errores inesperados.
+        sugerencia: error.suggestion ?? null,
       });
     }
 

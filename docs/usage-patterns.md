@@ -146,7 +146,7 @@ Cuando vendés a una empresa grande dentro del régimen FCE MiPyMEs y el comprob
 ```bash
 arcli config establecer cbu 0110599520000012345678
 
-arcli fcea -m 1500000 --cs --cuit 30709965812 --ir-ri \
+arcli fcea -m 1500000 --cs --cuit 30546689979 --ir-ri \
   --dia 25 \
   --transferencia sca
 ```
@@ -154,7 +154,7 @@ arcli fcea -m 1500000 --cs --cuit 30709965812 --ir-ri \
 Si después el comprador rechaza la factura, la nota de crédito de anulación es:
 
 ```bash
-arcli ncea -m 1500000 --cs --cuit 30709965812 --ir-ri \
+arcli ncea -m 1500000 --cs --cuit 30546689979 --ir-ri \
   --ac fcea --apv 3 --ar 15 --afecha 01-10-2026 \
   --anulacion
 ```
