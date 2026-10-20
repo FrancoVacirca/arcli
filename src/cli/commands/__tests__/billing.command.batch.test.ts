@@ -8,8 +8,10 @@ import { emitBatch, prepareBatch } from '../billing.command.batch';
 const batch = (total: number, invalidItems: Array<{ index: number; message: string }> = []) => ({
   inputIndexes: Array.from({ length: total - invalidItems.length }, (_, position) => position + 1),
   invalidItems,
+  isBatch: total > 1,
   total,
 });
+const oneItemBatch = { inputIndexes: [1], invalidItems: [], isBatch: true, total: 1 };
 
 describe('prepareBatch', () => {
   it('con un solo comprobante deja pasar el error de la consulta como siempre', async () => {
@@ -28,7 +30,12 @@ describe('prepareBatch', () => {
   });
 
   it('junta los fallos de las consultas con los de validacion, con su indice, sin cortar en el primero', async () => {
-    const plan = { inputIndexes: [1, 2, 4, 5], invalidItems: [{ index: 3, message: 'Falta monto.' }], total: 5 };
+    const plan = {
+      inputIndexes: [1, 2, 4, 5],
+      invalidItems: [{ index: 3, message: 'Falta monto.' }],
+      isBatch: true,
+      total: 5,
+    };
     const resolve = vi.fn(async (input: string) => {
       if (input === 'sin-cotizacion') {
         throw new Error('ARCA no devolvio la cotizacion de DOL.');
@@ -72,6 +79,21 @@ describe('prepareBatch', () => {
     ).resolves.toEqual(['A', 'B']);
     expect(validate).toHaveBeenCalledWith('A');
     expect(validate).toHaveBeenCalledWith('B');
+  });
+  it('en un lote de un solo comprobante informa el fallo con su indice', async () => {
+    const run = prepareBatch({
+      inputs: ['a'],
+      plan: oneItemBatch,
+      resolve: async () => {
+        throw new Error('El padron no responde');
+      },
+      validate: vi.fn(),
+    });
+
+    await expect(run).rejects.toThrow(BatchValidationError);
+    await expect(run).rejects.toMatchObject({
+      details: { comprobantes: [{ error: 'El padron no responde', indice: 1 }] },
+    });
   });
 });
 
@@ -168,6 +190,19 @@ describe('emitBatch', () => {
       expect(error.message).toContain('El #2 puede haberse emitido');
       expect(error.details).toMatchObject({ fallo: 2, sinConfirmar: 2, sinProcesar: [3] });
     });
+    await expect(run).rejects.toThrow(BatchEmissionError);
+  });
+
+  it('en un lote de un solo comprobante corta con BATCH_EMISSION_ERROR', async () => {
+    const run = emitBatch({
+      emit: async () => {
+        throw new Error('boom');
+      },
+      inputs: ['a'],
+      onPartialResults: vi.fn(),
+      plan: oneItemBatch,
+    });
+
     await expect(run).rejects.toThrow(BatchEmissionError);
   });
 

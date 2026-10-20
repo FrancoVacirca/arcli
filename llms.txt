@@ -135,8 +135,9 @@ Una clave desconocida (`montototal`, `vencimiento`, `moneda`) o un tipo incorrec
 (`PDF_PLUGIN_MISSING`, `PDF_PLUGIN_INSTALL_ERROR`, `PDF_ISSUER_INCOMPLETE`, `PDF_GENERATION_ERROR`) y el exit code
 sigue siendo `0`: el comprobante ya está emitido, **no reemitir para obtener el PDF**.
 
-Con múltiples comprobantes (batch o `--cargar` con array) la salida es un array de estos
-objetos. Con `--bruto` se agrega `respuesta` con la respuesta cruda del SDK.
+Con `--cargar` y un array la salida es un array de estos objetos (con `indice`), aunque el array tenga un
+solo elemento; con un objeto o con flags, un objeto. Con `--bruto` se agrega `respuesta` con la respuesta
+cruda del SDK; el resto de los campos no cambia.
 
 **Importante:** un comprobante rechazado por ARCA (`"estado": "rechazado"`) es una respuesta
 válida, no una excepción: sale por stdout como cualquier resultado y el proceso termina con
@@ -150,7 +151,7 @@ Sin `--json` (ni `json=true` en la config): panel de texto en stderr. Con `--jso
 `codigo` es `CONFIGURATION_ERROR`, `INPUT_VALIDATION_ERROR`, `EMISSION_UNCERTAIN` (falló la llamada
 que emite, no el login ni el pedido del último número: puede haberse emitido igual; antes de reintentar, verificar con el `arcli ultimos <tipo> --pv <n>`
 que viene en `sugerencia`), `TRANSIENT_ERROR` (consultas: reintentar), `UNEXPECTED_ERROR`, `VOUCHER_NOT_FOUND` (`consultar`), o en un lote
-(`--cargar` con un array) `BATCH_VALIDATION_ERROR` (no se emitió ninguno; `detalles.comprobantes` lista cada
+(`--cargar` con un array, aunque tenga un solo elemento) `BATCH_VALIDATION_ERROR` (no se emitió ninguno; `detalles.comprobantes` lista cada
 `{indice, error}`) y `BATCH_EMISSION_ERROR` (se cortó a mitad: los resultados ya procesados salen antes por
 stdout; si viene `detalles.sinConfirmar`, verificar ese índice con `arcli ultimos` antes de reintentarlo;
 después reintentar `detalles.sinProcesar`, nunca los ya emitidos). El proceso termina con

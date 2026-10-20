@@ -25,9 +25,13 @@ export class BatchValidationError extends AppError {
     const lines = errors.map((item) => `#${item.index}: ${item.message}`);
 
     super(
-      [`${errors.length} de ${total} comprobantes del lote tienen errores. No se emitio ninguno.`, '', ...lines].join(
-        '\n',
-      ),
+      [
+        errors.length === 1
+          ? `1 de ${total} ${total === 1 ? 'comprobante' : 'comprobantes'} del lote tiene errores. No se emitio ninguno.`
+          : `${errors.length} de ${total} comprobantes del lote tienen errores. No se emitio ninguno.`,
+        '',
+        ...lines,
+      ].join('\n'),
       {
         code: 'BATCH_VALIDATION_ERROR',
         details: { comprobantes: errors.map((item) => ({ error: item.message, indice: item.index })) },

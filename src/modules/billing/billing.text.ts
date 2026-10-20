@@ -32,22 +32,6 @@ export function formatBillingResultAsText(result: BillingExecutionResult, option
     ...(options.previewShown ? [] : formatWarningsPanel(result)),
   ];
 
-  if (options.raw) {
-    if (result.dryRun) {
-      return [...environmentLines, formatPayloadPreview(result)].join('\n\n');
-    }
-
-    const lines = [
-      contentPanel('Respuesta bruta', renderObject(formatRawBillingResponse(result)), 'wide', 'subtle', 'left', 'data'),
-    ];
-
-    if (!options.previewShown) {
-      lines.unshift(formatPayloadPreview(result));
-    }
-
-    return [...environmentLines, ...lines].join('\n\n');
-  }
-
   if (result.dryRun) {
     return [...environmentLines, formatPayloadPreview(result)].join('\n\n');
   }
@@ -86,6 +70,13 @@ export function formatBillingResultAsText(result: BillingExecutionResult, option
   if (suggestions.length > 0) {
     lines.push(
       contentPanel('Sugerencias', suggestions.map((item) => `• ${item}`).join('\n'), 'wide', 'warning', 'left', 'tip'),
+    );
+  }
+
+  // `--bruto` agrega la respuesta cruda al final; el resumen se muestra igual.
+  if (options.raw) {
+    lines.push(
+      contentPanel('Respuesta bruta', renderObject(formatRawBillingResponse(result)), 'wide', 'subtle', 'left', 'data'),
     );
   }
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { formatBillingResultAsJson, formatBillingResultAsText } from '../billing.presenter';
+import { serializeBillingBatch } from '../billing.serialize';
 import type { BillingExecutionResult } from '../billing.types.internal';
 
 function stripAnsi(value: string): string {
@@ -81,6 +82,28 @@ describe('billing.presenter', () => {
     expect(output).toContain('"atajo": "fa"');
   });
 
+  it('keeps the summary fields and adds the raw response with --bruto in json', () => {
+    const summary = JSON.parse(formatBillingResultAsJson(createResult())) as Record<string, unknown>;
+    const withRaw = JSON.parse(formatBillingResultAsJson(createResult(), { raw: true })) as Record<string, unknown>;
+
+    expect(withRaw).toMatchObject({
+      cae: '12345678901234',
+      caeVencimiento: '20260331',
+      errores: [],
+      estado: 'aprobado',
+      resultado: 'A',
+    });
+    expect(withRaw.respuesta).toEqual(createResult().response.raw);
+    expect({ ...withRaw, respuesta: undefined }).toEqual({ ...summary, respuesta: undefined });
+  });
+
+  it('keeps the summary fields in a batch with --bruto', () => {
+    const [first] = serializeBillingBatch([createResult()], { raw: true });
+
+    expect(first).toMatchObject({ cae: '12345678901234', estado: 'aprobado', indice: 1 });
+    expect(first).toHaveProperty('respuesta');
+  });
+
   it('shows a friendly raw message when there was no real emission', () => {
     const output = formatBillingResultAsJson(createDryRunResult(), { raw: true });
 
@@ -104,6 +127,19 @@ describe('billing.presenter', () => {
     expect(output).toContain('RESPUESTA BRUTA');
     expect(output).toContain('FACTURA A');
     expect(output).toContain('"Resultado": "A"');
+  });
+
+  it('keeps the result summary in text mode with --bruto and appends the raw panel', () => {
+    const result = {
+      ...createResult(),
+      response: { ...createResult().response, observaciones: ['Observacion de prueba'] },
+    };
+    const output = stripAnsi(formatBillingResultAsText(result, { raw: true }));
+
+    expect(output).toContain('APROBADO');
+    expect(output).toContain('12345678901234');
+    expect(output).toContain('Observacion de prueba');
+    expect(output.indexOf('APROBADO')).toBeLessThan(output.indexOf('RESPUESTA BRUTA'));
   });
 
   it('avoids rendering null in raw text mode when there was no real emission', () => {

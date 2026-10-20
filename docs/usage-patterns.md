@@ -248,7 +248,7 @@ Cuando querés procesar varios comprobantes del mismo comando en una sola corrid
 
 ### Requisitos
 
-- archivo con un array JSON
+- archivo con un array JSON (un array de un solo elemento también es un lote)
 - cada item debe ser válido
 
 ### Comando
@@ -260,7 +260,7 @@ arcli fc --cargar ./voucher-batch.json --json --bruto
 ### Resultado esperado
 
 - en texto: un bloque por item
-- en JSON: un array de resultados con `indice`, `comprobante` y `atajo`
+- en JSON: un array de resultados con `indice`, `comprobante` y `atajo` (también con un solo elemento); con `--bruto`, cada uno suma `respuesta`
 
 ### Errores comunes
 

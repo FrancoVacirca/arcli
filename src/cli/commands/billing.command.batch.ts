@@ -8,6 +8,8 @@ import {
 interface BatchPlan {
   readonly inputIndexes: readonly number[];
   readonly invalidItems: readonly BatchItemError[];
+  /** Entro un array: se trata como lote aunque tenga un solo item. */
+  readonly isBatch: boolean;
   readonly total: number;
 }
 
@@ -15,7 +17,7 @@ interface BatchPlan {
  * Prepara un lote antes de emitir: `resolve` completa cada item con lo que hay que consultar en ARCA (IVA
  * receptor del padron, cotizacion) y `validate` aplica las reglas de negocio sobre lo resuelto. En un lote
  * no corta en el primer fallo: junta todos, con su indice, en un solo `BatchValidationError`, y no se emite
- * ninguno. Con un solo comprobante el error sale tal cual, como siempre.
+ * ninguno. Con un comprobante suelto (no un array) el error sale tal cual, como siempre.
  */
 export async function prepareBatch<T, R>(options: {
   readonly inputs: readonly T[];
@@ -26,7 +28,7 @@ export async function prepareBatch<T, R>(options: {
   const { inputs, plan, resolve, validate } = options;
   const resolved: R[] = [];
 
-  if (plan.total === 1) {
+  if (!plan.isBatch) {
     // Secuencial a proposito: cada servicio de ARCA reutiliza su ticket WSAA.
     for (const [position, input] of inputs.entries()) {
       resolved.push(await resolve(input, position));
@@ -76,7 +78,7 @@ export async function emitBatch<T, R>(options: {
     try {
       results.push(await emit(input, position));
     } catch (error) {
-      if (plan.total === 1) {
+      if (!plan.isBatch) {
         throw error;
       }
 

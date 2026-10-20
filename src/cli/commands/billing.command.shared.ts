@@ -172,6 +172,7 @@ export async function executeBillingCommand(command: Command, shortcut: VoucherS
       inputs,
       interactive: !runtime.outputJson && Boolean(process.stdin.isTTY && process.stdout.isTTY),
       output: {
+        batch: plan.isBatch,
         environment: runtime.environment,
         outputJson: runtime.outputJson,
         previewShown,

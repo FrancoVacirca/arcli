@@ -163,6 +163,11 @@ export interface BillingCommandPlan {
   readonly inputs: BillingCommandInput[];
   /** Items del lote que no se pudieron leer; el comando no emite nada si hay alguno. */
   readonly invalidItems: BatchItemError[];
+  /**
+   * `--cargar` trajo un array: es un lote aunque tenga un solo elemento (sale como array y con errores
+   * `BATCH_*`). Un objeto o los flags son un comprobante suelto.
+   */
+  readonly isBatch: boolean;
   readonly modeSource: 'default' | 'file' | 'flags';
   /** Cantidad de items del lote (1 si no hay lote). */
   readonly total: number;
@@ -366,7 +371,9 @@ export function parseBillingCommandPlan(
   const commandOptions = command.optsWithGlobals<Record<string, unknown>>();
   const inputFilePath = typeof commandOptions.cargar === 'string' ? commandOptions.cargar : undefined;
   // Se lee sin asumir la forma: cada item se valida con `parseBillingJsonInput` (en un lote, por separado).
-  const fileInputs = inputFilePath ? readBillingJsonItems(readJsonFile<unknown>(inputFilePath)) : [];
+  const source = inputFilePath ? readJsonFile<unknown>(inputFilePath) : undefined;
+  const fileInputs = inputFilePath ? readBillingJsonItems(source) : [];
+  const isBatch = Array.isArray(source);
 
   if (fileInputs.length === 0) {
     const { __modeSource, ...input } = parseBillingCommandInputFromSource(command, shortcut, undefined, defaults);
@@ -375,14 +382,15 @@ export function parseBillingCommandPlan(
       inputIndexes: [1],
       inputs: [input],
       invalidItems: [],
+      isBatch: false,
       modeSource: __modeSource,
       total: 1,
     };
   }
 
-  // Un solo comprobante falla como siempre. En un lote se leen todos y se juntan los errores,
-  // para informarlos de una vez en lugar de cortar en el primero.
-  if (fileInputs.length === 1) {
+  // Un objeto suelto falla como siempre. En un lote (un array, aunque tenga un solo elemento) se leen todos
+  // y se juntan los errores, para informarlos de una vez en lugar de cortar en el primero.
+  if (!isBatch) {
     const { __modeSource, ...input } = parseBillingCommandInputFromSource(
       command,
       shortcut,
@@ -390,7 +398,7 @@ export function parseBillingCommandPlan(
       defaults,
     );
 
-    return { inputIndexes: [1], inputs: [input], invalidItems: [], modeSource: __modeSource, total: 1 };
+    return { inputIndexes: [1], inputs: [input], invalidItems: [], isBatch: false, modeSource: __modeSource, total: 1 };
   }
 
   const parsed: Array<ReturnType<typeof parseBillingCommandInputFromSource>> = [];
@@ -416,6 +424,7 @@ export function parseBillingCommandPlan(
     inputIndexes,
     inputs: parsed.map(({ __modeSource: _modeSource, ...input }) => input),
     invalidItems,
+    isBatch: true,
     modeSource,
     total: fileInputs.length,
   };

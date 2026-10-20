@@ -97,6 +97,21 @@ describe('writeBillingCommandResults', () => {
     expect(JSON.parse(jsonPayload)).toHaveLength(2);
   });
 
+  it('writes a json array for a one-item batch', () => {
+    writeBillingCommandResults([createResult()], {
+      batch: true,
+      environment: 'produccion',
+      outputJson: true,
+      raw: false,
+    });
+
+    const [jsonPayload] = vi.mocked(writeTerminalJson).mock.calls[0]!;
+
+    expect(JSON.parse(jsonPayload)).toBeInstanceOf(Array);
+    expect(JSON.parse(jsonPayload)).toHaveLength(1);
+    expect(JSON.parse(jsonPayload)[0]).toMatchObject({ indice: 1 });
+  });
+
   it('writes plain text output instead of json when outputJson is false', () => {
     writeBillingCommandResults([createResult()], { environment: 'produccion', outputJson: false, raw: false });
 

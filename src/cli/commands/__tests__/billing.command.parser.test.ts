@@ -757,6 +757,40 @@ describe('--cargar JSON validation', () => {
     );
   });
 
+  it('treats a one-item array as a batch and reports its errors with the index', () => {
+    const inputPath = writeRawJson([{ concepto: 'servicios', ivaReceptor: 'consumidor-final', montototal: 100 }]);
+    const plan = parseBillingCommandPlan(createCommand(['--cargar', inputPath]), 'fc');
+
+    expect(plan.isBatch).toBe(true);
+    expect(plan.total).toBe(1);
+    expect(plan.inputs).toEqual([]);
+    expect(plan.invalidItems.map((item) => item.index)).toEqual([1]);
+    expect(() => parseBillingCommandInputs(createCommand(['--cargar', inputPath]), 'fc')).toThrow(
+      /1 de 1 comprobante del lote tiene errores/,
+    );
+  });
+
+  it('treats a valid one-item array as a batch', () => {
+    const inputPath = writeRawJson([{ concepto: 'servicios', ivaReceptor: 'consumidor-final', montoTotal: 100 }]);
+    const plan = parseBillingCommandPlan(createCommand(['--cargar', inputPath]), 'fc');
+
+    expect(plan.isBatch).toBe(true);
+    expect(plan.inputs.map((input) => input.totalAmount)).toEqual([100]);
+  });
+
+  it('keeps a JSON object as a single voucher with its original error', () => {
+    const inputPath = writeRawJson({ concepto: 'servicios', ivaReceptor: 'consumidor-final', montototal: 100 });
+
+    expect(() => parseBillingCommandPlan(createCommand(['--cargar', inputPath]), 'fc')).toThrow(/"montototal"/);
+    expect(() => parseBillingCommandPlan(createCommand(['--cargar', inputPath]), 'fc')).not.toThrow(/lote/);
+  });
+
+  it('does not treat flags without --cargar as a batch', () => {
+    const plan = parseBillingCommandPlan(createCommand(['--monto', '100', '--cs', '--ir-cf']), 'fc');
+
+    expect(plan.isBatch).toBe(false);
+  });
+
   it('rejects an empty batch instead of falling back to flags', () => {
     expect(() =>
       parseBillingCommandInput(

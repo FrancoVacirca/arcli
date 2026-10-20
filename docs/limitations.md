@@ -56,7 +56,7 @@ En pruebas reales apareció el error `10016` cuando se forzaron varias emisiones
 
 ### `respuesta` cambia según el modo
 
-Con `--bruto`:
+Con `--bruto` se agrega `respuesta` al resumen de siempre (no reemplaza ningún campo):
 
 - si hubo emisión real, `respuesta` contiene la respuesta cruda del SDK
 - si no hubo emisión, `respuesta` pasa a ser un objeto con `mensaje`

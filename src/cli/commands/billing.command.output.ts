@@ -12,6 +12,8 @@ import {
 export function formatBillingOutputs(
   results: BillingExecutionResult[],
   options: {
+    /** Entro un array en `--cargar`: se rotula como lote aunque tenga un solo resultado. */
+    readonly batch?: boolean;
     readonly environment: 'produccion' | 'testing';
     readonly previewShown?: boolean;
     readonly raw: boolean;
@@ -25,7 +27,7 @@ export function formatBillingOutputs(
         raw: options.raw,
       });
 
-      if (results.length === 1) {
+      if (results.length === 1 && !options.batch) {
         return output;
       }
 
@@ -37,6 +39,8 @@ export function formatBillingOutputs(
 export function writeBillingCommandResults(
   results: BillingExecutionResult[],
   options: {
+    /** Entro un array en `--cargar`: el JSON sale como array aunque tenga un solo resultado. */
+    readonly batch?: boolean;
     readonly environment: 'produccion' | 'testing';
     readonly outputJson: boolean;
     readonly previewShown?: boolean;
@@ -44,7 +48,7 @@ export function writeBillingCommandResults(
   },
 ): void {
   if (options.outputJson) {
-    if (results.length === 1) {
+    if (results.length === 1 && !options.batch) {
       writeTerminalJson(formatBillingResultAsJson(results[0], { raw: options.raw }));
 
       return;
@@ -57,6 +61,7 @@ export function writeBillingCommandResults(
 
   writeTerminalOutput(
     formatBillingOutputs(results, {
+      batch: options.batch,
       environment: options.environment,
       previewShown: options.previewShown,
       raw: options.raw,

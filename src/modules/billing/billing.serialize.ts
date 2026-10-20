@@ -52,24 +52,18 @@ function formatVoucherSummary(result: BillingExecutionResult): Record<string, un
   };
 }
 
+/** `--bruto` suma `respuesta` (la respuesta cruda de ARCA) al resumen de siempre; no le quita campos. */
 export function serializeBillingResult(
   result: BillingExecutionResult,
   options: BillingSerializeOptions = {},
 ): Record<string, unknown> {
-  if (options.raw) {
-    return {
-      atajo: result.voucherKind.shortcut,
-      avisos: result.warnings ?? [],
-      comprobante: result.voucherKind.displayName,
-      solicitud: result.payload,
-      ...formatPdfOutcome(result),
-      previsualizacion: result.dryRun,
-      respuesta: formatRawResponse(result),
-      sugerencias: result.response.suggestions,
-    };
+  const summary = formatVoucherSummary(result);
+
+  if (!options.raw) {
+    return summary;
   }
 
-  return formatVoucherSummary(result);
+  return { ...summary, respuesta: formatRawResponse(result) };
 }
 
 export function serializeBillingBatch(

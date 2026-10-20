@@ -169,7 +169,7 @@ Los nombres de las claves no siempre coinciden con los flags. Si pasás las dos 
 
 ## Formato de input: batch
 
-Si el archivo contiene un array, ARCLI procesa un lote del mismo comando.
+Si el archivo contiene un array, ARCLI procesa un lote del mismo comando. **Un array es siempre un lote, aunque tenga un solo elemento**: la salida `--json` es un array y los errores son `BATCH_VALIDATION_ERROR` / `BATCH_EMISSION_ERROR` con el índice. Un objeto suelto es un solo comprobante: sale un objeto y los errores son los de siempre (`INPUT_VALIDATION_ERROR`, etc.).
 
 ```json
 [
@@ -233,7 +233,7 @@ Incluye, según el caso:
 - solicitud amigable
 - estado visual del resultado
 - paneles secundarios para `Observaciones`, `Eventos`, `Errores` y `Sugerencias`
-- panel `Respuesta bruta` cuando se usa `--bruto`
+- panel `Respuesta bruta` al final, además de todo lo anterior, cuando se usa `--bruto` y hubo emisión real (en una previsualización no hay respuesta de ARCA y no se muestra)
 
 ### Estabilidad del contrato
 
@@ -243,7 +243,7 @@ La salida humana no debe tratarse como contrato estable para automatización. Pa
 
 ### Caso simple
 
-Sin `--bruto`, ARCLI serializa un resumen del resultado.
+ARCLI serializa un resumen del resultado. Con `--bruto` se agrega además el campo `respuesta` (ver [abajo](#output-con---bruto)); el resto no cambia.
 
 | Campo              | Tipo                                       | Descripción                                                                                                            |
 | ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
@@ -301,7 +301,7 @@ Ejemplo:
 
 ## Output batch en JSON
 
-Cuando hay varios resultados, ARCLI devuelve un array.
+Cuando `--cargar` trae un array, ARCLI devuelve un array, aunque tenga un solo elemento. Con flags o un objeto devuelve un objeto.
 
 Cada item agrega:
 
@@ -315,17 +315,26 @@ Y después incluye el resto del resultado serializado.
 
 ## Output con `--bruto`
 
-Cuando se usa `--bruto`, el contrato cambia para priorizar inspección técnica.
+`--bruto` (o `bruto=true` en la config) **agrega** el campo `respuesta` al JSON de siempre: `cae`, `estado`, `errores` y los demás campos del [caso simple](#caso-simple) siguen igual. En un lote, cada ítem trae su `respuesta`.
 
-| Campo              | Tipo       | Descripción                                   |
-| ------------------ | ---------- | --------------------------------------------- |
-| `atajo`            | `string`   | Atajo del comprobante                         |
-| `avisos`           | `string[]` | Avisos de ARCLI, por ejemplo del régimen FCE  |
-| `comprobante`      | `string`   | Nombre visible del comprobante                |
-| `previsualizacion` | `boolean`  | `true` si no hubo emisión real                |
-| `respuesta`        | `object`   | Respuesta cruda del SDK o un mensaje amigable |
-| `solicitud`        | `object`   | Solicitud enviada o previsualizada            |
-| `sugerencias`      | `string[]` | Sugerencias generadas por ARCLI               |
+| Campo       | Tipo     | Descripción                                   |
+| ----------- | -------- | --------------------------------------------- |
+| `respuesta` | `object` | Respuesta cruda del SDK o un mensaje amigable |
+
+```json
+{
+  "atajo": "fb",
+  "cae": "86120020284412",
+  "estado": "aprobado",
+  "errores": [],
+  "...": "el resto del resumen",
+  "respuesta": {
+    "cae": "86120020284412",
+    "caeFchVto": "20260329",
+    "response": { "FeCabResp": { "...": "..." }, "FeDetResp": { "...": "..." } }
+  }
+}
+```
 
 ### Sin emisión real
 
@@ -472,10 +481,10 @@ Un error del PDF **no** es un error del comando: el comprobante ya se emitió, a
 
 ## Diferencias entre modos
 
-| Modo              | Llama a ARCA | Devuelve solicitud | Devuelve respuesta real | Contrato recomendado |
-| ----------------- | ------------ | ------------------ | ----------------------- | -------------------- |
-| texto             | depende      | sí                 | depende                 | uso humano           |
-| `--json`          | depende      | sí                 | resumen serializado     | automatización       |
-| `--json --bruto`  | depende      | sí                 | sí, si hubo emisión     | depuración técnica   |
-| `--previsualizar` | no           | sí                 | no                      | revisión previa      |
-| `--emitir`        | sí           | sí                 | sí                      | operación real       |
+| Modo              | Llama a ARCA | Devuelve solicitud | Devuelve respuesta real                        | Contrato recomendado               |
+| ----------------- | ------------ | ------------------ | ---------------------------------------------- | ---------------------------------- |
+| texto             | depende      | sí                 | depende                                        | uso humano                         |
+| `--json`          | depende      | sí                 | resumen serializado                            | automatización                     |
+| `--json --bruto`  | depende      | sí                 | resumen + cruda (`respuesta`), si hubo emisión | automatización con detalle técnico |
+| `--previsualizar` | no           | sí                 | no                                             | revisión previa                    |
+| `--emitir`        | sí           | sí                 | sí                                             | operación real                     |
