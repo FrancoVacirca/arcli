@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": ["Bash(gh pr merge:*)", "Bash(gh workflow run:*)", "Bash(gh release create:*)"],
+    "deny": [
+      "Read(*.key)",
+      "Read(*.pem)",
+      "Read(*.p12)",
+      "Read(*.pfx)",
+      "Read(TA-*.json)",
+      "Read(~/**/*.key)",
+      "Read(~/**/*.pem)",
+      "Read(~/**/*.p12)",
+      "Read(~/**/*.pfx)",
+      "Read(~/**/TA-*.json)",
+      "Edit(*.key)",
+      "Edit(*.pem)",
+      "Edit(*.p12)",
+      "Edit(*.pfx)",
+      "Edit(TA-*.json)",
+      "Edit(~/**/*.key)",
+      "Edit(~/**/*.pem)",
+      "Edit(~/**/*.p12)",
+      "Edit(~/**/*.pfx)",
+      "Edit(~/**/TA-*.json)",
+      "Bash(npm publish *)",
+      "Bash(yarn publish *)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/scripts/agent/stop-check.mjs\"",
+            "timeout": 180
+          }
+        ]
+      }
+    ]
+  }
+}

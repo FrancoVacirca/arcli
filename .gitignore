@@ -37,3 +37,6 @@ skills-lock.json
 *.pfx
 TA-*.json
 tickets/
+
+# Config personal de Claude Code
+.claude/settings.local.json

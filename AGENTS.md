@@ -30,7 +30,10 @@ Gestor de paquetes: `yarn` (no mezclar lockfiles).
 - `yarn typecheck`, `yarn lint`, `yarn test`
 - `yarn open-source:check`: typecheck, tests con cobertura, build y `npm pack --dry-run`
 
-Antes de dar por terminado un cambio significativo: `yarn typecheck`, `yarn lint` y `yarn test`.
+Antes de dar por terminado un cambio significativo: `yarn typecheck`, `yarn lint` y `yarn test`. En Claude Code, un hook al terminar cada respuesta ya corre typecheck, ESLint y los tests relacionados si cambió `src/`, así que no hace falta correrlos a mano después de cada edición; la suite completa sí, antes de abrir un PR. Detalle en [docs/development.md](docs/development.md#trabajar-con-agentes).
+
+- Editá archivos con la herramienta de edición del agente. `sed` o scripts solo para reemplazos mecánicos en muchos archivos: fallan sin aviso y no se ven en el diff hasta el final.
+- Para esperar el CI de un PR, `gh pr checks <N> --watch` en segundo plano, no `sleep` en loop.
 
 ## Convenciones de código
 
