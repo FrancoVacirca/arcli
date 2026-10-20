@@ -1,7 +1,9 @@
 import { ConfigurationError, InputValidationError } from '../../lib/errors/app-error';
+import { CERTIFICATE_GUIDE_URL } from '../../lib/links';
 import type { ArcaRuntimeValidation } from '../../services/arca/arca-context.resolver';
 import {
   badge,
+  certificateBanner,
   colorize,
   contentPanel,
   formatCliError,
@@ -200,7 +202,7 @@ const BORDER_SAMPLES: ReadonlyArray<
   ['checklist', 'Revision', 'Revision de configuracion', 'success', 'VEREDICTO'],
   ['listing', 'Ultimos comprobantes', 'Listados en tabla, como los ultimos comprobantes', 'info'],
   ['note', 'Aviso', 'Avisos simples, por ejemplo "No se emitio nada"', undefined],
-  ['warning', 'Testing', 'Banner del entorno de testing', 'warning'],
+  ['warning', 'Testing', 'Banners del entorno de testing y del certificado por vencer', 'warning'],
   ['info', 'Nueva version', 'Aviso de nueva version disponible', 'info'],
   ['data', 'Billing json', 'JSON y respuestas crudas', 'subtle'],
   ['common', 'Contenido', 'Base para paneles sin estilo propio', undefined],
@@ -368,6 +370,16 @@ function buildJsonScene(): string {
 
 function buildComponentsScene(): string {
   const notice = testingBanner();
+  const certificateNotice = certificateBanner({
+    expired: false,
+    guideUrl: CERTIFICATE_GUIDE_URL,
+    summary: 'El certificado de produccion vence el 20/11/2026 (en 10 días).',
+  });
+  const expiredCertificateNotice = certificateBanner({
+    expired: true,
+    guideUrl: CERTIFICATE_GUIDE_URL,
+    summary: 'El certificado de produccion venció el 20/11/2026.',
+  });
   const updateNotice = renderUpdateNoticePanel(createSampleUpdateCheckResult());
   const keyValueRows: Array<readonly [string, string | number]> = [
     ['CUIT', '20-40950976-3'],
@@ -422,6 +434,8 @@ function buildComponentsScene(): string {
   return [
     sceneTitle('Componentes', 'Notice, badges y paneles base'),
     notice,
+    certificateNotice,
+    expiredCertificateNotice,
     updateNotice,
     keyValue,
     status,

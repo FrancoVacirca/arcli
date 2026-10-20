@@ -79,6 +79,20 @@ arcli config establecer key.testing /ruta/a/la/clave.key
 
 - **Documentación relacionada:** [Configuración](configuration.md), [Cómo obtener los certificados de ARCA](obtencion-certificados.md)
 
+### Certificado por vencer o vencido
+
+- **Severidad:** alta (crítico si ya venció)
+- **Síntoma:** a menos de 30 días de vencer, cada comando que va a ARCA empieza con el aviso `El certificado de <entorno> vence el dd/mm/aaaa (en N días)` (en stderr; en el modo interactivo, un recuadro debajo de la barra). Si ya venció, el comando corta con `Certificado vencido` (`CERTIFICATE_EXPIRED` en el JSON, con `detalles.entorno` y `detalles.vencimiento`) sin llegar a ARCA.
+- **Causa:** los certificados de ARCA vencen (por defecto, a los 2 años). Vencido, WSAA rechaza el login, así que no se puede emitir ni consultar en ese entorno.
+- **Solución:** generá un certificado nuevo con la [guía de obtención de certificados](https://github.com/LcsGrz/arcli/blob/main/docs/obtencion-certificados.md) (podés reusar la clave privada y el alias), autorizá de nuevo los servicios web si hace falta y cargá el nuevo:
+
+```bash
+arcli config establecer cert.produccion /ruta/al/certificado-nuevo.crt
+arcli config revisar
+```
+
+- **Documentación relacionada:** [Cómo obtener los certificados de ARCA](obtencion-certificados.md), [Formato de errores](input-output.md#certificado-vencido)
+
 ### `config.json` con JSON inválido
 
 - **Severidad:** crítico

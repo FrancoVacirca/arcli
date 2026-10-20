@@ -3,9 +3,9 @@ import type { Command } from 'commander';
 import { formatDateAsArcaDate, parseArgentineDateInputAsArcaDate } from '../../lib/dates/arca-date';
 import { formatFceObligationAsJson, formatFceObligationAsText } from '../../modules/fce/fce-obligation.presenter';
 import { ArcaClientFactory } from '../../services/arca/arca-client.factory';
-import { ArcaContextResolver } from '../../services/arca/arca-context.resolver';
 import { ArcaFceObligationGateway } from '../../services/arca/arca-fce-obligation.gateway';
 import { writeTerminalJson, writeTerminalOutput } from '../../ui';
+import { resolveArcaRuntime } from '../arca-runtime';
 import { getGlobalOptions, registerQueryOptions } from '../global-options';
 import { configureSpanishHelp, createFceObligationHelp } from '../help';
 import { startSpinner } from '../spinner';
@@ -28,7 +28,7 @@ export function registerFceObligationCommand(program: Command): void {
     const issueDate = options.fecha
       ? parseArgentineDateInputAsArcaDate(options.fecha)
       : formatDateAsArcaDate(new Date());
-    const runtime = new ArcaContextResolver({ options: getGlobalOptions(self) }).resolve();
+    const runtime = resolveArcaRuntime(getGlobalOptions(self));
     const spinner = runtime.outputJson ? null : startSpinner('Consultando ARCA...');
 
     try {

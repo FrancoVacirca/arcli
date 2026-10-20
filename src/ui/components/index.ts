@@ -1,3 +1,4 @@
+export * from './certificateBanner';
 export * from './contentPanel';
 export * from './errorPanel';
 export * from './keyValuePanel';

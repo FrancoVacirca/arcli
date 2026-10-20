@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { CERTIFICATE_GUIDE_URL } from '../../../lib/links';
+import { CertificateExpiredError, type CertificateExpiryNotice } from '../../../modules/config/certificate-expiry';
 import { listMissingSetupKeys } from '../../../modules/interactive/config-fields';
 import { checkArcaHealth } from '../../../modules/parameters/health';
 import { checkForUpdate } from '../../../modules/update-check/update-check.service';
@@ -49,6 +51,21 @@ vi.mock('../session', () => ({
 }));
 
 const chooseOneMock = vi.mocked(chooseOne);
+
+function certificateNotice(expired: boolean): CertificateExpiryNotice {
+  const summary = expired
+    ? 'El certificado de produccion venció el 20/11/2026.'
+    : 'El certificado de produccion vence el 20/11/2026 (en 10 días).';
+
+  return {
+    daysRemaining: expired ? -1 : 10,
+    environment: 'produccion',
+    expired,
+    expiresOn: '20/11/2026',
+    message: `${summary} Renovalo: ${CERTIFICATE_GUIDE_URL}`,
+    summary,
+  };
+}
 const cancellation = () => Object.assign(new Error('cancelado'), { name: 'ExitPromptError' });
 
 describe('runInteractiveMode', () => {
@@ -91,6 +108,48 @@ describe('runInteractiveMode', () => {
     await runInteractiveMode();
 
     expect(stripAnsi(output)).toContain('━━ GZSOFT SRL · PV 3 ━');
+  });
+
+  it('shows a certificate box right below the status bar when the certificate is about to expire', async () => {
+    vi.mocked(createInteractiveSession).mockReturnValueOnce({
+      runtime: { ...runtime, certificateExpiry: certificateNotice(false), environment: 'produccion' },
+    } as never);
+    chooseOneMock.mockResolvedValueOnce('salir');
+
+    await runInteractiveMode();
+
+    const plain = stripAnsi(output);
+    const barIndex = plain.search(/━━ 20-40950976-3 · PV 3 ━+ ARCA FUNCIONANDO ━ PRODUCCION ━━/);
+    const boxIndex = plain.indexOf('El certificado de produccion vence el 20/11/2026 (en 10 días).');
+
+    expect(barIndex).toBeGreaterThanOrEqual(0);
+    expect(boxIndex).toBeGreaterThan(barIndex);
+    expect(plain).toContain(`Renovalo: ${CERTIFICATE_GUIDE_URL}`);
+    expect(plain.slice(barIndex, boxIndex)).toMatch(/┌/);
+  });
+
+  it('shows no certificate box when the certificate is fine', async () => {
+    chooseOneMock.mockResolvedValueOnce('salir');
+
+    await runInteractiveMode();
+
+    expect(output).not.toContain('El certificado');
+  });
+
+  it('with an expired certificate, skips ARCA and explains it in the header', async () => {
+    vi.mocked(createInteractiveSession).mockImplementationOnce(() => {
+      throw new CertificateExpiredError(certificateNotice(true));
+    });
+    chooseOneMock.mockResolvedValueOnce('salir');
+
+    await runInteractiveMode();
+
+    const plain = stripAnsi(output);
+
+    expect(checkArcaHealth).not.toHaveBeenCalled();
+    expect(plain).toMatch(/━━ certificado vencido ━+ ARCA SIN VERIFICAR ━ PRODUCCION ━━/);
+    expect(plain).toContain('El certificado de produccion venció el 20/11/2026.');
+    expect(plain).toContain(`Renovalo: ${CERTIFICATE_GUIDE_URL}`);
   });
 
   it('la barra muestra si ARCA anda con demoras', async () => {

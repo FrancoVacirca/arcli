@@ -15,9 +15,10 @@ import {
 } from '../../modules/parameters/parameters.presenter';
 import { buildStatusReport } from '../../modules/parameters/status';
 import { ArcaClientFactory } from '../../services/arca/arca-client.factory';
-import { ArcaContextResolver, type ResolvedArcaRuntime } from '../../services/arca/arca-context.resolver';
+import type { ResolvedArcaRuntime } from '../../services/arca/arca-context.resolver';
 import { ArcaParametersGateway } from '../../services/arca/arca-parameters.gateway';
 import { writeTerminalJson, writeTerminalOutput } from '../../ui';
+import { resolveArcaRuntime } from '../arca-runtime';
 import { getGlobalOptions, registerQueryOptions, resolveOutputJson } from '../global-options';
 import { configureSpanishHelp } from '../help';
 import { startSpinner } from '../spinner';
@@ -26,7 +27,7 @@ function createContext(command: Command): {
   readonly gateway: ArcaParametersGateway;
   readonly runtime: ResolvedArcaRuntime;
 } {
-  const runtime = new ArcaContextResolver({ options: getGlobalOptions(command) }).resolve();
+  const runtime = resolveArcaRuntime(getGlobalOptions(command));
 
   return { gateway: new ArcaParametersGateway(new ArcaClientFactory().create(runtime)), runtime };
 }

@@ -1,17 +1,22 @@
 import { Separator } from '@inquirer/select';
 
 import { formatCuit } from '../../lib/identity/format-cuit';
+import { CERTIFICATE_GUIDE_URL } from '../../lib/links';
+import { CertificateExpiredError, type CertificateExpiryNotice } from '../../modules/config/certificate-expiry';
+import type { ArcliEnvironment } from '../../modules/config/config.schemas';
 import { ConfigService } from '../../modules/config/config.service';
 import { listMissingSetupKeys } from '../../modules/interactive/config-fields';
 import { type ArcaHealth, checkArcaHealth } from '../../modules/parameters/health';
 import { checkForUpdate, type UpdateCheckResult } from '../../modules/update-check/update-check.service';
 import { ArcaParametersGateway } from '../../services/arca/arca-parameters.gateway';
 import {
+  certificateBanner,
   colorize,
   formatCliError,
   noticePanel,
   renderLogo,
   statusBar,
+  type StatusBarSegment,
   type UiTextColor,
   writeTerminalError,
   writeTerminalOutput,
@@ -87,25 +92,48 @@ const HEALTH_LABELS: Record<ArcaHealth, readonly [label: string, color: UiTextCo
   'sin-respuesta': ['ARCA sin respuesta', 'danger'],
 };
 
-function tryResolveSession(options: GlobalCliOptions): InteractiveSession | undefined {
-  try {
-    return createInteractiveSession(options);
-  } catch {
-    return undefined;
-  }
-}
-
 /** La razon social, si es tan larga que no entra en la barra, se corta. */
 const MAX_ISSUER_NAME_LENGTH = 32;
 
+function environmentSegment(environment: ArcliEnvironment): StatusBarSegment {
+  return environment === 'produccion'
+    ? { color: 'production', text: 'PRODUCCION' }
+    : { color: 'testing', text: 'TESTING' };
+}
+
+/** Recuadro del certificado debajo de la barra: queda arriba de todo lo que se haga en la sesion. */
+function withCertificateBox(bar: string, notice: CertificateExpiryNotice | undefined): string {
+  if (!notice) {
+    return bar;
+  }
+
+  const box = certificateBanner({ expired: notice.expired, guideUrl: CERTIFICATE_GUIDE_URL, summary: notice.summary });
+
+  return `${bar}\n\n${box}`;
+}
+
 /**
  * Barra de estado: a la izquierda, quien emite (razon social, o el CUIT si no esta configurada) y el punto de
- * venta; a la derecha, como esta ARCA y el entorno, cada uno en su color.
+ * venta; a la derecha, como esta ARCA y el entorno, cada uno en su color. Con el certificado por vencer o
+ * vencido, debajo va su recuadro.
  */
 async function buildHeader(options: GlobalCliOptions): Promise<string> {
-  const session = tryResolveSession(options);
+  let session: InteractiveSession;
 
-  if (!session) {
+  try {
+    session = createInteractiveSession(options);
+  } catch (error) {
+    // Vencido no se consulta ARCA (WSAA lo rechazaria): se dice por que en lugar de "falta configurar".
+    if (error instanceof CertificateExpiredError) {
+      const bar = statusBar(
+        [{ text: 'certificado vencido' }],
+        [{ color: 'danger', text: 'ARCA SIN VERIFICAR' }, environmentSegment(error.notice.environment)],
+        { rightSeparator: 'rule' },
+      );
+
+      return withCertificateBox(bar, error.notice);
+    }
+
     return statusBar([{ text: 'falta completar la configuracion' }], [{ color: 'muted', text: 'ARCA SIN VERIFICAR' }]);
   }
 
@@ -115,21 +143,17 @@ async function buildHeader(options: GlobalCliOptions): Promise<string> {
   spinner?.stop();
 
   const [label, color] = HEALTH_LABELS[health];
-  const { config, context, environment, pointOfSale } = session.runtime;
-
-  return statusBar(
+  const { certificateExpiry, config, context, environment, pointOfSale } = session.runtime;
+  const bar = statusBar(
     [
       { text: formatIssuer(config.emisor?.razonSocial, context.cuit) },
       { text: `PV ${pointOfSale ?? 'sin configurar'}` },
     ],
-    [
-      { color, text: label.toUpperCase() },
-      environment === 'produccion'
-        ? { color: 'production', text: 'PRODUCCION' }
-        : { color: 'testing', text: 'TESTING' },
-    ],
+    [{ color, text: label.toUpperCase() }, environmentSegment(environment)],
     { rightSeparator: 'rule' },
   );
+
+  return withCertificateBox(bar, certificateExpiry);
 }
 
 function formatIssuer(businessName: string | undefined, cuit: number): string {

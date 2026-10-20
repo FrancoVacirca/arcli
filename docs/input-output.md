@@ -248,7 +248,7 @@ ARCLI serializa un resumen del resultado. Con `--bruto` se agrega además el cam
 | Campo              | Tipo                                       | Descripción                                                                                                            |
 | ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | `atajo`            | `string`                                   | Atajo del comprobante                                                                                                  |
-| `avisos`           | `string[]`                                 | Avisos de ARCLI, por ejemplo del régimen FCE                                                                           |
+| `avisos`           | `string[]`                                 | Avisos de ARCLI: régimen FCE, padrón o certificado por vencer (ver [abajo](#aviso-del-certificado))                    |
 | `cae`              | `string \| null`                           | CAE informado por ARCA                                                                                                 |
 | `caeVencimiento`   | `string \| null`                           | Vencimiento del CAE                                                                                                    |
 | `comprobante`      | `string`                                   | Nombre visible del comprobante                                                                                         |
@@ -263,6 +263,21 @@ ARCLI serializa un resumen del resultado. Con `--bruto` se agrega además el cam
 | `solicitud`        | `object`                                   | Solicitud enviada o previsualizada                                                                                     |
 | `sugerencias`      | `string[]`                                 | Sugerencias generadas por ARCLI                                                                                        |
 | `tipoArca`         | `number`                                   | Tipo ARCA del comprobante                                                                                              |
+
+### Aviso del certificado
+
+Si al certificado del entorno le quedan menos de 30 días, el aviso sale al principio del comando en **stderr** (stdout queda solo para el JSON) y, en los comandos de facturación, también como un texto más en `avisos`:
+
+```json
+{
+  "avisos": [
+    "El certificado de produccion vence el 20/11/2026 (en 10 días). Renovalo: https://github.com/LcsGrz/arcli/blob/main/docs/obtencion-certificados.md"
+  ],
+  "...": "..."
+}
+```
+
+En texto sale solo el banner del principio, no se repite en el panel de avisos. Si ya venció, no hay resultado: sale el error [`CERTIFICATE_EXPIRED`](#certificado-vencido).
 
 ### `estado` vs `resultado`
 
@@ -449,11 +464,24 @@ Si el `config.json` tiene JSON inválido, sale con el mismo código, la ruta del
 }
 ```
 
+### Certificado vencido
+
+Con el certificado del entorno vencido, los comandos que van a ARCA cortan antes de autenticar en WSAA: no se envió nada y no hay que verificar. Con `--json` no sale el banner, solo este error en stderr:
+
+```json
+{
+  "codigo": "CERTIFICATE_EXPIRED",
+  "detalles": { "entorno": "produccion", "vencimiento": "20/11/2026" },
+  "error": "El certificado de produccion venció el 20/11/2026: ARCA no lo acepta.",
+  "sugerencia": "Generá uno nuevo siguiendo la guía y cargalo con \"arcli config establecer cert.produccion <ruta>\": https://github.com/LcsGrz/arcli/blob/main/docs/obtencion-certificados.md"
+}
+```
+
 ### Emisión sin confirmar
 
 Si falla la llamada que emite en ARCA (red, timeout, transacción activa), no se sabe si el comprobante quedó autorizado: pudo emitirse y perderse la respuesta. **No reintentes sin verificar**, porque se duplicaría.
 
-Los pasos previos no cuentan: si falla el login en WSAA (por ejemplo, un certificado vencido) o el pedido del último número, no se envió nada y el error sale como `UNEXPECTED_ERROR` o `TRANSIENT_ERROR`.
+Los pasos previos no cuentan: si falla el login en WSAA (por ejemplo, un certificado no autorizado; uno vencido corta antes, con [`CERTIFICATE_EXPIRED`](#certificado-vencido)) o el pedido del último número, no se envió nada y el error sale como `UNEXPECTED_ERROR` o `TRANSIENT_ERROR`.
 
 ```json
 {

@@ -3,9 +3,8 @@ import { isCertificateExpiringSoon, readCertificateExpiry } from '../../lib/secu
 import { readPemFile } from '../../lib/security/pem';
 import { listMissingIssuerKeys } from '../pdf/pdf-issuer';
 
+import { CERTIFICATE_EXPIRY_WARNING_DAYS, formatCertificateExpiryDate } from './certificate-expiry';
 import type { ArcliConfig, ArcliEnvironment } from './config.schemas';
-
-const CERTIFICATE_EXPIRY_WARNING_DAYS = 30;
 
 export interface ConfigDoctorReport {
   readonly checks: ReadonlyArray<{
@@ -34,7 +33,7 @@ function buildCertificateExpiryCheck(
   try {
     const pemContent = readPemFile(certPath, 'certificado');
     const expiry = readCertificateExpiry(pemContent);
-    const formattedDate = expiry.expiresAt.toLocaleDateString('es-AR');
+    const formattedDate = formatCertificateExpiryDate(expiry.expiresAt);
 
     if (expiry.isExpired) {
       return { category: 'error', detail: `El certificado vencio el ${formattedDate}.`, label };

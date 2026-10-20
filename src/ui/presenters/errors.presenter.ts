@@ -11,6 +11,8 @@ function formatErrorTitle(code: string): string {
   switch (code) {
     case 'CONFIGURATION_ERROR':
       return 'Error de configuracion';
+    case 'CERTIFICATE_EXPIRED':
+      return 'Certificado vencido';
     case 'INPUT_VALIDATION_ERROR':
       return 'Error de entrada';
     case 'BATCH_VALIDATION_ERROR':

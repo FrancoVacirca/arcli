@@ -35,15 +35,17 @@ Si hay una versión nueva de ARCLI, el menú suma arriba de todo **Actualizar a 
 
 Debajo del logo va la versión de ARCLI. Arriba del menú, la barra de estado muestra a la izquierda quién emite (la razón social de `emisor.razonSocial` o, si no está, el CUIT) y el punto de venta, y a la derecha cómo está ARCA y el entorno (`TESTING` en naranja o `PRODUCCION` en celeste):
 
-| Estado                 | Cuándo                                                                          |
-| ---------------------- | ------------------------------------------------------------------------------- |
-| **ARCA funcionando**   | Los servidores de facturación (app, base de datos y autenticación) responden OK |
-| **ARCA con demoras**   | Responden OK, pero tardaron más de 3 segundos                                   |
-| **ARCA con problemas** | Alguno de los servidores no responde OK                                         |
-| **ARCA sin respuesta** | Error de red, o ARCA no contestó en 5 segundos                                  |
-| **ARCA sin verificar** | Falta completar la configuración, así que no se puede consultar                 |
+| Estado                 | Cuándo                                                                           |
+| ---------------------- | -------------------------------------------------------------------------------- |
+| **ARCA funcionando**   | Los servidores de facturación (app, base de datos y autenticación) responden OK  |
+| **ARCA con demoras**   | Responden OK, pero tardaron más de 3 segundos                                    |
+| **ARCA con problemas** | Alguno de los servidores no responde OK                                          |
+| **ARCA sin respuesta** | Error de red, o ARCA no contestó en 5 segundos                                   |
+| **ARCA sin verificar** | Falta completar la configuración o el certificado venció, así que no se consulta |
 
 La consulta es la misma de `arcli estado` sin el punto de venta (no pide autenticación) y se hace al abrir el asistente. **Si falta algo obligatorio** (CUIT, certificado y clave de testing o punto de venta), al abrir el asistente propone hacer la [configuración guiada](#configuración).
+
+**Certificado por vencer.** Si al certificado del entorno activo le quedan menos de 30 días, debajo de la barra va un recuadro amarillo con la fecha, los días que faltan y el link a la [guía para renovarlo](obtencion-certificados.md). Queda arriba de todo lo que hagas en la sesión. Si ya venció, el recuadro es rojo, la barra dice `certificado vencido` y `ARCA SIN VERIFICAR`, y emitir o consultar muestra el error `Certificado vencido` sin llegar a ARCA. La configuración sigue disponible para cargar el certificado nuevo.
 
 ## Actualizar
 

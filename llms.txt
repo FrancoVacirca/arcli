@@ -150,7 +150,8 @@ Sin `--json` (ni `json=true` en la config): panel de texto en stderr. Con `--jso
 `{"codigo": "...", "detalles": {...} | null, "error": "mensaje", "sugerencia": "..." | null}`.
 `codigo` es `CONFIGURATION_ERROR`, `INPUT_VALIDATION_ERROR`, `EMISSION_UNCERTAIN` (falló la llamada
 que emite, no el login ni el pedido del último número: puede haberse emitido igual; antes de reintentar, verificar con el `arcli ultimos <tipo> --pv <n>`
-que viene en `sugerencia`), `TRANSIENT_ERROR` (consultas: reintentar), `UNEXPECTED_ERROR`, `VOUCHER_NOT_FOUND` (`consultar`), o en un lote
+que viene en `sugerencia`), `TRANSIENT_ERROR` (consultas: reintentar), `CERTIFICATE_EXPIRED` (el certificado del entorno venció: se corta antes
+de ARCA, no se envió nada; `detalles.entorno` y `detalles.vencimiento`, la guía en `sugerencia`), `UNEXPECTED_ERROR`, `VOUCHER_NOT_FOUND` (`consultar`), o en un lote
 (`--cargar` con un array, aunque tenga un solo elemento) `BATCH_VALIDATION_ERROR` (no se emitió ninguno; `detalles.comprobantes` lista cada
 `{indice, error}`) y `BATCH_EMISSION_ERROR` (se cortó a mitad: los resultados ya procesados salen antes por
 stdout; si viene `detalles.sinConfirmar`, verificar ese índice con `arcli ultimos` antes de reintentarlo;
@@ -176,7 +177,8 @@ Para el PDF: `pdf` (`siempre`/`preguntar`/`nunca`), `pdfCarpeta` (por defecto `~
 por CUIT emisor, los de testing en `testing/<CUIT>/`, y nunca se pisa un PDF existente: se suma `-2`, `-3`), `pdfNavegador` (ruta a Chrome/Chromium/Edge), `emisor.razonSocial`, `emisor.domicilio`,
 `emisor.inicioActividades` (fecha con año), `emisor.iibb`, `emisor.condicionIva`, `emisor.logo` (PNG o JPG).
 
-`config revisar` también avisa si un certificado ya venció o vence en menos de 30 días.
+`config revisar` también avisa si un certificado ya venció o vence en menos de 30 días. Además, a menos de 30 días
+de vencer, cada comando que va a ARCA avisa en stderr (nunca en stdout) y la facturación lo suma a `avisos` del JSON.
 
 ## Otros comandos
 

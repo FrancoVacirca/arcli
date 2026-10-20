@@ -3,6 +3,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import {
+  createSelfSignedCertificate,
+  removeSelfSignedCertificates,
+} from '../../../lib/security/__tests__/self-signed-certificate';
 import { ConfigService } from '../../../modules/config/config.service';
 import { ArcaContextResolver } from '../arca-context.resolver';
 
@@ -66,6 +70,8 @@ function writeRawConfig(
 }
 
 afterEach(() => {
+  removeSelfSignedCertificates();
+
   for (const directory of temporaryDirectories.splice(0)) {
     rmSync(directory, { force: true, recursive: true });
   }
@@ -309,5 +315,58 @@ describe('arca-context.resolver', () => {
     } finally {
       configService.close();
     }
+  });
+
+  describe('certificate expiry', () => {
+    const DAY = 24 * 60 * 60 * 1000;
+
+    function resolveWithCertificate(days: number, now?: Date) {
+      const cwd = createTempDirectory();
+      const certificate = createSelfSignedCertificate(days);
+      const configService = createConfigService(cwd);
+
+      configService.setValue('cuit', '20123456789');
+      configService.setValue('cert.testing', certificate.certPath);
+      configService.setValue('key.testing', certificate.keyPath);
+
+      try {
+        return new ArcaContextResolver({ configService, now }).resolve();
+      } finally {
+        configService.close();
+      }
+    }
+
+    it('flags a certificate that expires within 30 days', () => {
+      expect(resolveWithCertificate(10).certificateExpiry).toMatchObject({
+        environment: 'testing',
+        expired: false,
+        message: expect.stringMatching(/^El certificado de testing vence el \d{2}\/\d{2}\/\d{4} \(en (9|10) días\)/),
+      });
+    }, 10_000);
+
+    it('flags an expired certificate without failing to resolve', () => {
+      const runtime = resolveWithCertificate(10, new Date(Date.now() + 20 * DAY));
+
+      expect(runtime.certificateExpiry).toMatchObject({ environment: 'testing', expired: true });
+    }, 10_000);
+
+    it('stays silent for a certificate far from expiring', () => {
+      expect(resolveWithCertificate(365).certificateExpiry).toBeUndefined();
+    }, 10_000);
+
+    it('does not invent a notice when the certificate cannot be parsed', () => {
+      const cwd = createTempDirectory();
+      const configService = createConfigService(cwd);
+
+      configService.setValue('cuit', '20123456789');
+      configService.setValue('cert.testing', writePemFile(cwd, 'cert.pem', certificatePem('CERT-TESTING')));
+      configService.setValue('key.testing', writePemFile(cwd, 'key.pem', privateKeyPem('KEY-TESTING')));
+
+      try {
+        expect(new ArcaContextResolver({ configService }).resolve().certificateExpiry).toBeUndefined();
+      } finally {
+        configService.close();
+      }
+    });
   });
 });

@@ -5,15 +5,23 @@ import type { GlobalCliOptions } from '../../cli/types';
 import { ConfigurationError } from '../../lib/errors/app-error';
 import { restrictFolderToOwner } from '../../lib/files/restrict-to-owner';
 import { ensurePathExists, readPemFile } from '../../lib/security/pem';
+import { type CertificateExpiryNotice, inspectCertificateExpiry } from '../../modules/config/certificate-expiry';
 import type { ArcliConfig, ArcliEnvironment } from '../../modules/config/config.schemas';
 import { ConfigService } from '../../modules/config/config.service';
 
 export interface ResolveArcaContextOptions {
   readonly configService?: ConfigService;
+  /** Reloj para el vencimiento del certificado; solo lo cambian los tests. */
+  readonly now?: Date;
   readonly options?: GlobalCliOptions;
 }
 
 export interface ResolvedArcaRuntime {
+  /**
+   * Solo si el certificado vence en menos de 30 dias o ya vencio. Se calcula una vez, con el PEM ya leido para el
+   * contexto: sin red ni otra lectura del archivo.
+   */
+  readonly certificateExpiry?: CertificateExpiryNotice;
   readonly config: ArcliConfig;
   readonly context: Context;
   readonly environment: ArcliEnvironment;
@@ -35,20 +43,24 @@ export interface ArcaRuntimeValidation {
 
 export class ArcaContextResolver {
   private readonly configService?: ConfigService;
+  private readonly now?: Date;
   private readonly options: GlobalCliOptions;
 
   public constructor(options: ResolveArcaContextOptions = {}) {
     this.configService = options.configService;
+    this.now = options.now;
     this.options = options.options ?? {};
   }
 
   public resolve(): ResolvedArcaRuntime {
     const validation = this.validate();
+    const cert = this.readRequiredFile(validation.certPath, 'certificado');
 
     return {
+      certificateExpiry: inspectCertificateExpiry(cert, validation.environment, this.now),
       config: validation.config,
       context: {
-        cert: this.readRequiredFile(validation.certPath, 'certificado'),
+        cert,
         cuit: validation.cuit,
         key: this.readRequiredFile(validation.keyPath, 'clave privada'),
         production: validation.environment === 'produccion',

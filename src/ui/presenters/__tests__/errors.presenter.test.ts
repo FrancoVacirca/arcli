@@ -20,6 +20,22 @@ describe('errors.presenter', () => {
     expect(output).toContain('Sugerencia');
   });
 
+  it('titles an expired certificate and keeps its code and details in JSON', () => {
+    const error = new AppError('El certificado de produccion venció el 20/11/2026: ARCA no lo acepta.', {
+      code: 'CERTIFICATE_EXPIRED',
+      details: { entorno: 'produccion', vencimiento: '20/11/2026' },
+      suggestion: 'Renovalo.',
+    });
+
+    expect(formatCliError(error, false)).toContain('CERTIFICADO VENCIDO');
+    expect(JSON.parse(formatCliError(error, true))).toEqual({
+      codigo: 'CERTIFICATE_EXPIRED',
+      detalles: { entorno: 'produccion', vencimiento: '20/11/2026' },
+      error: 'El certificado de produccion venció el 20/11/2026: ARCA no lo acepta.',
+      sugerencia: 'Renovalo.',
+    });
+  });
+
   it('formats input errors in a friendly text panel', () => {
     const output = formatCliError(new InputValidationError('Falta el concepto.'), false);
 

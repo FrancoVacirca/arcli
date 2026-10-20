@@ -35,6 +35,14 @@ describe('storybook.showcase', () => {
     expect(output).toContain('"atajo": "fc"');
   });
 
+  it('renders the certificate banners in the components scene', () => {
+    const output = stripAnsi(renderStorybookShowcase('componentes'));
+
+    expect(output).toContain('El certificado de produccion vence el 20/11/2026 (en 10 días).');
+    expect(output).toContain('El certificado de produccion venció el 20/11/2026.');
+    expect(output).toContain('Renovalo: https://github.com/LcsGrz/arcli/blob/main/docs/obtencion-certificados.md');
+  });
+
   it('renders a focused colors scene', () => {
     const output = stripAnsi(renderStorybookShowcase('colores'));
 
