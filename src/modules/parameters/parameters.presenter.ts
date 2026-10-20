@@ -1,4 +1,5 @@
 import { formatArcaDateAsArgentineDate } from '../../lib/dates/arca-date';
+import { POINT_OF_SALE_GUIDE_URL } from '../../lib/links';
 import { keyValuePanel, noticePanel, renderKeyValueRows, resolveKeyValueLabelWidth } from '../../ui';
 
 import {
@@ -116,7 +117,7 @@ function describePointOfSale(check: PointOfSaleCheck, number: number | undefined
     case 'de-baja':
       return `${number} dado de baja`;
     case 'no-encontrado':
-      return `${number} no existe en ARCA para este CUIT`;
+      return `${number} no esta habilitado para web service en este CUIT`;
     case 'sin-datos':
       return `${number} (en testing ARCA no informa puntos de venta)`;
     case 'sin-configurar':
@@ -139,7 +140,9 @@ export function formatStatusAsText(report: StatusReport): string {
       ? 'Configure el punto de venta: arcli config establecer puntoVenta <numero>'
       : report.pointOfSale.kind === 'habilitado' || report.pointOfSale.kind === 'sin-datos'
         ? 'ARCA tiene problemas: espere unos minutos y reintente'
-        : 'Revise el punto de venta: arcli parametros puntos-venta';
+        : report.pointOfSale.kind === 'no-encontrado'
+          ? `Revise el punto de venta: arcli parametros puntos-venta. Los de "Factura en linea" no sirven; para crear uno para web service: ${POINT_OF_SALE_GUIDE_URL}`
+          : 'Revise el punto de venta: arcli parametros puntos-venta';
 
   return keyValuePanel(
     'Estado de ARCA',

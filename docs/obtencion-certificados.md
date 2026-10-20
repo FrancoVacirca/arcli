@@ -197,9 +197,63 @@ arcli config revisar
 Para emitir de verdad en producción, pasá además `--produccion --emitir` en el
 comando de facturación — ver [Testing y producción](../README.md#testing-y-producción).
 
+## Punto de venta para web service
+
+Para emitir en producción también necesitás un punto de venta dado de alta para **web
+service**. No sirve cualquiera: ARCA rechaza el comprobante (error `10005`, "El punto de
+venta informado debe estar dado de alta y ser del tipo RECE") si el número que configurás
+en arcli es de otro sistema, como los de **Comprobantes en línea** ("Factura en línea"),
+Facturador o talonarios manuales. Cada sistema usa sus propios puntos de venta: si ya
+facturás desde la web de ARCA, creá uno nuevo para arcli.
+
+> **Monotributistas, desde el 1/11/2026:** con la
+> [RG 5893/2026](https://www.boletinoficial.gob.ar/detalleAviso/primera/346598/20260831),
+> si no tenés un punto de venta electrónico habilitado, ARCA te da de alta uno de oficio
+> para **Comprobantes en línea**, con la opción "Factura en línea - Monotributo". Ese
+> punto de venta no sirve para arcli: creá otro para web service.
+
+En testing no hace falta: ARCA no controla el punto de venta y cualquier número sirve.
+
+### 1. Ver si ya tenés uno
+
+Con el certificado de producción configurado:
+
+```bash
+arcli parametros puntos-venta --produccion
+```
+
+La lista trae solo los puntos de venta habilitados para web service (CAE o CAEA). Si el
+tuyo no aparece, o la lista está vacía, seguí con el paso 2. `arcli estado --produccion`
+también avisa si el punto de venta configurado no está entre los habilitados.
+
+### 2. Crearlo en ARCA
+
+1. Entrá al portal de ARCA con tu Clave Fiscal y abrí el servicio **"Administración de
+   puntos de venta y domicilios"**. Si no lo ves, adherilo desde el Administrador de
+   Relaciones, como hiciste con el de certificados.
+2. Elegí tu CUIT y entrá a **"A/B/M de puntos de venta"**.
+3. Presioná **"Agregar"** (o "Alta") y completá:
+   - **Número:** uno que no uses en ningún otro sistema (por ejemplo `2` si el `1` es de
+     Comprobantes en línea).
+   - **Sistema:** el de web services que corresponde a tu condición. Según la tabla de
+     ARCA, **"Factura Electrónica - Monotributo - Webservices"** si sos monotributista, o
+     **"Factura Electrónica - RI IVA - Aplicativo y Webservices"** si sos responsable
+     inscripto. En algunas pantallas aparece como "RECE para aplicativo y web services".
+     No elijas una opción que diga "Comprobantes en Línea" ni "Factuweb".
+   - **Domicilio:** el domicilio desde el que facturás.
+4. Confirmá.
+
+Después, revisá que aparezca y guardalo en arcli:
+
+```bash
+arcli parametros puntos-venta --produccion
+arcli config establecer puntoVenta 2
+arcli estado --produccion
+```
+
 ## Siguiente paso
 
-Configurá el CUIT y el punto de venta, o corré `arcli` para la [configuración guiada](../README.md#configuración), y emití tu primera factura en testing.
+Configurá el CUIT y el punto de venta (en producción, uno [para web service](#punto-de-venta-para-web-service)), o corré `arcli` para la [configuración guiada](../README.md#configuración), y emití tu primera factura en testing.
 
 ---
 
@@ -213,3 +267,10 @@ Tutoriales originales de afipts.com en los que se basa esta guía:
 - [Habilitar administrador de certificados de producción](https://www.afipts.com/tutorial/enable-production-certificate-manager.html)
 - [Obtener certificado de producción](https://www.afipts.com/tutorial/obtain-production-certificate.html)
 - [Autorizar servicio web de producción](https://www.afipts.com/tutorial/authorize-web-production-service.html)
+
+Punto de venta para web service:
+
+- [Puntos de venta: para qué se utiliza cada sistema](https://www.afip.gob.ar/facturacion/documentos/puntos-de-venta.pdf) (ARCA)
+- [Acciones a realizar para consumir un web service de factura electrónica](https://www.afip.gob.ar/fe/documentos/AccionesarealizarparaconsumirunWebservicedeFacturaElectr.pdf) (ARCA)
+- [Manual del desarrollador de WSFEv1](https://www.afip.gob.ar/ws/documentacion/manuales/manual-desarrollador-ARCA-COMPG.pdf) (ARCA, error `10005` y `FEParamGetPtosVenta`)
+- [RG 5893/2026](https://www.boletinoficial.gob.ar/detalleAviso/primera/346598/20260831) (Boletín Oficial)

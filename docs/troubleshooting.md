@@ -265,6 +265,14 @@ arcli fc ayuda
 - **Solución:** revisar si el caso es aceptable para tu flujo y distinguirlo de un rechazo real.
 - **Documentación relacionada:** [Limitaciones actuales](limitations.md)
 
+### ARCA rechaza por punto de venta
+
+- **Severidad:** común en producción
+- **Síntoma:** el comprobante sale `rechazado` con el error `10005` ("El punto de venta informado debe estar dado de alta y ser del tipo RECE"), y la sugerencia habla de un punto de venta para web service. `arcli estado --produccion` dice que el punto de venta no está habilitado para web service.
+- **Causa:** el punto de venta configurado no es de web service. Pasa con los de Comprobantes en línea ("Factura en línea"), Facturador o talonarios manuales. Desde el 1/11/2026, por la RG 5893/2026, ARCA da de alta de oficio un punto de venta "Factura en línea - Monotributo" a los monotributistas que no tienen uno electrónico: ese tampoco sirve para arcli.
+- **Solución:** `arcli parametros puntos-venta --produccion` lista los habilitados para web service. Si el tuyo no está, creá uno nuevo con sistema de web services en "Administración de puntos de venta y domicilios" y guardalo con `arcli config establecer puntoVenta <numero>`.
+- **Documentación relacionada:** [Punto de venta para web service](obtencion-certificados.md#punto-de-venta-para-web-service)
+
 ## Batch
 
 ### El lote tiene comprobantes inválidos

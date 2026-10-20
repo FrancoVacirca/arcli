@@ -86,6 +86,9 @@ describe('buildStatusReport', () => {
     ]);
     expect([blocked.ready, missing.ready, unset.ready]).toEqual([false, false, false]);
     expect(formatStatusAsText(missing)).toContain('arcli parametros puntos-venta');
+    expect(formatStatusAsText(missing)).toContain('Factura en linea');
+    expect(formatStatusAsText(missing)).toContain('#punto-de-venta-para-web-service');
+    expect(formatStatusAsText(blocked)).not.toContain('Factura en linea');
   });
 
   it('is not ready when a server is down and measures latency', async () => {

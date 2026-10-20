@@ -1401,6 +1401,47 @@ describe('billing.service', () => {
     expect(summary).toMatchObject({ cae: null, caeVencimiento: null, status: 'rechazado' });
   });
 
+  it('suggests a web service point of sale when ARCA rejects it with code 10005', () => {
+    const summary = mapBillingResponse({
+      cae: '',
+      caeFchVto: '',
+      response: {
+        Errors: {
+          Err: [{ Code: 10005, Msg: 'El punto de venta informado debe estar dado de alta y ser del tipo RECE.' }],
+        },
+      },
+    } as never);
+
+    expect(summary.status).toBe('rechazado');
+    expect(summary.suggestions).toEqual([expect.stringContaining('Factura en linea')]);
+    expect(summary.suggestions[0]).toContain('obtencion-certificados.md#punto-de-venta-para-web-service');
+  });
+
+  it('recognizes the point of sale rejection by its message when the code is missing', () => {
+    const summary = mapBillingResponse({
+      cae: '',
+      caeFchVto: '',
+      response: {
+        Errors: { Err: [{ Msg: 'El punto de venta informado debe estar dado de alta y ser del tipo RECE.' }] },
+      },
+    } as never);
+
+    expect(summary.suggestions).toEqual([expect.stringContaining('arcli parametros puntos-venta')]);
+  });
+
+  it('does not suggest a point of sale fix for unrelated rejections', () => {
+    const summary = mapBillingResponse({
+      cae: '',
+      caeFchVto: '',
+      response: {
+        Errors: { Err: [{ Code: 10016, Msg: 'El numero de comprobante no es el proximo a autorizar.' }] },
+        FeDetResp: { FECAEDetResponse: [{ Resultado: 'R' }] },
+      },
+    } as never);
+
+    expect(summary.suggestions.join(' ')).not.toContain('Factura en linea');
+  });
+
   it('maps ARCA responses into a stable summary', () => {
     const summary = mapBillingResponse({
       cae: '12345678901234',

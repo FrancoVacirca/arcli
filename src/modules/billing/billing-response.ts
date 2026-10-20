@@ -1,6 +1,14 @@
 import type { CreateVoucherResultDto } from '@arcasdk/core/lib/application/dto/electronic-billing';
 
+import { POINT_OF_SALE_GUIDE_URL } from '../../lib/links';
+
 import type { BillingResponseSummary } from './billing.types.internal';
+
+/**
+ * WSFEv1 10005: "El punto de venta informado debe estar dado de alta y ser del tipo RECE".
+ * Es el rechazo de un punto de venta de "Factura en linea" (Comprobantes en linea).
+ */
+const POINT_OF_SALE_NOT_RECE_CODE = 10005;
 
 export function createDryRunResponse(): BillingResponseSummary {
   return {
@@ -62,6 +70,11 @@ function buildResponseSuggestions(options: {
       )
       .filter(Boolean),
   ].join(' | ');
+  const codes = options.errors
+    .map((error) =>
+      typeof error === 'object' && error && 'Code' in error ? Number((error as { Code?: number }).Code) : NaN,
+    )
+    .filter((code) => Number.isInteger(code));
   const suggestions = new Set<string>();
 
   if (/transacci[oó]n activa/i.test(messages) || /error interno de base de datos/i.test(messages)) {
@@ -74,6 +87,12 @@ function buildResponseSuggestions(options: {
 
   if (/objeto IVA es obligatorio/i.test(messages)) {
     suggestions.add('Revise IVA receptor y el calculo de IVA del comprobante antes de reintentar.');
+  }
+
+  if (codes.includes(POINT_OF_SALE_NOT_RECE_CODE) || /punto de venta.*tipo RECE/i.test(messages)) {
+    suggestions.add(
+      `El punto de venta no esta habilitado para web service (los de "Factura en linea" no sirven). Revise los habilitados con arcli parametros puntos-venta o cree uno para web service: ${POINT_OF_SALE_GUIDE_URL}`,
+    );
   }
 
   if (options.resultado === 'R' && suggestions.size === 0) {

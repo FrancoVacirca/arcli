@@ -12,6 +12,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 - **`arcli padron <cuit>`:** nombre o razón social, domicilio fiscal, condición IVA, impuestos, categoría de monotributo y actividad de un CUIT, desde el padrón de ARCA (`ws_sr_constancia_inscripcion`). Con `--json` para scripts.
 - **IVA receptor desde el padrón:** al facturar con `--cuit` y sin `--ir`, ARCLI usa la condición IVA del padrón, antes que el `ivaReceptor` de la config. También completa el nombre y el domicilio del receptor para el PDF. Si el padrón no responde o no la informa, sigue con la config y avisa. El modo interactivo propone la misma condición al cargar un CUIT. Se desactiva con `arcli config establecer consultarPadron false`.
+- **Punto de venta para web service:** si ARCA rechaza el comprobante porque el punto de venta no es de web service (error `10005`), la `sugerencia` lo dice y apunta a la [guía para crear uno](docs/obtencion-certificados.md#punto-de-venta-para-web-service). `arcli estado` avisa lo mismo cuando el punto de venta configurado no está entre los habilitados. Desde el 1/11/2026 ARCA da de alta de oficio puntos de venta "Factura en línea" a monotributistas (RG 5893/2026), y esos no sirven para arcli.
 
 ### Cambiado
 
