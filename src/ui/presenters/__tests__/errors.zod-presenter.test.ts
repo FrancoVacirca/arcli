@@ -80,4 +80,18 @@ describe('errors.zod-presenter', () => {
 
     expect(formatZodError(error, false)).toContain('Punto de venta debe ser mayor a');
   });
+
+  it('traduce a la clave del JSON tambien los campos que solo usa el PDF', () => {
+    const error = parseAndGetError({
+      concept: 'servicios',
+      ivaCondition: 'consumidor-final',
+      pdfDescription: 'x'.repeat(201),
+      shortcut: 'fa',
+      totalAmount: 100,
+    });
+
+    const parsed = JSON.parse(formatZodError(error, true)) as { detalles: Array<{ ruta: string[] }> };
+
+    expect(parsed.detalles).toContainEqual(expect.objectContaining({ ruta: ['descripcion'] }));
+  });
 });

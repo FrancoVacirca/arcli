@@ -1,5 +1,6 @@
 import { ZodError } from 'zod';
 
+import { BILLING_JSON_KEY_BY_INTERNAL_KEY } from '../../modules/billing/billing.json-input';
 import { errorPanel } from '../components/errorPanel';
 import { renderJson } from '../primitives/renderJson';
 import { bold } from '../primitives/text';
@@ -28,32 +29,6 @@ const ZOD_PATH_LABELS: Record<string, string> = {
   totalAmount: 'monto',
   transferMode: 'modalidad de transferencia',
   untaxedAmount: 'importe no gravado',
-};
-
-const ZOD_PUBLIC_PATHS: Record<string, string[]> = {
-  associatedPeriod: ['periodoAsociado'],
-  associatedVoucher: ['comprobanteAsociado'],
-  billingDate: ['fechaComprobante'],
-  cancellation: ['anulacion'],
-  cbu: ['cbu'],
-  cbuAlias: ['aliasCbu'],
-  concept: ['concepto'],
-  currencyCode: ['codigoMoneda'],
-  documentNumber: ['numeroDocumento'],
-  documentType: ['tipoDocumento'],
-  dueDay: ['dia'],
-  exchangeRate: ['cotizacionMoneda'],
-  exemptAmount: ['importeExento'],
-  ivaRate: ['alicuotaIva'],
-  ivaCondition: ['ivaReceptor'],
-  paymentDueDate: ['vencimientoPago'],
-  pointOfSale: ['puntoVenta'],
-  sameCurrency: ['mismaMoneda'],
-  serviceEndDate: ['servicioHasta'],
-  serviceStartDate: ['servicioDesde'],
-  totalAmount: ['montoTotal'],
-  transferMode: ['transferencia'],
-  untaxedAmount: ['importeNoGravado'],
 };
 
 function formatZodIssuePath(path: PropertyKey[]): string {
@@ -96,7 +71,10 @@ function humanizeZodIssue(issue: ZodError['issues'][number]): string {
 function formatPublicIssuePath(path: PropertyKey[]): string[] {
   const pathKey = formatZodIssuePath(path);
 
-  return ZOD_PUBLIC_PATHS[pathKey] ?? path.map((segment) => String(segment));
+  // La clave del JSON sale del esquema de `--cargar`, la misma que se documenta.
+  const publicKey = BILLING_JSON_KEY_BY_INTERNAL_KEY[pathKey];
+
+  return publicKey ? [publicKey] : path.map((segment) => String(segment));
 }
 
 /** Resumen de una linea, para listar errores por item (por ejemplo, en un lote). */

@@ -716,3 +716,53 @@ describe('IVA receptor y padron', () => {
     expect(() => parse(['--dni', '12345678'], { lookupIvaConditionInPadron: true })).toThrow(/Falta IVA receptor/);
   });
 });
+
+describe('--cargar JSON validation', () => {
+  function writeRawJson(content: unknown): string {
+    const directory = mkdtempSync(join(tmpdir(), 'arcli-billing-cli-'));
+    const inputPath = join(directory, 'comprobante.json');
+
+    temporaryDirectories.push(directory);
+    writeFileSync(inputPath, JSON.stringify(content), 'utf8');
+
+    return inputPath;
+  }
+
+  it('rejects a point of sale written as text instead of using the one in the config', () => {
+    expect(() =>
+      parseBillingCommandInput(createCommand(['--cargar', writeJsonInput({ puntoVenta: '3' })]), 'fc'),
+    ).toThrow(/"puntoVenta" tiene que ser un numero/);
+  });
+
+  it('rejects a misspelled key instead of ignoring it', () => {
+    expect(() =>
+      parseBillingCommandInput(createCommand(['--cargar', writeJsonInput({ vencimiento: '10-04-2026' })]), 'fc'),
+    ).toThrow(/"vencimiento"/);
+  });
+
+  it('reports invalid JSON items of a batch with their index', () => {
+    const inputPath = writeRawJson([
+      { concepto: 'servicios', ivaReceptor: 'consumidor-final', montoTotal: 100 },
+      { concepto: 'servicios', ivaReceptor: 'consumidor-final', montototal: 200 },
+      { concepto: 'servicios', ivaReceptor: 'consumidor-final', montoTotal: 300, puntoVenta: '3' },
+    ]);
+    const plan = parseBillingCommandPlan(createCommand(['--cargar', inputPath]), 'fc');
+
+    expect(plan.inputIndexes).toEqual([1]);
+    expect(plan.invalidItems.map((item) => item.index)).toEqual([2, 3]);
+    expect(plan.invalidItems[0]?.message).toContain('"montototal"');
+    expect(plan.invalidItems[1]?.message).toContain('"puntoVenta"');
+    expect(() => parseBillingCommandInputs(createCommand(['--cargar', inputPath]), 'fc')).toThrow(
+      /2 de 3 comprobantes del lote tienen errores/,
+    );
+  });
+
+  it('rejects an empty batch instead of falling back to flags', () => {
+    expect(() =>
+      parseBillingCommandInput(
+        createCommand(['--cargar', writeRawJson([]), '--monto', '100', '--cs', '--ir-cf']),
+        'fc',
+      ),
+    ).toThrow(/vacio/);
+  });
+});

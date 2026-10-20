@@ -103,6 +103,12 @@ agentes, CI), nunca pregunta** — se comporta como si fuera dry-run salvo que s
 }
 ```
 
+Las claves son las de este ejemplo más `alicuotaIva`, `alicuotas` (`[{tasa, monto}]`), `importeExento`, `importeNoGravado`,
+`mismaMoneda`, `vencimientoPago`, `periodoAsociado` (`{desde, hasta}`), `cbu`, `aliasCbu`, `transferencia` y `anulacion`
+(y `atajo`, `tipo` y `fecha` en `comprobanteAsociado`). Lista y equivalencia con los flags: `docs/input-output.md`.
+Una clave desconocida (`montototal`, `vencimiento`, `moneda`) o un tipo incorrecto (`"puntoVenta": "3"`, `"emitir": "true"`,
+`null`) es `INPUT_VALIDATION_ERROR` (en un lote, `BATCH_VALIDATION_ERROR` con el índice): no se ignora. Números sin comillas.
+
 ## Forma de la respuesta (`--json`, sin `--bruto`)
 
 ```json

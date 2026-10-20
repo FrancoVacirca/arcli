@@ -16,38 +16,106 @@ arcli fc --cargar ./voucher.json
 
 ### Campos soportados
 
-| Campo                 | Tipo    | Requerido                              | Descripción                                                                                                           |
-| --------------------- | ------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `alicuotaIva`         | string  | no                                     | Alícuota de IVA: alias (`general`, `reducida`, `incrementada`, `cero`) o número (`0`, `2.5`, `5`, `10.5`, `21`, `27`) |
-| `alicuotas`           | array   | no                                     | Varias alícuotas: `[{ "tasa": "general", "monto": 1210 }]`, monto con IVA incluido; con esto `montoTotal` es opcional |
-| `aliasCbu`            | string  | no                                     | Alias del CBU (facturas FCE)                                                                                          |
-| `anulacion`           | boolean | no                                     | NC/ND FCE de anulación                                                                                                |
-| `cbu`                 | string  | en facturas FCE, salvo `config.cbu`    | CBU del emisor (facturas FCE)                                                                                         |
-| `comprobanteAsociado` | object  | no                                     | Comprobante asociado                                                                                                  |
-| `concepto`            | string  | sí, salvo default por flags/config     | Concepto                                                                                                              |
-| `codigoMoneda`        | string  | no                                     | Moneda                                                                                                                |
-| `cotizacionMoneda`    | number  | en moneda extranjera sin `mismaMoneda` | Cotización de la moneda                                                                                               |
-| `mismaMoneda`         | boolean | no                                     | El pago se cancela en la moneda extranjera                                                                            |
-| `dia`                 | number  | no                                     | Día de vencimiento o referencia                                                                                       |
-| `emitir`              | boolean | no                                     | Emisión real                                                                                                          |
-| `fechaComprobante`    | string  | no                                     | Fecha del comprobante                                                                                                 |
-| `importeExento`       | number  | no                                     | Parte exenta del total (A y B)                                                                                        |
-| `importeNoGravado`    | number  | no                                     | Parte no gravada del total (A y B)                                                                                    |
-| `ivaReceptor`         | string  | sí, salvo default por config           | Condición IVA del receptor                                                                                            |
-| `montoTotal`          | number  | sí                                     | Importe total                                                                                                         |
-| `periodoAsociado`     | object  | no                                     | `{ "desde": "01-09-2026", "hasta": "30-09-2026" }`; alternativa a `comprobanteAsociado` en notas comunes              |
-| `numeroDocumento`     | number  | depende del tipo de documento          | Número de documento                                                                                                   |
-| `pdf`                 | boolean | no                                     | `true` genera el PDF y `false` no, como `--exportar-pdf` y `--sin-pdf`. Ver [PDF](pdf.md)                             |
-| `descripcion`         | string  | no                                     | Detalle del comprobante en el PDF; ARCA no lo recibe                                                                  |
-| `receptorNombre`      | string  | no                                     | Nombre o razón social del receptor en el PDF; ARCA no lo recibe                                                       |
-| `receptorDomicilio`   | string  | no                                     | Domicilio del receptor en el PDF; ARCA no lo recibe                                                                   |
-| `previsualizar`       | boolean | no                                     | Preview sin emitir                                                                                                    |
-| `puntoVenta`          | number  | no                                     | Punto de venta                                                                                                        |
-| `servicioDesde`       | string  | no                                     | Fecha inicio de servicio                                                                                              |
-| `servicioHasta`       | string  | no                                     | Fecha fin de servicio                                                                                                 |
-| `vencimientoPago`     | string  | no                                     | Fecha de vencimiento del pago                                                                                         |
-| `tipoDocumento`       | string  | no                                     | `consumidor-final`, `cuit`, `cuil` o `dni`                                                                            |
-| `transferencia`       | string  | no                                     | `sca` o `adc` (facturas FCE)                                                                                          |
+| Campo                 | Tipo    | Requerido                              | Descripción                                                                                                                                     |
+| --------------------- | ------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `alicuotaIva`         | string  | no                                     | Alícuota de IVA: alias (`general`, `reducida`, `incrementada`, `cero`) o número (`0`, `2.5`, `5`, `10.5`, `21`, `27`); acepta `"10.5"` o `10.5` |
+| `alicuotas`           | array   | no                                     | Varias alícuotas: `[{ "tasa": "general", "monto": 1210 }]`, monto con IVA incluido; con esto `montoTotal` es opcional                           |
+| `aliasCbu`            | string  | no                                     | Alias del CBU (facturas FCE)                                                                                                                    |
+| `anulacion`           | boolean | no                                     | NC/ND FCE de anulación                                                                                                                          |
+| `cbu`                 | string  | en facturas FCE, salvo `config.cbu`    | CBU del emisor (facturas FCE)                                                                                                                   |
+| `comprobanteAsociado` | object  | no                                     | Comprobante asociado                                                                                                                            |
+| `concepto`            | string  | sí, salvo default por flags/config     | Concepto                                                                                                                                        |
+| `codigoMoneda`        | string  | no                                     | Moneda                                                                                                                                          |
+| `cotizacionMoneda`    | number  | en moneda extranjera sin `mismaMoneda` | Cotización de la moneda                                                                                                                         |
+| `mismaMoneda`         | boolean | no                                     | El pago se cancela en la moneda extranjera                                                                                                      |
+| `dia`                 | number  | no                                     | Día de vencimiento o referencia                                                                                                                 |
+| `emitir`              | boolean | no                                     | Emisión real                                                                                                                                    |
+| `fechaComprobante`    | string  | no                                     | Fecha del comprobante                                                                                                                           |
+| `importeExento`       | number  | no                                     | Parte exenta del total (A y B)                                                                                                                  |
+| `importeNoGravado`    | number  | no                                     | Parte no gravada del total (A y B)                                                                                                              |
+| `ivaReceptor`         | string  | sí, salvo default por config           | Condición IVA del receptor                                                                                                                      |
+| `montoTotal`          | number  | sí                                     | Importe total                                                                                                                                   |
+| `periodoAsociado`     | object  | no                                     | `{ "desde": "01-09-2026", "hasta": "30-09-2026" }`; alternativa a `comprobanteAsociado` en notas comunes                                        |
+| `numeroDocumento`     | number  | depende del tipo de documento          | Número de documento                                                                                                                             |
+| `pdf`                 | boolean | no                                     | `true` genera el PDF y `false` no, como `--exportar-pdf` y `--sin-pdf`. Ver [PDF](pdf.md)                                                       |
+| `descripcion`         | string  | no                                     | Detalle del comprobante en el PDF; ARCA no lo recibe                                                                                            |
+| `receptorNombre`      | string  | no                                     | Nombre o razón social del receptor en el PDF; ARCA no lo recibe                                                                                 |
+| `receptorDomicilio`   | string  | no                                     | Domicilio del receptor en el PDF; ARCA no lo recibe                                                                                             |
+| `previsualizar`       | boolean | no                                     | Preview sin emitir                                                                                                                              |
+| `puntoVenta`          | number  | no                                     | Punto de venta                                                                                                                                  |
+| `servicioDesde`       | string  | no                                     | Fecha inicio de servicio                                                                                                                        |
+| `servicioHasta`       | string  | no                                     | Fecha fin de servicio                                                                                                                           |
+| `vencimientoPago`     | string  | no                                     | Fecha de vencimiento del pago                                                                                                                   |
+| `tipoDocumento`       | string  | no                                     | `consumidor-final`, `cuit`, `cuil` o `dni`                                                                                                      |
+| `transferencia`       | string  | no                                     | `sca` o `adc` (facturas FCE)                                                                                                                    |
+
+### Claves desconocidas y tipos
+
+Cada objeto se valida contra esta lista antes de mezclarlo con los flags y la config:
+
+- **Una clave que no está en las tablas es un error** (`INPUT_VALIDATION_ERROR`) que la nombra y, si se parece a una válida o a un flag, sugiere la correcta: `"montototal"` → `montoTotal`, `"vencimiento"` → `vencimientoPago`, `"moneda"` → `codigoMoneda`. Vale también dentro de `comprobanteAsociado`, `periodoAsociado` y cada ítem de `alicuotas`.
+- **Un tipo incorrecto es un error**, no se descarta: `"puntoVenta": "3"` falla con "tiene que ser un numero". Los números van sin comillas y los booleanos son `true` o `false`, no `"true"`. `null` tampoco vale: para no informar un campo, omití la clave. La única clave que acepta texto o número es la tasa de IVA (`alicuotaIva` y `tasa` en `alicuotas`).
+- En un lote, cada ítem se valida por separado y el error sale en `BATCH_VALIDATION_ERROR` con su índice (ver [abajo](#validación-y-errores-del-lote)). Un array vacío también es error.
+
+Con un solo comprobante, `detalles.campos` lista cada problema con su ruta en el JSON:
+
+```json
+{
+  "codigo": "INPUT_VALIDATION_ERROR",
+  "detalles": {
+    "campos": [
+      {
+        "mensaje": "\"puntoVenta\" tiene que ser un numero y llego el texto \"3\". Escribilo sin comillas.",
+        "ruta": ["puntoVenta"]
+      },
+      { "mensaje": "La clave \"vencimiento\" no existe: ¿quisiste decir \"vencimientoPago\"?", "ruta": ["vencimiento"] }
+    ]
+  },
+  "error": "En el JSON de --cargar: ..."
+}
+```
+
+### Flags y claves del JSON
+
+Los nombres de las claves no siempre coinciden con los flags. Si pasás las dos cosas, gana el flag.
+
+| Flag                                                          | Clave del JSON                      |
+| ------------------------------------------------------------- | ----------------------------------- |
+| `--monto`, `-m`                                               | `montoTotal`                        |
+| `--alicuota TASA`                                             | `alicuotaIva`                       |
+| `--alicuota TASA:MONTO` (repetido)                            | `alicuotas: [{ "tasa", "monto" }]`  |
+| `--exento`                                                    | `importeExento`                     |
+| `--nogravado`                                                 | `importeNoGravado`                  |
+| `--dia`                                                       | `dia`                               |
+| `--punto-venta`, `--pv`                                       | `puntoVenta`                        |
+| `--fecha`                                                     | `fechaComprobante`                  |
+| `--concepto`, `--cs`, `--cp`, `--csp`                         | `concepto`                          |
+| `--moneda`, `--mda`                                           | `codigoMoneda`                      |
+| `--cotizacion-moneda`, `--cm`                                 | `cotizacionMoneda`                  |
+| `--misma-moneda`                                              | `mismaMoneda`                       |
+| `--cuit`, `--cuil`, `--dni`, `--consumidor-final`, `--cfinal` | `tipoDocumento` y `numeroDocumento` |
+| `--iva-receptor`, `--ir`, `--ir-*`                            | `ivaReceptor`                       |
+| `--servicio-desde`, `--sd`                                    | `servicioDesde`                     |
+| `--servicio-hasta`, `--sh`                                    | `servicioHasta`                     |
+| `--vencimiento`, `--vto`                                      | `vencimientoPago`                   |
+| `--ac`                                                        | `comprobanteAsociado.atajo`         |
+| `--at`                                                        | `comprobanteAsociado.tipo`          |
+| `--apv`, `--asociado-punto-venta`                             | `comprobanteAsociado.puntoVenta`    |
+| `--ar`                                                        | `comprobanteAsociado.numero`        |
+| `--acuit`                                                     | `comprobanteAsociado.cuit`          |
+| `--afecha`                                                    | `comprobanteAsociado.fecha`         |
+| `--periodo-desde`, `--pd`                                     | `periodoAsociado.desde`             |
+| `--periodo-hasta`, `--ph`                                     | `periodoAsociado.hasta`             |
+| `--cbu`                                                       | `cbu`                               |
+| `--alias`                                                     | `aliasCbu`                          |
+| `--transferencia`                                             | `transferencia`                     |
+| `--anulacion`                                                 | `anulacion`                         |
+| `--exportar-pdf`, `--pdf` / `--sin-pdf`                       | `pdf: true` / `pdf: false`          |
+| `--descripcion`                                               | `descripcion`                       |
+| `--receptor-nombre`                                           | `receptorNombre`                    |
+| `--receptor-domicilio`                                        | `receptorDomicilio`                 |
+| `--emitir`                                                    | `emitir`                            |
+| `--previsualizar`                                             | `previsualizar`                     |
 
 ### Objeto `comprobanteAsociado`
 

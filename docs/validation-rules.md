@@ -38,6 +38,7 @@ La idea de esta guía es separar esas tres capas para que sea más fácil entend
 - `--cotizacion-moneda` y `--cm` deben ser números positivos
 - `--cuit` y `--cuil` deben tener 11 dígitos
 - `--dni` debe tener 7 u 8 dígitos
+- En el JSON de `--cargar`, una clave desconocida o un tipo incorrecto (`"puntoVenta": "3"`) es error: ver [claves desconocidas y tipos](input-output.md#claves-desconocidas-y-tipos)
 
 ### Fechas aceptadas
 

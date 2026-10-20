@@ -6,6 +6,11 @@ import { readJsonFile } from '../../lib/files/read-json-file';
 import { parseArgentineAmount } from '../../lib/numbers/argentine-amount';
 import { type BatchItemError, BatchValidationError, describeBatchItemError } from '../../modules/billing/billing.batch';
 import { isForeignCurrency } from '../../modules/billing/billing.currency';
+import {
+  type BillingJsonInput,
+  parseBillingJsonInput,
+  readBillingJsonItems,
+} from '../../modules/billing/billing.json-input';
 import { type BillingCommandInput, billingCommandSchema } from '../../modules/billing/billing.schemas';
 import type { VoucherShortcut } from '../../modules/billing/billing.types';
 import { getVoucherKindByShortcut } from '../../modules/billing/voucher-kind-map';
@@ -13,53 +18,6 @@ import { getVoucherKindByShortcut } from '../../modules/billing/voucher-kind-map
 import { resolveConceptShortcut, resolveDocumentIdentity, resolveIvaShortcut } from './billing.command.shortcuts';
 
 export { registerBillingOptions } from './billing.command.options';
-
-type AssociatedVoucherInput = NonNullable<BillingCommandInput['associatedVoucher']>;
-
-interface BillingJsonInput {
-  readonly periodoAsociado?: {
-    readonly desde?: string;
-    readonly hasta?: string;
-  };
-  readonly comprobanteAsociado?: {
-    readonly atajo?: AssociatedVoucherInput['shortcut'];
-    readonly cuit?: AssociatedVoucherInput['cuit'];
-    readonly fecha?: AssociatedVoucherInput['fecha'];
-    readonly numero?: AssociatedVoucherInput['numero'];
-    readonly puntoVenta?: AssociatedVoucherInput['puntoVenta'];
-    readonly tipo?: AssociatedVoucherInput['tipo'];
-  };
-  readonly alicuotaIva?: number | string;
-  readonly alicuotas?: ReadonlyArray<{ readonly monto?: number; readonly tasa?: number | string }>;
-  readonly aliasCbu?: string;
-  readonly anulacion?: boolean;
-  readonly cbu?: string;
-  readonly concepto?: BillingCommandInput['concept'];
-  readonly codigoMoneda?: string;
-  readonly cotizacionMoneda?: number;
-  readonly dia?: number;
-  readonly emitir?: boolean;
-  readonly fechaComprobante?: string;
-  readonly importeExento?: number;
-  readonly importeNoGravado?: number;
-  readonly ivaReceptor?: BillingCommandInput['ivaCondition'];
-  readonly mismaMoneda?: boolean;
-  readonly montoTotal?: number;
-  readonly numeroDocumento?: number;
-  readonly pdf?: boolean;
-  readonly descripcion?: string;
-  readonly previsualizar?: boolean;
-  readonly puntoVenta?: number;
-  readonly receptorDomicilio?: string;
-  readonly receptorNombre?: string;
-  readonly vencimientoPago?: string;
-  readonly servicioDesde?: string;
-  readonly servicioHasta?: string;
-  readonly transferencia?: string;
-  readonly tipoDocumento?: BillingCommandInput['documentType'];
-}
-
-type BillingJsonInputSource = BillingJsonInput | BillingJsonInput[];
 
 function pickString(...values: unknown[]): string | undefined {
   return values.find((value): value is string => typeof value === 'string');
@@ -407,8 +365,8 @@ export function parseBillingCommandPlan(
 ): BillingCommandPlan {
   const commandOptions = command.optsWithGlobals<Record<string, unknown>>();
   const inputFilePath = typeof commandOptions.cargar === 'string' ? commandOptions.cargar : undefined;
-  const fileInputSource = inputFilePath ? readJsonFile<BillingJsonInputSource>(inputFilePath) : undefined;
-  const fileInputs = Array.isArray(fileInputSource) ? fileInputSource : [fileInputSource].filter(Boolean);
+  // Se lee sin asumir la forma: cada item se valida con `parseBillingJsonInput` (en un lote, por separado).
+  const fileInputs = inputFilePath ? readBillingJsonItems(readJsonFile<unknown>(inputFilePath)) : [];
 
   if (fileInputs.length === 0) {
     const { __modeSource, ...input } = parseBillingCommandInputFromSource(command, shortcut, undefined, defaults);
@@ -425,7 +383,12 @@ export function parseBillingCommandPlan(
   // Un solo comprobante falla como siempre. En un lote se leen todos y se juntan los errores,
   // para informarlos de una vez en lugar de cortar en el primero.
   if (fileInputs.length === 1) {
-    const { __modeSource, ...input } = parseBillingCommandInputFromSource(command, shortcut, fileInputs[0], defaults);
+    const { __modeSource, ...input } = parseBillingCommandInputFromSource(
+      command,
+      shortcut,
+      parseBillingJsonInput(fileInputs[0]),
+      defaults,
+    );
 
     return { inputIndexes: [1], inputs: [input], invalidItems: [], modeSource: __modeSource, total: 1 };
   }
@@ -436,7 +399,7 @@ export function parseBillingCommandPlan(
 
   fileInputs.forEach((fileInput, position) => {
     try {
-      parsed.push(parseBillingCommandInputFromSource(command, shortcut, fileInput, defaults));
+      parsed.push(parseBillingCommandInputFromSource(command, shortcut, parseBillingJsonInput(fileInput), defaults));
       inputIndexes.push(position + 1);
     } catch (error) {
       invalidItems.push({ index: position + 1, message: describeBatchItemError(error) });
