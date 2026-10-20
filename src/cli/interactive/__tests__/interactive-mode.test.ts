@@ -23,6 +23,16 @@ vi.mock('../../../modules/interactive/config-fields', async (importOriginal) => 
   ...(await importOriginal<typeof import('../../../modules/interactive/config-fields')>()),
   listMissingSetupKeys: vi.fn(() => []),
 }));
+vi.mock('../../../modules/config/config.service', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../modules/config/config.service')>()),
+  ConfigService: class {
+    public close(): void {}
+    public ensureInitialized(): void {}
+    public getConfig(): object {
+      return {};
+    }
+  },
+}));
 vi.mock('../config.flow', () => ({ runConfigMenu: vi.fn(), runGuidedSetup: vi.fn() }));
 vi.mock('../repeat.flow', () => ({ runRepeatFlow: vi.fn() }));
 vi.mock('../status.flow', () => ({ runStatusFlow: vi.fn() }));

@@ -38,6 +38,8 @@ Husky corre `lint-staged` en cada commit: chequeo de tipos, ESLint y los tests r
 
 Los tests unitarios viven junto al código, en carpetas `__tests__` (por ejemplo `src/modules/billing/__tests__/`). `build` no los publica y `typecheck` sí los valida.
 
+`src/__tests__/setup.ts` corre antes de cada archivo de tests: le da un `HOME` temporal (así ningún test lee ni escribe tu config real) y saca `FORCE_COLOR`, `NO_COLOR` y `ARCLI_ASCII`, para que la suite dé lo mismo en cualquier terminal.
+
 Antes de cerrar un cambio:
 
 ```bash

@@ -26,9 +26,16 @@ export function formatTerminalOutput(content: string, options: TerminalStreamOpt
   const target = options.target ?? 'stdout';
   const safeContent = sanitizeTerminalText(content);
   const renderedContent =
-    options.json && supportsColor(target) ? highlightJsonValues(safeContent, target) : safeContent;
+    options.json && shouldHighlightJson(target) ? highlightJsonValues(safeContent, target) : safeContent;
 
   return `\n${renderedContent}\n\n`;
+}
+
+// FORCE_COLOR no alcanza para pintar el JSON: si va a un pipe o a un archivo, tiene que poder parsearse.
+function shouldHighlightJson(target: 'stderr' | 'stdout'): boolean {
+  const stream = target === 'stderr' ? process.stderr : process.stdout;
+
+  return stream.isTTY === true && supportsColor(target);
 }
 
 export function writeTerminalOutput(content: string): void {

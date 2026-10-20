@@ -1,8 +1,46 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { formatTerminalOutput, sanitizeTerminalText } from '../terminal-stream';
 
 const ESC = '\u001B';
+
+describe('formatTerminalOutput with json', () => {
+  const json = JSON.stringify({ cae: '12345678901234', total: 100, ok: true, error: null }, null, 2);
+
+  const originalIsTTY = { stdout: process.stdout.isTTY, stderr: process.stderr.isTTY };
+
+  function setIsTTY(target: 'stderr' | 'stdout', value: boolean): void {
+    Object.defineProperty(process[target], 'isTTY', { configurable: true, value });
+  }
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    setIsTTY('stdout', originalIsTTY.stdout);
+    setIsTTY('stderr', originalIsTTY.stderr);
+  });
+
+  it.each(['stdout', 'stderr'] as const)(
+    'keeps %s parseable when FORCE_COLOR is set and it is not a terminal',
+    (target) => {
+      vi.stubEnv('FORCE_COLOR', '1');
+      vi.stubEnv('NO_COLOR', '');
+      setIsTTY(target, false);
+
+      const output = formatTerminalOutput(json, { json: true, target });
+
+      expect(output).not.toContain(ESC);
+      expect(JSON.parse(output)).toEqual(JSON.parse(json));
+    },
+  );
+
+  it('highlights json in a terminal', () => {
+    vi.stubEnv('FORCE_COLOR', '1');
+    vi.stubEnv('NO_COLOR', '');
+    setIsTTY('stdout', true);
+
+    expect(formatTerminalOutput(json, { json: true, target: 'stdout' })).toContain(ESC);
+  });
+});
 
 describe('sanitizeTerminalText', () => {
   it('keeps colors, line breaks and tabs', () => {
