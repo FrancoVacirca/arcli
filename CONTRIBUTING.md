@@ -48,8 +48,14 @@ Actualizá la documentación que describe lo que cambiaste:
 | Validaciones                             | [reglas de validación](docs/validation-rules.md)                  |
 | Flujos de uso o mensajes de error        | [patrones de uso](docs/usage-patterns.md), [troubleshooting](docs/troubleshooting.md) |
 | Modo interactivo                         | [modo interactivo](docs/modo-interactivo.md)                      |
+| Módulos, capas o gateways                | [arquitectura](docs/architecture.md)                              |
+| Servicios de ARCA que hay que autorizar  | [obtención de certificados](docs/obtencion-certificados.md)       |
+
+Un cambio suele caer en varias filas: un comando nuevo con `--json` es también JSON de salida y, si suma errores, mensajes de error.
 
 Si el cambio le afecta a quien usa el CLI, sumá una entrada en "Sin publicar" de [CHANGELOG.md](CHANGELOG.md).
+
+Un test (`docs-sync.test.ts`) falla si un comando, flag o clave de config falta en sus docs o en `llms.txt`. Con Claude Code, la skill `sincronizar-docs` recorre esta tabla por vos.
 
 ## Checklist del PR
 
