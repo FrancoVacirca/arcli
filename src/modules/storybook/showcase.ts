@@ -323,7 +323,7 @@ function buildBillingScene(): string {
 
 function buildConfigScene(): string {
   const config = createSampleConfig();
-  const doctor = buildConfigDoctorReport(config, { validation: createSampleValidation() });
+  const doctor = buildConfigDoctorReport(config, [{ environment: 'testing' }]);
 
   return [
     sceneTitle('Configuracion', 'Vista actual y revision'),
@@ -355,7 +355,7 @@ function buildJsonScene(): string {
     }),
   );
   const doctorJson = highlightJsonValues(
-    formatConfigDoctor(buildConfigDoctorReport(createSampleConfig(), { validation: createSampleValidation() })),
+    formatConfigDoctor(buildConfigDoctorReport(createSampleConfig(), [{ environment: 'testing' }])),
   );
 
   return [

@@ -137,7 +137,7 @@ describe('runConfigMenu', () => {
       // Despues de guardar vuelve a la lista; "Volver" sale.
       .mockResolvedValueOnce(BACK);
 
-    await runConfigMenu({});
+    await runConfigMenu();
 
     expect(store.concepto).toBe('productos');
 
@@ -168,7 +168,7 @@ describe('runConfigMenu', () => {
       return true;
     });
 
-    await runConfigMenu({});
+    await runConfigMenu();
 
     expect(stripAnsi(printed)).toContain('20409509763');
     expect(stripAnsi(printed)).toContain('Comprobantes por lista');
@@ -189,7 +189,7 @@ describe('runConfigMenu', () => {
       return '-';
     });
 
-    await runConfigMenu({});
+    await runConfigMenu();
 
     expect(store['emisor.razonSocial']).toBeUndefined();
   });
@@ -198,7 +198,7 @@ describe('runConfigMenu', () => {
     vi.mocked(chooseOne).mockResolvedValueOnce('pdf').mockResolvedValueOnce('volver');
     chooseStepMock.mockResolvedValueOnce('instalar');
 
-    await runConfigMenu({});
+    await runConfigMenu();
 
     expect(install).toHaveBeenCalledTimes(1);
     expect(uninstall).not.toHaveBeenCalled();

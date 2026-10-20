@@ -53,7 +53,7 @@ Para cambios de empaquetado o publicación, `yarn open-source:check`.
 Los tests no llaman a ARCA. Para cambios en emisión, consultas o salida, probá a mano contra `testing` y con montos chicos:
 
 ```bash
-yarn dev config revisar --testing
+yarn dev config revisar
 yarn dev fc -m 1000 --cs --cfinal --ir-cf              # vista previa
 yarn dev fc -m 1000 --cs --cfinal --ir-cf --emitir     # emisión en testing
 yarn dev fc -m 1000 --cs --cfinal --ir-cf --emitir --json --bruto

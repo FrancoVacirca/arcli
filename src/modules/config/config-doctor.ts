@@ -1,10 +1,9 @@
 import { CERTIFICATE_GUIDE_URL } from '../../lib/links';
 import { isCertificateExpiringSoon, readCertificateExpiry } from '../../lib/security/certificate';
 import { readPemFile } from '../../lib/security/pem';
-import type { ArcaRuntimeValidation } from '../../services/arca/arca-context.resolver';
 import { listMissingIssuerKeys } from '../pdf/pdf-issuer';
 
-import type { ArcliConfig } from './config.schemas';
+import type { ArcliConfig, ArcliEnvironment } from './config.schemas';
 
 const CERTIFICATE_EXPIRY_WARNING_DAYS = 30;
 
@@ -17,9 +16,11 @@ export interface ConfigDoctorReport {
   readonly ok: boolean;
 }
 
+/** Lo que valida `ArcaContextResolver` para un entorno: CUIT, certificado y clave legibles. */
 export interface ConfigDoctorRuntimeCheck {
+  readonly environment: ArcliEnvironment;
+  /** Sin error, el entorno esta listo. */
   readonly error?: string;
-  readonly validation?: ArcaRuntimeValidation;
 }
 
 function buildCertificateExpiryCheck(
@@ -59,7 +60,7 @@ function buildCertificateExpiryCheck(
 
 export function buildConfigDoctorReport(
   config: ArcliConfig,
-  runtimeCheck?: ConfigDoctorRuntimeCheck,
+  runtimeChecks: readonly ConfigDoctorRuntimeCheck[] = [],
 ): ConfigDoctorReport {
   const checks: Array<ConfigDoctorReport['checks'][number]> = [];
 
@@ -165,18 +166,14 @@ export function buildConfigDoctorReport(
     });
   }
 
-  if (runtimeCheck?.validation) {
-    checks.push({
-      category: 'ok',
-      detail: `Configuracion valida para ${runtimeCheck.validation.environment}.`,
-      label: 'Revision activa',
-    });
-  } else if (runtimeCheck?.error) {
-    checks.push({
-      category: 'error',
-      detail: runtimeCheck.error,
-      label: 'Revision activa',
-    });
+  for (const runtimeCheck of runtimeChecks) {
+    const label = `Validacion ${runtimeCheck.environment}`;
+
+    checks.push(
+      runtimeCheck.error
+        ? { category: 'error', detail: runtimeCheck.error, label }
+        : { category: 'ok', detail: `Configuracion valida para ${runtimeCheck.environment}.`, label },
+    );
   }
 
   return {

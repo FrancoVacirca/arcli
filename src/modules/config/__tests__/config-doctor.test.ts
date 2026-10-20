@@ -74,24 +74,14 @@ describe('config-doctor', () => {
         },
         puntoVentaPorDefecto: 3,
       },
-      {
-        validation: {
-          certPath: testingCert,
-          cuit: 20409509763,
-          environment: 'testing',
-          keyPath: '/tmp/testing.key',
-          outputJson: false,
-          outputRaw: false,
-          pointOfSale: 3,
-          ticketPath: '/tmp/tickets',
-        },
-      },
+      [{ environment: 'testing' }, { environment: 'produccion' }],
     );
 
     expect(report.ok).toBe(true);
     expect(report.checks.find((item) => item.label === 'Credenciales testing')?.category).toBe('ok');
     expect(report.checks.find((item) => item.label === 'Credenciales produccion')?.category).toBe('ok');
-    expect(report.checks.find((item) => item.label === 'Revision activa')?.category).toBe('ok');
+    expect(report.checks.find((item) => item.label === 'Validacion testing')?.category).toBe('ok');
+    expect(report.checks.find((item) => item.label === 'Validacion produccion')?.category).toBe('ok');
     expect(report.checks.find((item) => item.label === 'Vencimiento cert. testing')?.category).toBe('ok');
     expect(report.checks.find((item) => item.label === 'Vencimiento cert. produccion')?.category).toBe('ok');
   }, 10_000);

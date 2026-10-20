@@ -118,14 +118,16 @@ arcli config ruta
 
 ```bash
 arcli config revisar
-arcli config revisar --testing
-arcli config revisar --produccion
+arcli config revisar --json
 ```
 
 `config revisar` combina:
 
 - el estado de la config persistente
-- la validación real del entorno que ARCLI intentaría usar
+- el vencimiento de los certificados de los dos entornos
+- la validación real (CUIT, certificado y clave legibles) del entorno por defecto y de cualquier otro que tenga `cert` o `key` configurados
+
+No recibe `--testing` ni `--produccion`: revisa los dos entornos de una vez.
 
 ### Guardar o eliminar valores
 

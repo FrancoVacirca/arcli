@@ -117,7 +117,7 @@ Podés verificarlo entrando a la sección **"Autorizaciones"**:
 ```bash
 arcli config establecer cert.testing /ruta/a/testing.crt
 arcli config establecer key.testing /ruta/a/testing.key
-arcli config revisar --testing
+arcli config revisar
 ```
 
 ---
@@ -191,7 +191,7 @@ Por último, confirmá la relación completa:
 ```bash
 arcli config establecer cert.produccion /ruta/a/produccion.crt
 arcli config establecer key.produccion /ruta/a/produccion.key
-arcli config revisar --produccion
+arcli config revisar
 ```
 
 Para emitir de verdad en producción, pasá además `--produccion --emitir` en el

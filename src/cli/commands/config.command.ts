@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 
+import type { ArcliConfig, ArcliEnvironment } from '../../modules/config/config.schemas';
 import { ConfigService } from '../../modules/config/config.service';
 import { buildConfigDoctorReport, type ConfigDoctorRuntimeCheck } from '../../modules/config/config-doctor';
 import { ArcaContextResolver } from '../../services/arca/arca-context.resolver';
@@ -31,21 +32,30 @@ function printConfigResult(textValue: string, jsonValue: string, useJson = false
   writeTerminalOutput(textValue);
 }
 
-export function buildRuntimeCheck(options: { produccion?: boolean; testing?: boolean }): ConfigDoctorRuntimeCheck {
-  try {
-    return {
-      validation: new ArcaContextResolver({
-        options: {
-          produccion: options.produccion,
-          testing: options.testing,
-        },
-      }).validate(),
-    };
-  } catch (error) {
-    return {
-      error: error instanceof Error ? error.message : 'No se pudo completar la revision activa.',
-    };
-  }
+const ENVIRONMENTS: readonly ArcliEnvironment[] = ['testing', 'produccion'];
+
+/** Valida el entorno por defecto y cualquier otro que tenga cert o key cargados: `revisar` cubre los dos. */
+export function buildRuntimeChecks(config: ArcliConfig): ConfigDoctorRuntimeCheck[] {
+  return ENVIRONMENTS.filter(
+    (environment) =>
+      environment === config.entornoPorDefecto || Boolean(config.cert[environment] || config.key[environment]),
+  ).map((environment) => {
+    try {
+      new ArcaContextResolver({ options: { [environment]: true } }).validate();
+
+      return { environment };
+    } catch (error) {
+      return {
+        environment,
+        error: error instanceof Error ? error.message : 'No se pudo completar la validacion.',
+      };
+    }
+  });
+}
+
+/** Las opciones globales (`--json`) las parsea el programa: hay que leerlas con `optsWithGlobals`. */
+function wantsJson(command: Command): boolean {
+  return Boolean(command.optsWithGlobals<{ json?: boolean }>().json);
 }
 
 export function registerConfigCommand(program: Command): void {
@@ -55,13 +65,13 @@ export function registerConfigCommand(program: Command): void {
 
   configureSpanishHelp(configCommand);
 
-  configCommand.option('--json', 'imprimir salida JSON').action((options: { json?: boolean }) => {
+  configCommand.option('--json', 'imprimir salida JSON').action((_options: unknown, command: Command) => {
     const service = createConfigService();
 
     try {
       const config = service.getConfig();
       const paths = service.resolvePaths(config);
-      printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), options.json);
+      printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), wantsJson(command));
     } finally {
       service.close();
     }
@@ -71,18 +81,18 @@ export function registerConfigCommand(program: Command): void {
 
   const revisarCommand = configCommand
     .command('revisar')
-    .description('revisar configuracion, defaults, credenciales y validacion activa')
+    .description('revisar configuracion, defaults, credenciales y validacion de cada entorno')
     .option('--json', 'imprimir salida JSON')
-    .option('--testing', 'revisar para testing')
-    .option('--produccion', 'revisar para produccion')
-    .action((options: { json?: boolean; produccion?: boolean; testing?: boolean }) => {
+    .action((_options: unknown, command: Command) => {
       const service = createConfigService();
-      const spinner = options.json ? null : startSpinner('Generando revision...');
+      const useJson = wantsJson(command);
+      const spinner = useJson ? null : startSpinner('Generando revision...');
 
       try {
-        const report = buildConfigDoctorReport(service.getConfig(), buildRuntimeCheck(options));
+        const config = service.getConfig();
+        const report = buildConfigDoctorReport(config, buildRuntimeChecks(config));
         spinner?.stop();
-        printConfigResult(formatConfigDoctorAsText(report), formatConfigDoctor(report), options.json);
+        printConfigResult(formatConfigDoctorAsText(report), formatConfigDoctor(report), useJson);
       } catch (error) {
         spinner?.stop();
         throw error;
@@ -112,14 +122,14 @@ export function registerConfigCommand(program: Command): void {
     .option('--json', 'imprimir salida JSON')
     .argument('<clave>', 'clave publica de configuracion')
     .argument('<valor>', 'valor a guardar')
-    .action((key: string, value: string, options: { json?: boolean }) => {
+    .action((key: string, value: string, _options: unknown, command: Command) => {
       // Sin ensureInitialized: si la config quedo invalida, establecer o eliminar la clave es la forma de arreglarla.
       const service = new ConfigService();
 
       try {
         const config = service.setValue(key, value);
         const paths = service.resolvePaths(config);
-        printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), options.json);
+        printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), wantsJson(command));
       } finally {
         service.close();
       }
@@ -131,14 +141,14 @@ export function registerConfigCommand(program: Command): void {
     .description('eliminar un valor de configuracion')
     .option('--json', 'imprimir salida JSON')
     .argument('<clave>', 'clave publica de configuracion')
-    .action((key: string, options: { json?: boolean }) => {
+    .action((key: string, _options: unknown, command: Command) => {
       // Sin ensureInitialized: si la config quedo invalida, establecer o eliminar la clave es la forma de arreglarla.
       const service = new ConfigService();
 
       try {
         const config = service.unsetValue(key);
         const paths = service.resolvePaths(config);
-        printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), options.json);
+        printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), wantsJson(command));
       } finally {
         service.close();
       }

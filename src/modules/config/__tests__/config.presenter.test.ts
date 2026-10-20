@@ -81,12 +81,10 @@ describe('config.presenter', () => {
           brutoPorDefecto: false,
         },
       },
-      {
-        error: 'Falta el punto de venta.',
-      },
+      [{ environment: 'testing', error: 'Falta el punto de venta.' }],
     );
 
-    expect(formatConfigDoctor(report)).toContain('"etiqueta": "Revision activa"');
+    expect(formatConfigDoctor(report)).toContain('"etiqueta": "Validacion testing"');
     expect(formatConfigDoctorAsText(report)).toContain('REVISION DE CONFIGURACION');
     expect(formatConfigDoctorAsText(report)).toContain('Falta el punto de venta.');
   });

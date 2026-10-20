@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { InputValidationError } from '../../../lib/errors/app-error';
 import { parseConfigValue } from '../config-value-parser';
 
 const temporaryDirectories: string[] = [];
@@ -52,6 +53,11 @@ describe('config-value-parser', () => {
 
   it('rejects values that are not recognizable booleans', () => {
     expect(() => parseConfigValue('output.emitirPorDefecto', 'tal-vez')).toThrow(/no es un booleano valido/);
+  });
+
+  it('reports invalid values as input errors, not unexpected ones', () => {
+    expect(() => parseConfigValue('puntoVentaPorDefecto', 'abc')).toThrow(InputValidationError);
+    expect(() => parseConfigValue('comprobantesPorLista', '99')).toThrow(InputValidationError);
   });
 
   it('normalizes the default IVA rate', () => {

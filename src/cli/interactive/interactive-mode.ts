@@ -61,7 +61,7 @@ async function runOption(
   options: GlobalCliOptions,
 ): Promise<void> {
   if (option === 'config') {
-    await runConfigMenu(options);
+    await runConfigMenu();
 
     return;
   }

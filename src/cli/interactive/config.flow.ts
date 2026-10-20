@@ -22,9 +22,8 @@ import {
   noticePanel,
   writeTerminalOutput,
 } from '../../ui';
-import { buildRuntimeCheck } from '../commands/config.command';
+import { buildRuntimeChecks } from '../commands/config.command';
 import { startSpinner } from '../spinner';
-import type { GlobalCliOptions } from '../types';
 
 import { askTextStep, type Choice, chooseOne, chooseStep, confirm, fitPageSize } from './prompts';
 
@@ -293,7 +292,7 @@ function showConfig(): void {
 }
 
 /** Submenu de configuracion: ver, revisar, configuracion guiada, modificar y el plugin de PDF. */
-export async function runConfigMenu(options: GlobalCliOptions): Promise<void> {
+export async function runConfigMenu(): Promise<void> {
   for (;;) {
     const option = await chooseOne<ConfigOption>(
       'Configuracion',
@@ -329,7 +328,9 @@ export async function runConfigMenu(options: GlobalCliOptions): Promise<void> {
     if (option === 'ver') showConfig();
 
     if (option === 'revisar') {
-      writeTerminalOutput(formatConfigDoctorAsText(buildConfigDoctorReport(readConfig(), buildRuntimeCheck(options))));
+      const config = readConfig();
+
+      writeTerminalOutput(formatConfigDoctorAsText(buildConfigDoctorReport(config, buildRuntimeChecks(config))));
     }
 
     if (option === 'guiada') await runGuidedSetup();
