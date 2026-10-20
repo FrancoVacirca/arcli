@@ -28,14 +28,16 @@ const CONFIG = {
   output: { brutoPorDefecto: false, emitirPorDefecto: false, jsonPorDefecto: false },
 } satisfies ArcliConfig;
 
+let storedConfig: ArcliConfig = CONFIG;
+
 vi.mock('../../../modules/config/config.service', () => ({
   ConfigService: class {
     public close(): void {}
     public ensureInitialized(): ArcliConfig {
-      return CONFIG;
+      return storedConfig;
     }
     public getConfig(): ArcliConfig {
-      return CONFIG;
+      return storedConfig;
     }
     public resolvePaths(): { pdfFolder: string; ticketPath: string } {
       return { pdfFolder: '/pdfs', ticketPath: '/tickets' };
@@ -44,6 +46,7 @@ vi.mock('../../../modules/config/config.service', () => ({
 }));
 
 beforeEach(() => {
+  storedConfig = CONFIG;
   validate.mockReset();
   resolverOptions.length = 0;
 });
@@ -82,6 +85,21 @@ describe('arcli config', () => {
 
       expect(JSON.parse(output)).toHaveProperty('chequeos');
       expect(output).toContain('"etiqueta": "Validacion testing"');
+    } finally {
+      write.mockRestore();
+    }
+  });
+
+  it('sale en JSON con json=true en la config, sin el flag', async () => {
+    storedConfig = { ...CONFIG, output: { ...CONFIG.output, jsonPorDefecto: true } };
+    const write = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+
+    try {
+      await createProgram().parseAsync(['node', 'arcli', 'config']);
+
+      const output = write.mock.calls.map(([chunk]) => String(chunk)).join('');
+
+      expect(JSON.parse(output)).toHaveProperty('cuit', '20123456789');
     } finally {
       write.mockRestore();
     }

@@ -12,6 +12,7 @@ import { registerPdfCommand } from './commands/pdf.command';
 import { registerStorybookCommand } from './commands/storybook.command';
 import { registerVoucherQueryCommands } from './commands/vouchers.command';
 import { configureSpanishHelp, createProgramHeader, createProgramHelp } from './help';
+import { warnAboutIgnoredGlobalOptions } from './ignored-global-options';
 import { CLI_VERSION } from './version';
 
 export function createProgram(): Command {
@@ -27,6 +28,7 @@ export function createProgram(): Command {
 
   configureSpanishHelp(program);
   registerGlobalOptions(program);
+  warnAboutIgnoredGlobalOptions(program);
 
   registerBillingShortcutCommands(program);
   registerBillingFamilyCommands(program);

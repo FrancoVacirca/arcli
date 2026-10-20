@@ -53,9 +53,12 @@ export function buildRuntimeChecks(config: ArcliConfig): ConfigDoctorRuntimeChec
   });
 }
 
-/** Las opciones globales (`--json`) las parsea el programa: hay que leerlas con `optsWithGlobals`. */
-function wantsJson(command: Command): boolean {
-  return Boolean(command.optsWithGlobals<{ json?: boolean }>().json);
+/**
+ * `--json` o, sin el flag, `json=true` de la config, como el resto de los comandos. La opcion la parsea el
+ * programa: hay que leerla con `optsWithGlobals`.
+ */
+function wantsJson(command: Command, config: ArcliConfig): boolean {
+  return command.optsWithGlobals<{ json?: boolean }>().json ?? config.output.jsonPorDefecto;
 }
 
 export function registerConfigCommand(program: Command): void {
@@ -71,7 +74,7 @@ export function registerConfigCommand(program: Command): void {
     try {
       const config = service.getConfig();
       const paths = service.resolvePaths(config);
-      printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), wantsJson(command));
+      printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), wantsJson(command, config));
     } finally {
       service.close();
     }
@@ -85,11 +88,12 @@ export function registerConfigCommand(program: Command): void {
     .option('--json', 'imprimir salida JSON')
     .action((_options: unknown, command: Command) => {
       const service = createConfigService();
-      const useJson = wantsJson(command);
-      const spinner = useJson ? null : startSpinner('Generando revision...');
+      let spinner: ReturnType<typeof startSpinner> = null;
 
       try {
         const config = service.getConfig();
+        const useJson = wantsJson(command, config);
+        spinner = useJson ? null : startSpinner('Generando revision...');
         const report = buildConfigDoctorReport(config, buildRuntimeChecks(config));
         spinner?.stop();
         printConfigResult(formatConfigDoctorAsText(report), formatConfigDoctor(report), useJson);
@@ -129,7 +133,7 @@ export function registerConfigCommand(program: Command): void {
       try {
         const config = service.setValue(key, value);
         const paths = service.resolvePaths(config);
-        printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), wantsJson(command));
+        printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), wantsJson(command, config));
       } finally {
         service.close();
       }
@@ -148,7 +152,7 @@ export function registerConfigCommand(program: Command): void {
       try {
         const config = service.unsetValue(key);
         const paths = service.resolvePaths(config);
-        printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), wantsJson(command));
+        printConfigResult(formatConfigAsText(config, paths), formatConfig(config, paths), wantsJson(command, config));
       } finally {
         service.close();
       }

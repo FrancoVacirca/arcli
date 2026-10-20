@@ -136,6 +136,8 @@ Para emitir en producción hay que pasar `--produccion` y `--emitir` juntos.
 | `--json`       | ninguno | `boolean` | `config.json` (`false` por defecto)  | Devuelve salida estructurada                  |
 | `--bruto`      | ninguno | `boolean` | `config.bruto` (`false` por defecto) | Agrega respuesta cruda de ARCA cuando exista  |
 
+Si pasás una de estas opciones a un comando que no la usa (por ejemplo `arcli config ruta --json`), el comando corre igual y en stderr aparece un aviso: ``Aviso: --json no aplica a `arcli config ruta`, se ignora.``
+
 ## Flags de comprobantes
 
 Esta sección describe qué existe. Más abajo vas a encontrar qué hace falta en cada familia.
