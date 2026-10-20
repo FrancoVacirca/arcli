@@ -138,6 +138,12 @@ export const billingCommandSchema = z.object({
   ivaRateAmounts: z.array(billingIvaRateAmountSchema).min(1).optional(),
   dueDay: z.number().int().min(1).max(31).optional(),
   ivaCondition: billingIvaConditionSchema,
+  /**
+   * De donde salio `ivaCondition`; sin definir, la indico el usuario (flag, JSON o modo interactivo). Con `default`
+   * (la config) o `missing` y un CUIT, se consulta el padron antes de emitir
+   * (`BillingService.resolveIvaConditionFromPadron`). `missing` todavia no tiene un valor real: no se puede emitir.
+   */
+  ivaConditionSource: z.enum(['default', 'missing', 'padron']).optional(),
   paymentDueDate: z.string().trim().optional(),
   /** `true` con --exportar-pdf, `false` con --sin-pdf; sin definir, decide la config. */
   pdf: z.boolean().optional(),

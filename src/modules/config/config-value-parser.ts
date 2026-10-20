@@ -45,7 +45,8 @@ export type CanonicalConfigKey =
   | 'pdfNavegador'
   | 'puntoVentaPorDefecto'
   | 'ticketPath'
-  | 'verificarFce';
+  | 'verificarFce'
+  | 'consultarPadron';
 
 function parseBoolean(value: string): boolean {
   const normalizedValue = value.trim().toLowerCase();
@@ -206,6 +207,7 @@ export function parseConfigValue(key: CanonicalConfigKey, value: string): boolea
     case 'monedaPorDefecto':
       return value.trim().toUpperCase();
     case 'verificarFce':
+    case 'consultarPadron':
     case 'output.emitirPorDefecto':
     case 'output.jsonPorDefecto':
     case 'output.brutoPorDefecto':

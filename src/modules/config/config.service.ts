@@ -41,6 +41,7 @@ const CONFIG_KEY_ALIASES: Record<ConfigPublicKey, CanonicalConfigKey> = {
   puntoVenta: 'puntoVentaPorDefecto',
   ticketPath: 'ticketPath',
   verificarFce: 'verificarFce',
+  consultarPadron: 'consultarPadron',
 };
 
 /** Valida un valor como lo haria `arcli config establecer`, sin guardarlo. Lanza un Error con el motivo. */

@@ -106,7 +106,11 @@ function formatFriendlyPayloadRows(result: BillingExecutionResult): Array<readon
             : formatNumericLabel(payload.DocNro)
         : 'No informado',
     ],
-    ['IVA receptor', formatIvaConditionLabel(payload.CondicionIVAReceptorId)],
+    ...(result.receiver?.name ? [['Receptor', result.receiver.name] as const] : []),
+    [
+      'IVA receptor',
+      `${formatIvaConditionLabel(payload.CondicionIVAReceptorId)}${result.receiver?.ivaConditionFromPadron ? ' (padron)' : ''}`,
+    ],
     ['Moneda', formatCurrencyLabel(payload.MonId)],
     ['Cotizacion', formatDecimalLabel(payload.MonCotiz)],
     ['Importe neto', formatMoneyLabel(payload.ImpNeto)],

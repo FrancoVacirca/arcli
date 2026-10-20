@@ -87,6 +87,12 @@ const FIELD_DEFINITIONS: ReadonlyArray<Omit<ConfigField, 'label'>> = [
   { key: 'aliasCbu', read: (c) => c.aliasCbu },
   {
     choices: ['si', 'no'],
+    hint: 'por defecto si',
+    key: 'consultarPadron',
+    read: (c) => (c.consultarPadron === undefined ? undefined : c.consultarPadron ? 'si' : 'no'),
+  },
+  {
+    choices: ['si', 'no'],
     key: 'verificarFce',
     read: (c) => (c.verificarFce === undefined ? undefined : c.verificarFce ? 'si' : 'no'),
   },

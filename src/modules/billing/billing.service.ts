@@ -4,6 +4,7 @@ import { formatDateAsArcaDate, parseArgentineDateInputAsArcaDate } from '../../l
 import { InputValidationError } from '../../lib/errors/app-error';
 import type { ResolvedArcaRuntime } from '../../services/arca/arca-context.resolver';
 import { evaluateFceObligation, type FceObligationGateway, shouldCheckFceObligation } from '../fce/fce-obligation';
+import type { PadronGateway } from '../padron/padron';
 
 import { resolveTaxAmounts, sumTaxAmounts } from './billing.amounts';
 import { resolveAssociatedPeriod } from './billing.associated-period';
@@ -19,6 +20,7 @@ import {
   resolveBillingDocumentTypeCode,
   resolveBillingIvaConditionCode,
 } from './billing.mappers';
+import { type PadronResolution, resolveIvaConditionFromPadron } from './billing.padron';
 import type { BillingCommandInput } from './billing.schemas';
 import type { VoucherKindDefinition } from './billing.types';
 import type { BillingExecutionResult, BillingGateway } from './billing.types.internal';
@@ -55,15 +57,27 @@ export class BillingService {
     };
   }
 
+  public async resolveIvaConditionFromPadron(
+    input: BillingCommandInput,
+    gateway: PadronGateway,
+  ): Promise<PadronResolution> {
+    return resolveIvaConditionFromPadron(input, gateway);
+  }
+
   public async execute(options: BillingExecutionOptions): Promise<BillingExecutionResult> {
     const voucherKind = this.requireVoucherKind(options.input.shortcut);
     const payload = this.buildVoucherPayload(options.input, options.runtime, voucherKind);
+    const receiver = {
+      ivaConditionFromPadron: options.input.ivaConditionSource === 'padron',
+      name: options.input.receiverName,
+    };
 
     if (options.input.dryRun || !options.input.emit) {
       return {
         dryRun: true,
         environment: options.runtime.environment,
         payload,
+        receiver,
         response: createDryRunResponse(),
         voucherKind,
         warnings: options.warnings ?? [],
@@ -82,6 +96,7 @@ export class BillingService {
       dryRun: false,
       environment: options.runtime.environment,
       payload,
+      receiver,
       response: mapBillingResponse(response),
       voucherKind,
       warnings: options.warnings ?? [],
@@ -121,6 +136,13 @@ export class BillingService {
     voucherKind = this.requireVoucherKind(input.shortcut),
   ): INextVoucher {
     const pointOfSale = input.pointOfSale ?? runtime.pointOfSale;
+
+    // Resguardo: un IVA receptor que esperaba al padron nunca llega a ARCA con el valor provisorio.
+    if (input.ivaConditionSource === 'missing') {
+      throw new InputValidationError(
+        'Falta IVA receptor. Use --ir <tipo> o un flag --ir-*, o configure uno por defecto con "arcli config establecer ivaReceptor <tipo>".',
+      );
+    }
 
     if (!pointOfSale) {
       throw new InputValidationError(

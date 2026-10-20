@@ -19,7 +19,8 @@ CLI para previsualizar y emitir comprobantes electrónicos de ARCA (ex AFIP) des
 - **Comprobantes:** Factura, Nota de Crédito y Nota de Débito A, B y C, y sus versiones de Factura de Crédito Electrónica (FCE), con CBU, transferencia, anulación y consulta del régimen del receptor.
 - **Entrada y salida flexibles:** flags o JSON (incluso lotes); salida legible, `--json` o respuesta bruta de ARCA.
 - **Validaciones locales** basadas en el manual de ARCA, para detectar errores antes de llamar al servicio.
-- **Consultas sin emitir:** últimos comprobantes, detalle de uno, estado de los servidores, tablas de parámetros y cotización oficial.
+- **Consultas sin emitir:** últimos comprobantes, detalle de uno, estado de los servidores, tablas de parámetros, cotización oficial y padrón de un CUIT.
+- **IVA receptor automático:** con `--cuit` y sin `--ir`, toma la condición IVA del padrón de ARCA.
 - **PDF con el QR de ARCA** mediante un plugin que se descarga solo si lo usás.
 
 ## Instalación
@@ -55,7 +56,7 @@ arcli fc --cargar ./facturas.json --emitir --json            # lote desde JSON, 
 arcli fc -m 15000 --cs --consumidor-final --ir-cf --emitir --exportar-pdf
 ```
 
-Otras consultas: `arcli ultimos`, `arcli consultar`, `arcli estado`, `arcli parametros`, `arcli fce-obligado`. Para ver todos los comprobantes y ejemplos: `arcli --ayuda` y `arcli ejemplos`.
+Otras consultas: `arcli ultimos`, `arcli consultar`, `arcli estado`, `arcli parametros`, `arcli fce-obligado`, `arcli padron`. Para ver todos los comprobantes y ejemplos: `arcli --ayuda` y `arcli ejemplos`.
 
 <p align="center"><img src="https://raw.githubusercontent.com/LcsGrz/arcli/main/docs/assets/demo/comandos.gif" alt="Vista previa de una Factura C y emisión con salida JSON filtrada con jq" width="760"></p>
 

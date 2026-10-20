@@ -29,6 +29,11 @@ export interface BillingExecutionResult {
   readonly payload: INextVoucher;
   /** Solo si se intento generar el PDF. */
   readonly pdf?: PdfOutcome;
+  /** Solo para mostrar: ARCA no recibe el nombre del receptor. */
+  readonly receiver?: {
+    readonly ivaConditionFromPadron: boolean;
+    readonly name?: string;
+  };
   readonly response: BillingResponseSummary;
   readonly voucherKind: VoucherKindDefinition;
   readonly warnings?: readonly string[];

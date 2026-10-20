@@ -2,7 +2,7 @@ import { formatMoneyLabel } from '../../modules/billing/billing.labels';
 import type { BillingConcept } from '../../modules/billing/billing.schemas';
 import type { VoucherKindDefinition } from '../../modules/billing/billing.types';
 import { parseAmountInput } from '../../modules/interactive/amount-input';
-import { invoiceKindChoices, ivaConditionChoices } from '../../modules/interactive/choices';
+import { invoiceKindChoices } from '../../modules/interactive/choices';
 import { copyInvoiceAmounts } from '../../modules/interactive/invoice-copy';
 import { currentMonthPeriod, previousMonthPeriod, type ServicePeriod } from '../../modules/interactive/periods';
 import { BACK, runWizard, type WizardStep } from '../../modules/interactive/wizard';
@@ -13,6 +13,7 @@ import { askAdvancedOptions } from './advanced-options';
 import { buildInvoiceInput, type InvoiceState } from './invoice.flow';
 import { pickInvoice } from './invoice-picker';
 import { askTextStep, chooseStep } from './prompts';
+import { askReceiverIvaCondition } from './receiver-padron';
 import { type InteractiveSession, previewAndEmit, requirePointOfSale } from './session';
 import { validateAmount, validateCbu, validateDate } from './validators';
 
@@ -105,13 +106,7 @@ export function repeatSteps(
       name: 'iva-receptor',
       // ARCA no devuelve la condicion IVA de la factura, asi que se pregunta.
       run: async (state) => {
-        const ivaCondition = await chooseStep(
-          'Condicion frente al IVA del receptor:',
-          ivaConditionChoices(state.voucherKind?.letter ?? 'c'),
-          config.ivaReceptorPorDefecto,
-        );
-
-        return ivaCondition === BACK ? BACK : { ivaCondition };
+        return askReceiverIvaCondition(session, state, state.voucherKind?.letter ?? 'c', config.ivaReceptorPorDefecto);
       },
       skip: (state) => state.documentType === 'consumidor-final',
     },

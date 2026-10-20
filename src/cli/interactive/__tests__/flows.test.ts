@@ -25,14 +25,14 @@ vi.mock('../prompts', () => ({
   fitPageSize: () => 12,
 }));
 
-function createSession(vouchers: IssuedVoucher[] = []): InteractiveSession {
+function createSession(vouchers: IssuedVoucher[] = [], arca: unknown = {}): InteractiveSession {
   const historyGateway: VoucherHistoryGateway = {
     getLastNumber: async () => vouchers.reduce((max, voucher) => Math.max(max, voucher.number), 0),
     getVoucher: async (number) => vouchers.find((voucher) => voucher.number === number),
   };
 
   return {
-    arca: {} as never,
+    arca: arca as never,
     billingGateway: { createNextVoucher: vi.fn(), getQuotation: vi.fn() },
     historyGateway,
     runtime: {
@@ -122,6 +122,38 @@ describe('flujos del modo interactivo', () => {
         paymentDueDate: '30/10',
         shortcut: 'fcea',
         transferMode: 'adc',
+      });
+    });
+
+    it('con un CUIT propone la condicion IVA del padron y guarda el nombre del receptor', async () => {
+      script = createScript([
+        [/comprobante/, 'Factura A'],
+        [/A quien/, 'Con CUIT'],
+        [/CUIT del receptor/, '20201797064'],
+        [/Condicion frente al IVA de VICTORIA CAROLINA DARIO/, 'Responsable inscripto (segun el padron)'],
+        [/Que estas facturando/, 'Servicios'],
+        [/Monto total/, '1000'],
+        [/Agregamos/, []],
+      ]);
+
+      const getTaxpayerDetails = vi.fn(async () => ({
+        datosGenerales: {
+          apellido: 'VICTORIA CAROLINA',
+          domicilioFiscal: { codPostal: '1030', descripcionProvincia: 'CABA', direccion: 'LARREA 1' },
+          nombre: 'DARIO',
+        },
+        datosRegimenGeneral: { impuesto: [{ descripcionImpuesto: 'IVA', estadoImpuesto: 'AC', idImpuesto: 30 }] },
+        tipoPersona: 'FISICA',
+      }));
+      const session = createSession([], { registerInscriptionProofService: { getTaxpayerDetails } });
+      const state = await runWizard(invoiceSteps(session), { advanced: { currencyCode: 'ARS', sameCurrency: false } });
+
+      expect(getTaxpayerDetails).toHaveBeenCalledWith(20201797064);
+      expect(buildInvoiceInput(state as NonNullable<typeof state>, session)).toMatchObject({
+        ivaCondition: 'responsable-inscripto',
+        ivaConditionSource: 'padron',
+        receiverAddress: 'LARREA 1, CP 1030, CABA',
+        receiverName: 'VICTORIA CAROLINA DARIO',
       });
     });
 

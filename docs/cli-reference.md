@@ -550,6 +550,36 @@ Usa el servicio `wsfecred`, que hay que autorizar aparte de `wsfe`. Ver [Autoriz
 
 Si activás `arcli config establecer verificarFce true`, la misma consulta corre en cada factura con CUIT del receptor y deja un aviso si el comprobante no coincide con el régimen. Por ejemplo, una `fa` a un receptor obligado por encima del mínimo. El aviso no frena la emisión. Ver [Régimen FCE del receptor](validation-rules.md#régimen-fce-del-receptor).
 
+## Consultar el padrón
+
+`arcli padron <cuit>` muestra lo que ARCA tiene de un CUIT: nombre o razón social, domicilio fiscal, condición frente al IVA, impuestos, categoría de monotributo y actividad principal.
+
+```bash
+arcli padron 20201797064
+arcli padron 20201797064 --json
+```
+
+| Flag                                  | Alias   | Descripción    |
+| ------------------------------------- | ------- | -------------- |
+| `--json`, `--testing`, `--produccion` | ninguno | Flags globales |
+
+La condición IVA sale de los impuestos activos: monotributo es `responsable-monotributo`, IVA es `responsable-inscripto` e IVA exento es `sujeto-exento`. Con otros datos queda sin informar (`condicionIva: null`). Si el CUIT no está en el padrón, termina con el error `TAXPAYER_NOT_FOUND`. En testing el padrón tiene datos ficticios: `20201797064` devuelve datos completos.
+
+Usa el servicio `ws_sr_constancia_inscripcion`, que hay que autorizar aparte de `wsfe`. Ver [Autorizar el servicio web](obtencion-certificados.md#3-autorizar-el-servicio-web).
+
+### IVA receptor desde el padrón
+
+Al facturar con `--cuit` sin `--ir` (ni `ivaReceptor` en el JSON), ARCLI consulta el padrón y usa esa condición IVA, aunque la config tenga un `ivaReceptor` por defecto. También completa el nombre y el domicilio del receptor para el PDF, si no los pasaste. La vista previa lo marca: `IVA receptor   Responsable inscripto (padron)`.
+
+| Caso                                            | Resultado                                                   |
+| ----------------------------------------------- | ----------------------------------------------------------- |
+| `--ir`, `--ir-*` o `ivaReceptor` en el JSON     | Se usa ese valor; no se consulta el padrón                  |
+| El padrón informa la condición                  | Se usa la del padrón                                        |
+| El padrón no responde o no informa la condición | Se usa `ivaReceptor` de la config, con un aviso en `avisos` |
+| Lo mismo, sin `ivaReceptor` en la config        | Error `INPUT_VALIDATION_ERROR`: indicala con `--ir`         |
+
+Para no consultarlo: `arcli config establecer consultarPadron false`. El modo interactivo hace la misma consulta al cargar un CUIT y propone esa condición, marcada "(segun el padron)".
+
 ## Configuración
 
 Comandos `config` y claves disponibles: [Configuración](configuration.md).

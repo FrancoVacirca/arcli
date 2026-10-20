@@ -190,6 +190,14 @@ arcli fc ayuda
 - **Solución:** crear la autorización para `wsfecred` igual que la de `wsfe`, en WSASS (testing) o en el Administrador de Relaciones (producción). Si no la necesitás, desactivá el chequeo con `arcli config eliminar verificarFce`.
 - **Documentación relacionada:** [Autorizar el servicio web](obtencion-certificados.md#3-autorizar-el-servicio-web)
 
+### `ws_sr_constancia_inscripcion` no autorizado
+
+- **Severidad:** frecuente si usás `arcli padron` o facturás con `--cuit` sin `--ir`
+- **Síntoma:** `arcli padron` falla con `El certificado no esta autorizado para el servicio ws_sr_constancia_inscripcion ...`. Al facturar no corta: aparece el aviso `No se pudo consultar el padron de ARCA` y se usa el `ivaReceptor` de la config.
+- **Causa:** el certificado solo tiene autorizado `wsfe`. El padrón usa otro servicio.
+- **Solución:** crear la autorización para `ws_sr_constancia_inscripcion` igual que la de `wsfe`. Si no la necesitás, desactivá la consulta con `arcli config establecer consultarPadron false`.
+- **Documentación relacionada:** [IVA receptor desde el padrón](cli-reference.md#iva-receptor-desde-el-padrón)
+
 ## ARCA
 
 ### `coe.alreadyAuthenticated`

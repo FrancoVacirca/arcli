@@ -92,6 +92,8 @@ export const arcliConfigSchema = z.object({
   comprobantesPorLista: z.number().int().min(1).max(MAX_RECENT_VOUCHERS).optional(),
   puntoVentaPorDefecto: z.number().int().positive().optional(),
   ticketPath: z.string().trim().min(1).optional(),
+  /** Completar el IVA receptor desde el padron al facturar con --cuit. Sin definir, si. */
+  consultarPadron: z.boolean().optional(),
   verificarFce: z.boolean().optional(),
 });
 
@@ -143,6 +145,7 @@ export const configPublicKeySchema = z.enum([
   'puntoVenta',
   'ticketPath',
   'verificarFce',
+  'consultarPadron',
 ]);
 
 export type ConfigPublicKey = z.infer<typeof configPublicKeySchema>;

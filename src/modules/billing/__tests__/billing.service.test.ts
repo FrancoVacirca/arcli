@@ -123,6 +123,15 @@ describe('billing.service', () => {
     expect(payload.FchVtoPago).toBe('20260325');
   });
 
+  it('never builds a payload while the IVA condition still waits for the padron', () => {
+    expect(() =>
+      new BillingService().buildVoucherPayload(
+        createBillingInput({ documentNumber: 20201797064, documentType: 'cuit', ivaConditionSource: 'missing' }),
+        createRuntime(),
+      ),
+    ).toThrow(/Falta IVA receptor/);
+  });
+
   it('keeps --dia in the next month when today is the 31st', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-03-31T12:00:00Z'));

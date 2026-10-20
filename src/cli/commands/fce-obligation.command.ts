@@ -1,7 +1,6 @@
 import type { Command } from 'commander';
 
 import { formatDateAsArcaDate, parseArgentineDateInputAsArcaDate } from '../../lib/dates/arca-date';
-import { InputValidationError } from '../../lib/errors/app-error';
 import { formatFceObligationAsJson, formatFceObligationAsText } from '../../modules/fce/fce-obligation.presenter';
 import { ArcaClientFactory } from '../../services/arca/arca-client.factory';
 import { ArcaContextResolver } from '../../services/arca/arca-context.resolver';
@@ -11,16 +10,7 @@ import { configureSpanishHelp, createFceObligationHelp } from '../help';
 import { startSpinner } from '../spinner';
 
 import { getGlobalOptions, registerGlobalOptions } from './billing.command.shared';
-
-function parseCuit(value: string): number {
-  const normalizedValue = value.trim();
-
-  if (!/^\d{11}$/.test(normalizedValue)) {
-    throw new InputValidationError(`El CUIT "${value}" no es valido: debe tener 11 digitos.`);
-  }
-
-  return Number(normalizedValue);
-}
+import { parseCuitArgument } from './cuit-argument';
 
 export function registerFceObligationCommand(program: Command): void {
   const command = program
@@ -34,7 +24,7 @@ export function registerFceObligationCommand(program: Command): void {
   configureSpanishHelp(command);
 
   command.action(async (rawCuit: string, options: { fecha?: string }, self: Command) => {
-    const cuit = parseCuit(rawCuit);
+    const cuit = parseCuitArgument(rawCuit);
     const issueDate = options.fecha
       ? parseArgentineDateInputAsArcaDate(options.fecha)
       : formatDateAsArcaDate(new Date());

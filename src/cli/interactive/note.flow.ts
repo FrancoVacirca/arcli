@@ -10,7 +10,6 @@ import { parseAmountInput } from '../../modules/interactive/amount-input';
 import {
   conceptChoices,
   invoiceKindChoices,
-  ivaConditionChoices,
   ivaRateChoices,
   noteKindChoices,
   receiverChoices,
@@ -22,6 +21,7 @@ import { noticePanel, writeTerminalOutput } from '../../ui';
 
 import { pickInvoice } from './invoice-picker';
 import { askTextStep, chooseStep } from './prompts';
+import { askReceiverIvaCondition, type ReceiverFromPadron, receiverInputFields } from './receiver-padron';
 import { type InteractiveSession, previewAndEmit, requirePointOfSale } from './session';
 import { normalizeDocumentNumber, validateAmount, validateCuit, validateDate, validateDni } from './validators';
 
@@ -45,6 +45,7 @@ export interface NoteState {
   /** Punto de venta de la factura asociada; ingresada a mano puede no ser el configurado. */
   readonly invoicePointOfSale?: number;
   readonly ivaCondition?: BillingCommandInput['ivaCondition'];
+  readonly receiver?: ReceiverFromPadron;
   readonly ivaRate?: BillingCommandInput['ivaRate'];
   /** Credito o debito: viene del menu principal. */
   readonly kind?: NoteKind;
@@ -240,12 +241,7 @@ export function noteSteps(session: InteractiveSession, pointOfSale: number): Arr
       name: 'iva-receptor',
       run: async (state) => {
         // ARCA no devuelve la condicion IVA de la factura, asi que se pregunta, filtrada por la letra.
-        const ivaCondition = await chooseStep(
-          'Condicion frente al IVA del receptor:',
-          ivaConditionChoices(state.invoiceKind?.letter ?? 'c'),
-        );
-
-        return ivaCondition === BACK ? BACK : { ivaCondition };
+        return askReceiverIvaCondition(session, state, state.invoiceKind?.letter ?? 'c');
       },
       skip: (state) => state.documentType === 'consumidor-final',
     },
@@ -309,6 +305,7 @@ export function buildNoteInput(
     exchangeRate: copy?.exchangeRate,
     exemptAmount: state.annulsTotal ? copy?.exemptAmount : undefined,
     ivaCondition: state.ivaCondition,
+    ...receiverInputFields(state),
     ivaRate: state.ivaRate === '21' && !session.runtime.config.alicuotaPorDefecto ? undefined : state.ivaRate,
     shortcut: noteKind.shortcut,
     totalAmount: state.totalAmount,

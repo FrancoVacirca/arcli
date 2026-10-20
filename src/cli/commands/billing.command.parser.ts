@@ -195,6 +195,8 @@ export interface BillingCommandDefaults {
   readonly defaultEmit?: boolean;
   readonly defaultExchangeRate?: number;
   readonly defaultIvaCondition?: BillingCommandInput['ivaCondition'];
+  /** Con un CUIT y sin IVA receptor explicito, se va a consultar el padron: no hace falta un default. */
+  readonly lookupIvaConditionInPadron?: boolean;
 }
 
 export interface BillingCommandPlan {
@@ -260,11 +262,18 @@ function parseBillingCommandInputFromSource(
   const ivaShortcut = resolveIvaShortcut(commandOptions);
   const resolvedConcept =
     pickString(commandOptions.concepto) ?? conceptShortcut ?? fileInput?.concepto ?? defaults.defaultConcept;
-  const resolvedIvaCondition =
-    pickString(commandOptions.ivaReceptor, commandOptions.ir) ??
-    ivaShortcut ??
-    fileInput?.ivaReceptor ??
-    defaults.defaultIvaCondition;
+  const explicitIvaCondition =
+    pickString(commandOptions.ivaReceptor, commandOptions.ir) ?? ivaShortcut ?? fileInput?.ivaReceptor;
+  const documentType = documentIdentity.documentType ?? fileInput?.tipoDocumento;
+  const willLookupPadron =
+    !explicitIvaCondition && defaults.lookupIvaConditionInPadron === true && documentType === 'cuit';
+  const resolvedIvaCondition = explicitIvaCondition ?? defaults.defaultIvaCondition;
+  // Sin definir es explicito: asi la entrada que arma el parser es igual a la del modo interactivo.
+  const ivaConditionSource: BillingCommandInput['ivaConditionSource'] = explicitIvaCondition
+    ? undefined
+    : resolvedIvaCondition
+      ? 'default'
+      : 'missing';
 
   if (typeof commandOptions.concepto === 'string' && conceptShortcut) {
     throw new InputValidationError('Use --concepto o un flag corto de concepto (--cs, --cp, --csp), pero no ambos.');
@@ -284,7 +293,7 @@ function parseBillingCommandInputFromSource(
     );
   }
 
-  if (!resolvedIvaCondition) {
+  if (!resolvedIvaCondition && !willLookupPadron) {
     throw new InputValidationError(
       'Falta IVA receptor. Use --iva-receptor <tipo>, --ir <tipo>, un flag --ir-*, o configure uno por defecto con "arcli config establecer ivaReceptor consumidor-final".',
     );
@@ -360,7 +369,7 @@ function parseBillingCommandInputFromSource(
       concept: resolvedConcept,
       currencyCode,
       documentNumber: documentIdentity.documentNumber ?? fileInput?.numeroDocumento,
-      documentType: documentIdentity.documentType ?? fileInput?.tipoDocumento,
+      documentType,
       dryRun: !shouldEmit,
       dueDay: pickNumber(commandOptions.dia, fileInput?.dia),
       emit: shouldEmit,
@@ -370,7 +379,9 @@ function parseBillingCommandInputFromSource(
         ? undefined
         : (flagRates.ivaRate ?? fileInput?.alicuotaIva ?? (usesIvaRateDefault ? defaults.defaultIvaRate : undefined)),
       ivaRateAmounts,
-      ivaCondition: resolvedIvaCondition,
+      // Sin valor todavia: lo completa el padron antes de emitir (ver `ivaConditionSource`).
+      ivaCondition: resolvedIvaCondition ?? 'consumidor-final',
+      ivaConditionSource,
       paymentDueDate: pickString(commandOptions.vencimiento, commandOptions.vto, fileInput?.vencimientoPago),
       pdf: resolvePdfFlag(commandOptions, fileInput),
       pdfDescription: pickString(commandOptions.descripcion, fileInput?.descripcion),

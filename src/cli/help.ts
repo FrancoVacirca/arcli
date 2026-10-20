@@ -163,6 +163,7 @@ function createProgramCommands(): string {
       '  - Revisar entorno y credenciales: arcli config revisar',
       '  - Ver ejemplos listos para copiar: arcli ejemplos',
       '  - Consultar si un receptor esta obligado a FCE: arcli fce-obligado <cuit>',
+      '  - Ver nombre, domicilio y condicion IVA de un CUIT: arcli padron <cuit>',
       '  - Asistente paso a paso: arcli (sin argumentos) o arcli interactivo',
       '  - Ver los ultimos comprobantes emitidos: arcli ultimos fb',
       '  - Ver el detalle de un comprobante: arcli consultar fb 14',
@@ -619,6 +620,30 @@ export function createFceObligationHelp(): string {
       [
         '  - El certificado tiene que estar autorizado para el servicio wsfecred en ARCA.',
         '  - Para chequearlo en cada factura: arcli config establecer verificarFce true',
+      ].join('\n'),
+    ),
+    '',
+  ].join('\n');
+}
+
+export function createPadronHelp(): string {
+  return [
+    '',
+    section(
+      'Para que sirve',
+      [
+        '  - Ver razon social, domicilio fiscal, condicion IVA, impuestos y actividad de un CUIT.',
+        '  - Al facturar con --cuit, arcli usa el mismo dato para completar el IVA receptor si no pasa --ir.',
+      ].join('\n'),
+    ),
+    '',
+    section('Ejemplos', ['  - arcli padron 20201797064', '  - arcli padron 20201797064 --json'].join('\n')),
+    '',
+    section(
+      'Requisitos',
+      [
+        '  - El certificado tiene que estar autorizado para el servicio ws_sr_constancia_inscripcion en ARCA.',
+        '  - Para no consultarlo al facturar: arcli config establecer consultarPadron false',
       ].join('\n'),
     ),
     '',

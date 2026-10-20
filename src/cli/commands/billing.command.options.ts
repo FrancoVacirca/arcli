@@ -41,7 +41,7 @@ export function registerBillingOptions(command: Command): void {
     .option('--dni <number>', 'usar DNI del receptor', documentNumberOption('--dni'))
     .option('--consumidor-final', 'usar consumidor final con documento 0')
     .option('--cfinal', 'alias de consumidor final con documento 0')
-    .option('--iva-receptor <tipo>', 'condicion IVA del receptor')
+    .option('--iva-receptor <tipo>', 'condicion IVA del receptor; con --cuit, sin este flag, se toma del padron')
     .option('--ir <tipo>', 'alias rapido de condicion IVA del receptor')
     .option('--ir-ce', 'IVA receptor: cliente del exterior')
     .option('--ir-cf', 'IVA receptor: consumidor final')

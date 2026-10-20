@@ -36,6 +36,7 @@ interface PublicConfigSnapshot {
   readonly bruto: boolean;
   readonly ticketPath: string;
   readonly verificarFce?: boolean;
+  readonly consultarPadron: boolean;
 }
 
 export interface ConfigPathSnapshot {
@@ -73,6 +74,7 @@ function toPublicSnapshot(config: ArcliConfig, paths: ConfigPathSnapshot): Publi
     bruto: config.output.brutoPorDefecto,
     ticketPath: maskPath(paths.ticketPath),
     verificarFce: config.verificarFce,
+    consultarPadron: config.consultarPadron ?? true,
   };
 }
 
@@ -123,6 +125,7 @@ const CONFIG_TEXT_VALUES: Record<ConfigPublicKey, PublicConfigValue> = {
   puntoVenta: (c) => notSet(c.puntoVenta),
   ticketPath: (c) => c.ticketPath,
   verificarFce: (c) => yesNo(c.verificarFce),
+  consultarPadron: (c) => yesNo(c.consultarPadron ?? true),
 };
 
 /**

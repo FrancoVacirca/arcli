@@ -19,7 +19,11 @@ export const CONFIG_SECTIONS: readonly ConfigSection[] = [
     keys: ['cert.testing', 'key.testing', 'cert.produccion', 'key.produccion', 'ticketPath'],
     label: 'Certificados',
   },
-  { id: 'facturacion', keys: ['concepto', 'ivaReceptor', 'alicuota', 'moneda', 'cotizacion'], label: 'Al facturar' },
+  {
+    id: 'facturacion',
+    keys: ['concepto', 'ivaReceptor', 'consultarPadron', 'alicuota', 'moneda', 'cotizacion'],
+    label: 'Al facturar',
+  },
   { id: 'fce', keys: ['cbu', 'aliasCbu', 'verificarFce'], label: 'Factura de credito electronica (FCE)' },
   {
     id: 'emisor',
@@ -68,4 +72,5 @@ export const CONFIG_LABELS: Record<ConfigPublicKey, string> = {
   puntoVenta: 'Punto de venta',
   ticketPath: 'Carpeta de tickets WSAA',
   verificarFce: 'Verificar regimen FCE del receptor',
+  consultarPadron: 'IVA del receptor desde el padron',
 };

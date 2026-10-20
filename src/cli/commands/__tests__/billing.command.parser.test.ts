@@ -687,3 +687,32 @@ describe('billing.command.parser', () => {
     });
   });
 });
+
+describe('IVA receptor y padron', () => {
+  const parse = (args: string[], defaults: Parameters<typeof parseBillingCommandPlan>[2] = {}) =>
+    parseBillingCommandPlan(createCommand(['--monto', '1000', '--cs', ...args]), 'fa', defaults).inputs[0];
+
+  it('con un CUIT y sin --ir deja la consulta al padron, aunque no haya default', () => {
+    expect(parse(['--cuit', '20201797064'], { lookupIvaConditionInPadron: true })).toMatchObject({
+      documentType: 'cuit',
+      ivaConditionSource: 'missing',
+    });
+  });
+
+  it('marca el IVA de la config para que el padron lo pueda corregir', () => {
+    expect(
+      parse(['--cuit', '20201797064'], { defaultIvaCondition: 'consumidor-final', lookupIvaConditionInPadron: true }),
+    ).toMatchObject({ ivaCondition: 'consumidor-final', ivaConditionSource: 'default' });
+  });
+
+  it('un --ir explicito no se marca y no se consulta', () => {
+    expect(
+      parse(['--cuit', '20201797064', '--ir-ri'], { lookupIvaConditionInPadron: true })?.ivaConditionSource,
+    ).toBeUndefined();
+  });
+
+  it('sin padron, o con DNI, falta el IVA receptor como antes', () => {
+    expect(() => parse(['--cuit', '20201797064'])).toThrow(/Falta IVA receptor/);
+    expect(() => parse(['--dni', '12345678'], { lookupIvaConditionInPadron: true })).toThrow(/Falta IVA receptor/);
+  });
+});

@@ -10,6 +10,7 @@ import { ArcaBillingGateway } from '../../services/arca/arca-billing.gateway';
 import { ArcaClientFactory } from '../../services/arca/arca-client.factory';
 import { ArcaContextResolver } from '../../services/arca/arca-context.resolver';
 import { ArcaFceObligationGateway } from '../../services/arca/arca-fce-obligation.gateway';
+import { ArcaPadronGateway } from '../../services/arca/arca-padron.gateway';
 import { startSpinner } from '../spinner';
 import type { GlobalCliOptions } from '../types';
 
@@ -77,22 +78,33 @@ export async function executeBillingCommand(command: Command, shortcut: VoucherS
       defaultExchangeRate: runtime.config.cotizacionPorDefecto,
       defaultIvaCondition: runtime.config.ivaReceptorPorDefecto,
       defaultIvaRate: runtime.config.alicuotaPorDefecto,
+      lookupIvaConditionInPadron: runtime.config.consultarPadron !== false,
     });
     const service = new BillingService();
     const arca = new ArcaClientFactory().create(runtime);
     const gateway = new ArcaBillingGateway(arca);
     const useRaw = typeof globalOptions.bruto === 'boolean' ? globalOptions.bruto : runtime.outputRaw;
     const plannedInputs: BillingCommandInput[] = [];
+    const padronWarnings: string[][] = [];
+    const padronGateway = new ArcaPadronGateway(arca);
 
+    // Secuencial a proposito, como el FCE: cada servicio de ARCA reutiliza su ticket WSAA.
     for (const input of plan.inputs) {
-      plannedInputs.push(await service.resolveExchangeRate(input, gateway));
+      const resolution = await service.resolveIvaConditionFromPadron(input, padronGateway);
+
+      padronWarnings.push(resolution.warnings);
+      plannedInputs.push(await service.resolveExchangeRate(resolution.input, gateway));
     }
 
     validateBatchBeforeEmitting(plan, plannedInputs, (input) => service.buildVoucherPayload(input, runtime));
 
-    const warnings = runtime.config.verificarFce
+    const fceWarnings = runtime.config.verificarFce
       ? await resolveFceWarnings(plannedInputs, service, new ArcaFceObligationGateway(arca))
       : [];
+    const warnings = plannedInputs.map((_input, position) => [
+      ...(padronWarnings[position] ?? []),
+      ...(fceWarnings[position] ?? []),
+    ]);
 
     const preview = await runInteractiveBillingPreview({
       inputs: plannedInputs,

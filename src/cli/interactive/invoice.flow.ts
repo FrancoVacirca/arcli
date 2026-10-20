@@ -1,16 +1,12 @@
 import { type BillingCommandInput, billingCommandSchema } from '../../modules/billing/billing.schemas';
 import type { VoucherKindDefinition } from '../../modules/billing/billing.types';
 import { parseAmountInput } from '../../modules/interactive/amount-input';
-import {
-  conceptChoices,
-  invoiceKindChoices,
-  ivaConditionChoices,
-  receiverChoices,
-} from '../../modules/interactive/choices';
+import { conceptChoices, invoiceKindChoices, receiverChoices } from '../../modules/interactive/choices';
 import { BACK, runWizard, type WizardStep } from '../../modules/interactive/wizard';
 
 import { type AdvancedOptions, askAdvancedOptions } from './advanced-options';
 import { askTextStep, chooseStep } from './prompts';
+import { askReceiverIvaCondition, type ReceiverFromPadron, receiverInputFields } from './receiver-padron';
 import { type InteractiveSession, previewAndEmit } from './session';
 import { normalizeDocumentNumber, validateAmount, validateCbu, validateCuit, validateDni } from './validators';
 
@@ -21,6 +17,7 @@ export interface InvoiceState {
   readonly documentNumber?: number;
   readonly documentType?: BillingCommandInput['documentType'];
   readonly ivaCondition?: BillingCommandInput['ivaCondition'];
+  readonly receiver?: ReceiverFromPadron;
   readonly totalAmount?: number;
   readonly voucherKind?: VoucherKindDefinition;
 }
@@ -72,13 +69,7 @@ export function invoiceSteps(session: InteractiveSession): Array<WizardStep<Invo
     {
       name: 'iva-receptor',
       run: async (state) => {
-        const ivaCondition = await chooseStep(
-          'Condicion frente al IVA del receptor:',
-          ivaConditionChoices(state.voucherKind?.letter ?? 'c'),
-          config.ivaReceptorPorDefecto,
-        );
-
-        return ivaCondition === BACK ? BACK : { ivaCondition };
+        return askReceiverIvaCondition(session, state, state.voucherKind?.letter ?? 'c', config.ivaReceptorPorDefecto);
       },
       skip: (state) => state.documentType === 'consumidor-final',
     },
@@ -136,6 +127,7 @@ export function buildInvoiceInput(state: InvoiceState, session: InteractiveSessi
     documentNumber: state.documentNumber,
     documentType: state.documentType,
     ivaCondition: state.ivaCondition,
+    ...receiverInputFields(state),
     // 21% sin alicuota configurada es el default del CLI. Si hay config, se deja explicito para que el
     // comando equivalente no tome la de la config.
     ivaRate: ivaRate === '21' && !config.alicuotaPorDefecto ? undefined : ivaRate,
