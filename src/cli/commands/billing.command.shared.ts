@@ -5,6 +5,7 @@ import { BillingService } from '../../modules/billing/billing.service';
 import type { VoucherShortcut } from '../../modules/billing/billing.types';
 import type { BillingExecutionResult } from '../../modules/billing/billing.types.internal';
 import { getVoucherKindByShortcut } from '../../modules/billing/voucher-kind-map';
+import type { ArcliConfig } from '../../modules/config/config.schemas';
 import type { FceObligationGateway } from '../../modules/fce/fce-obligation';
 import { ArcaBillingGateway } from '../../services/arca/arca-billing.gateway';
 import { ArcaClientFactory } from '../../services/arca/arca-client.factory';
@@ -14,7 +15,7 @@ import { ArcaPadronGateway } from '../../services/arca/arca-padron.gateway';
 import { startSpinner } from '../spinner';
 import type { GlobalCliOptions } from '../types';
 
-import { emitBatch, validateBatchBeforeEmitting } from './billing.command.batch';
+import { emitBatch, prepareBatch } from './billing.command.batch';
 import { runInteractiveBillingPreview } from './billing.command.interactive-preview';
 import { writeBillingCommandResults, writePdfOutcomes } from './billing.command.output';
 import { parseBillingCommandPlan, registerBillingOptions } from './billing.command.parser';
@@ -45,6 +46,38 @@ export function registerBillingCommandOptions(command: Command): void {
 
 export function getGlobalOptions(command: Command): GlobalCliOptions {
   return command.optsWithGlobals<GlobalCliOptions>();
+}
+
+/**
+ * Imprime los resultados con su PDF, segun la config `pdf` o `--exportar-pdf`. Se usa con el lote completo y
+ * con los ya emitidos de un lote que se corto: esos tambien tienen CAE y merecen su PDF.
+ */
+export async function writeResultsWithPdfs(
+  results: BillingExecutionResult[],
+  options: {
+    readonly config: ArcliConfig;
+    /** Los del lote entero; se toman los primeros `results.length`. */
+    readonly inputs: readonly BillingCommandInput[];
+    readonly interactive: boolean;
+    readonly output: Parameters<typeof writeBillingCommandResults>[1];
+  },
+): Promise<void> {
+  const pdfOptions = {
+    config: options.config,
+    inputs: options.inputs.slice(0, results.length),
+    interactive: options.interactive,
+    results,
+  };
+
+  // En JSON el PDF va dentro del mismo resultado; en texto primero se ve el CAE y despues se pregunta.
+  if (options.output.outputJson) {
+    writeBillingCommandResults(await attachPdfs(pdfOptions), options.output);
+
+    return;
+  }
+
+  writeBillingCommandResults(results, options.output);
+  writePdfOutcomes(results, await attachPdfs(pdfOptions));
 }
 
 async function resolveFceWarnings(
@@ -84,19 +117,25 @@ export async function executeBillingCommand(command: Command, shortcut: VoucherS
     const arca = new ArcaClientFactory().create(runtime);
     const gateway = new ArcaBillingGateway(arca);
     const useRaw = typeof globalOptions.bruto === 'boolean' ? globalOptions.bruto : runtime.outputRaw;
-    const plannedInputs: BillingCommandInput[] = [];
-    const padronWarnings: string[][] = [];
     const padronGateway = new ArcaPadronGateway(arca);
+    // En un lote, un fallo del padron o de la cotizacion sale con su indice, junto a los de validacion.
+    const prepared = await prepareBatch({
+      inputs: plan.inputs,
+      plan,
+      resolve: async (input) => {
+        const resolution = await service.resolveIvaConditionFromPadron(input, padronGateway);
 
-    // Secuencial a proposito, como el FCE: cada servicio de ARCA reutiliza su ticket WSAA.
-    for (const input of plan.inputs) {
-      const resolution = await service.resolveIvaConditionFromPadron(input, padronGateway);
-
-      padronWarnings.push(resolution.warnings);
-      plannedInputs.push(await service.resolveExchangeRate(resolution.input, gateway));
-    }
-
-    validateBatchBeforeEmitting(plan, plannedInputs, (input) => service.buildVoucherPayload(input, runtime));
+        return {
+          input: await service.resolveExchangeRate(resolution.input, gateway),
+          warnings: resolution.warnings,
+        };
+      },
+      validate: ({ input }) => {
+        service.buildVoucherPayload(input, runtime);
+      },
+    });
+    const plannedInputs = prepared.map(({ input }) => input);
+    const padronWarnings = prepared.map(({ warnings }) => warnings);
 
     const fceWarnings = runtime.config.verificarFce
       ? await resolveFceWarnings(plannedInputs, service, new ArcaFceObligationGateway(arca))
@@ -128,41 +167,30 @@ export async function executeBillingCommand(command: Command, shortcut: VoucherS
       spinner.text = inputs.length > 1 ? `Procesando ${inputs.length} comprobantes...` : 'Procesando comprobante...';
     }
 
-    const outputOptions = {
-      environment: runtime.environment,
-      outputJson: runtime.outputJson,
-      previewShown,
-      raw: useRaw,
+    const deliveryOptions = {
+      config: runtime.config,
+      inputs,
+      interactive: !runtime.outputJson && Boolean(process.stdin.isTTY && process.stdout.isTTY),
+      output: {
+        environment: runtime.environment,
+        outputJson: runtime.outputJson,
+        previewShown,
+        raw: useRaw,
+      },
     };
     const results = await emitBatch({
       emit: (input, position) => service.execute({ gateway, input, runtime, warnings: warnings[position] }),
       inputs,
-      onPartialResults: (partial) => {
+      onPartialResults: async (partial) => {
         spinner?.stop();
-        writeBillingCommandResults(partial, outputOptions);
+        await writeResultsWithPdfs(partial, deliveryOptions);
       },
       plan,
     });
 
     spinner?.stop();
     setExitCodeForResults(results);
-
-    const pdfOptions = {
-      config: runtime.config,
-      inputs,
-      interactive: !runtime.outputJson && Boolean(process.stdin.isTTY && process.stdout.isTTY),
-      results,
-    };
-
-    // En JSON el PDF va dentro del mismo resultado; en texto primero se ve el CAE y despues se pregunta.
-    if (runtime.outputJson) {
-      writeBillingCommandResults(await attachPdfs(pdfOptions), outputOptions);
-
-      return;
-    }
-
-    writeBillingCommandResults(results, outputOptions);
-    writePdfOutcomes(results, await attachPdfs(pdfOptions));
+    await writeResultsWithPdfs(results, deliveryOptions);
   } catch (error) {
     spinner?.stop();
     throw error;

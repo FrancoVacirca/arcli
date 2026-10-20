@@ -22,6 +22,8 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ### Corregido
 
+- **Lote interrumpido, PDFs de los ya emitidos:** si un lote se cortaba a mitad, los comprobantes que ya tenían CAE quedaban sin PDF. Ahora se generan antes de mostrar el error, según `pdf` o `--exportar-pdf` como en un lote completo, y en `--json` cada uno lleva su campo `pdf`. Si falla el PDF, el error que se muestra sigue siendo el de la emisión.
+- **Lote, fallos del padrón o de la cotización con su índice:** si la consulta al padrón (IVA receptor desde `--cuit`) o a la cotización oficial fallaba para un ítem, el lote cortaba con un error que no decía cuál era. Ahora sale en `BATCH_VALIDATION_ERROR`, junto con los demás ítems con problemas y su `#n`, antes de emitir ninguno.
 - **`config.json` con JSON inválido** salía como "Error inesperado", sin decir qué archivo ni qué hacer. Ahora es un error de configuración (`CONFIGURATION_ERROR`) con la ruta del archivo y la sugerencia de corregirlo a mano o renombrarlo y volver a configurar. ARCLI no lo borra ni lo pisa.
 - **Opciones globales que no aplican:** `--testing`, `--produccion`, `--json` o `--bruto` en un comando que no las usa (`arcli config ruta --json`) se aceptaban sin decir nada. Ahora el comando corre igual y avisa en stderr que la opción se ignora.
 - **`json=true` en `config`:** `config`, `config revisar`, `config establecer` y `config eliminar` respetan `json=true` de la config, como el resto de los comandos.

@@ -12,27 +12,41 @@ interface BatchPlan {
 }
 
 /**
- * En un lote, valida todos los comprobantes antes de emitir el primero. `validate` tira si el item es
- * invalido (lectura del JSON o reglas de negocio). Si alguno falla, no se emite ninguno y se informan todos.
+ * Prepara un lote antes de emitir: `resolve` completa cada item con lo que hay que consultar en ARCA (IVA
+ * receptor del padron, cotizacion) y `validate` aplica las reglas de negocio sobre lo resuelto. En un lote
+ * no corta en el primer fallo: junta todos, con su indice, en un solo `BatchValidationError`, y no se emite
+ * ninguno. Con un solo comprobante el error sale tal cual, como siempre.
  */
-export function validateBatchBeforeEmitting<T>(
-  plan: BatchPlan,
-  inputs: readonly T[],
-  validate: (input: T) => void,
-): void {
+export async function prepareBatch<T, R>(options: {
+  readonly inputs: readonly T[];
+  readonly plan: BatchPlan;
+  readonly resolve: (input: T, position: number) => Promise<R>;
+  readonly validate: (resolved: R) => void;
+}): Promise<R[]> {
+  const { inputs, plan, resolve, validate } = options;
+  const resolved: R[] = [];
+
   if (plan.total === 1) {
-    return;
+    // Secuencial a proposito: cada servicio de ARCA reutiliza su ticket WSAA.
+    for (const [position, input] of inputs.entries()) {
+      resolved.push(await resolve(input, position));
+    }
+
+    return resolved;
   }
 
   const errors: BatchItemError[] = [...plan.invalidItems];
 
-  inputs.forEach((input, position) => {
+  for (const [position, input] of inputs.entries()) {
     try {
-      validate(input);
+      const item = await resolve(input, position);
+
+      validate(item);
+      resolved.push(item);
     } catch (error) {
       errors.push({ index: plan.inputIndexes[position] ?? position + 1, message: describeBatchItemError(error) });
     }
-  });
+  }
 
   if (errors.length > 0) {
     throw new BatchValidationError(
@@ -40,16 +54,19 @@ export function validateBatchBeforeEmitting<T>(
       plan.total,
     );
   }
+
+  return resolved;
 }
 
 /**
  * Emite los items en orden. Si uno falla a mitad del lote, entrega lo ya procesado a `onPartialResults`
- * antes de cortar: si no se mostrara, alguien volveria a correr el lote y duplicaria comprobantes.
+ * antes de cortar: si no se mostrara, alguien volveria a correr el lote y duplicaria comprobantes. Se
+ * espera a que termine (puede generar los PDFs de los ya emitidos), y si falla no tapa el error de emision.
  */
 export async function emitBatch<T, R>(options: {
   readonly emit: (input: T, position: number) => Promise<R>;
   readonly inputs: readonly T[];
-  readonly onPartialResults: (results: R[]) => void;
+  readonly onPartialResults: (results: R[]) => Promise<void> | void;
   readonly plan: BatchPlan;
 }): Promise<R[]> {
   const { emit, inputs, onPartialResults, plan } = options;
@@ -64,7 +81,11 @@ export async function emitBatch<T, R>(options: {
       }
 
       if (results.length > 0) {
-        onPartialResults(results);
+        try {
+          await onPartialResults(results);
+        } catch {
+          // Lo importante es el error de emision: los ya emitidos se pueden ver con "arcli ultimos".
+        }
       }
 
       throw new BatchEmissionError({

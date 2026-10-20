@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { InputValidationError } from '../../../lib/errors/app-error';
 import { BatchEmissionError, BatchValidationError } from '../../../modules/billing/billing.batch';
 import { EmissionUncertainError } from '../../../modules/billing/billing.errors';
-import { emitBatch, validateBatchBeforeEmitting } from '../billing.command.batch';
+import { emitBatch, prepareBatch } from '../billing.command.batch';
 
 const batch = (total: number, invalidItems: Array<{ index: number; message: string }> = []) => ({
   inputIndexes: Array.from({ length: total - invalidItems.length }, (_, position) => position + 1),
@@ -11,44 +11,67 @@ const batch = (total: number, invalidItems: Array<{ index: number; message: stri
   total,
 });
 
-describe('validateBatchBeforeEmitting', () => {
-  it('no hace nada con un solo comprobante: el error sale como siempre', () => {
-    const validate = vi.fn();
+describe('prepareBatch', () => {
+  it('con un solo comprobante deja pasar el error de la consulta como siempre', async () => {
+    const original = new Error('El padron no responde');
 
-    validateBatchBeforeEmitting(batch(1), ['a'], validate);
-
-    expect(validate).not.toHaveBeenCalled();
+    await expect(
+      prepareBatch({
+        inputs: ['a'],
+        plan: batch(1),
+        resolve: async () => {
+          throw original;
+        },
+        validate: vi.fn(),
+      }),
+    ).rejects.toBe(original);
   });
 
-  it('junta los errores de lectura y de negocio, ordenados por indice', () => {
-    const plan = { inputIndexes: [1, 3, 4], invalidItems: [{ index: 2, message: 'Falta monto.' }], total: 4 };
+  it('junta los fallos de las consultas con los de validacion, con su indice, sin cortar en el primero', async () => {
+    const plan = { inputIndexes: [1, 2, 4, 5], invalidItems: [{ index: 3, message: 'Falta monto.' }], total: 5 };
+    const resolve = vi.fn(async (input: string) => {
+      if (input === 'sin-cotizacion') {
+        throw new Error('ARCA no devolvio la cotizacion de DOL.');
+      }
+
+      return `${input}-resuelto`;
+    });
     const validate = (input: string) => {
-      if (input === 'fa-cf') {
+      if (input === 'invalido-resuelto') {
         throw new InputValidationError('La factura a no admite IVA receptor "consumidor-final".');
       }
     };
 
-    expect(() => validateBatchBeforeEmitting(plan, ['ok', 'fa-cf', 'ok'], validate)).toThrow(BatchValidationError);
+    const run = prepareBatch({ inputs: ['ok', 'sin-cotizacion', 'invalido', 'ok'], plan, resolve, validate });
 
-    try {
-      validateBatchBeforeEmitting(plan, ['ok', 'fa-cf', 'ok'], validate);
-    } catch (error) {
-      const batchError = error as BatchValidationError;
-
-      expect(batchError.message).toContain('2 de 4 comprobantes del lote tienen errores. No se emitio ninguno.');
-      expect(batchError.message).toContain('#2: Falta monto.');
-      expect(batchError.message).toContain('#3: La factura a no admite');
-      expect(batchError.details).toEqual({
+    await expect(run).rejects.toThrow(BatchValidationError);
+    await run.catch((error: BatchValidationError) => {
+      expect(error.message).toContain('3 de 5 comprobantes del lote tienen errores. No se emitio ninguno.');
+      expect(error.message).toContain('#2: ARCA no devolvio la cotizacion de DOL.');
+      expect(error.details).toEqual({
         comprobantes: [
-          { error: 'Falta monto.', indice: 2 },
-          { error: 'La factura a no admite IVA receptor "consumidor-final".', indice: 3 },
+          { error: 'ARCA no devolvio la cotizacion de DOL.', indice: 2 },
+          { error: 'Falta monto.', indice: 3 },
+          { error: 'La factura a no admite IVA receptor "consumidor-final".', indice: 4 },
         ],
       });
-    }
+    });
+    expect(resolve).toHaveBeenCalledTimes(4);
   });
 
-  it('deja pasar el lote si todo es valido', () => {
-    expect(() => validateBatchBeforeEmitting(batch(3), ['a', 'b', 'c'], () => undefined)).not.toThrow();
+  it('devuelve lo resuelto, en orden, si todo es valido', async () => {
+    const validate = vi.fn();
+
+    await expect(
+      prepareBatch({
+        inputs: ['a', 'b'],
+        plan: batch(2),
+        resolve: async (input: string) => input.toUpperCase(),
+        validate,
+      }),
+    ).resolves.toEqual(['A', 'B']);
+    expect(validate).toHaveBeenCalledWith('A');
+    expect(validate).toHaveBeenCalledWith('B');
   });
 });
 
@@ -83,6 +106,47 @@ describe('emitBatch', () => {
       expect(error.details).toEqual({ fallo: 3, procesados: 2, sinProcesar: [4], total: 4 });
     });
     expect(onPartialResults).toHaveBeenCalledWith(['CAE-a', 'CAE-b']);
+  });
+
+  it('espera a que se entreguen los parciales (con sus PDFs) antes de cortar', async () => {
+    const delivered: string[][] = [];
+    const run = emitBatch({
+      emit: async (input: string) => {
+        if (input === 'b') {
+          throw new Error('boom');
+        }
+
+        return `CAE-${input}`;
+      },
+      inputs: ['a', 'b'],
+      onPartialResults: async (partial) => {
+        await Promise.resolve();
+        delivered.push(partial);
+      },
+      plan: batch(2),
+    });
+
+    await expect(run).rejects.toThrow(BatchEmissionError);
+    expect(delivered).toEqual([['CAE-a']]);
+  });
+
+  it('si falla la entrega de los parciales, igual sale el error de emision', async () => {
+    const run = emitBatch({
+      emit: async (input: string) => {
+        if (input === 'b') {
+          throw new Error('Transacción Activa');
+        }
+
+        return `CAE-${input}`;
+      },
+      inputs: ['a', 'b'],
+      onPartialResults: async () => {
+        throw new Error('No se pudo generar el PDF');
+      },
+      plan: batch(2),
+    });
+
+    await expect(run).rejects.toThrow('El lote se interrumpio en el comprobante #2: Transacción Activa');
   });
 
   it('si la emision quedo sin confirmar, pide verificar el que fallo', async () => {

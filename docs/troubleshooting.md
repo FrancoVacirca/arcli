@@ -264,14 +264,14 @@ arcli fc ayuda
 
 - **Severidad:** frecuente
 - **Síntoma:** `BATCH_VALIDATION_ERROR` con la lista de ítems inválidos (`#2: Falta monto.`…). No se emitió ninguno.
-- **Causa:** ARCLI valida todo el lote antes de emitir el primero.
-- **Solución:** corregir esos ítems en el JSON y volver a correr el lote completo.
+- **Causa:** ARCLI valida todo el lote antes de emitir el primero, incluidas las consultas al padrón (IVA receptor desde `--cuit`) y a la cotización oficial.
+- **Solución:** corregir esos ítems en el JSON y volver a correr el lote completo. Si el motivo es una consulta a ARCA que no respondió, reintentá en unos minutos.
 - **Documentación relacionada:** [Entrada y salida](input-output.md#validación-y-errores-del-lote)
 
 ### El lote se interrumpió a mitad
 
 - **Severidad:** crítico
-- **Síntoma:** se ven los resultados de algunos comprobantes y después `BATCH_EMISSION_ERROR` ("El lote se interrumpio en el comprobante #3…").
+- **Síntoma:** se ven los resultados de algunos comprobantes (con su PDF, si corresponde) y después `BATCH_EMISSION_ERROR` ("El lote se interrumpio en el comprobante #3…").
 - **Causa:** la emisión falló a mitad del lote (red, ARCA, transacción activa).
 - **Solución:** **no vuelvas a cargar los comprobantes que ya se procesaron**, porque se duplicarían. El que falló puede haberse emitido igual (`sinConfirmar` en el JSON): verificalo con `arcli ultimos` y sumalo solo si no figura. Armá un lote con ese y los que figuran en "Sin procesar" (`sinProcesar`) y reintentá. Si el que falló fue por "Transacción Activa", esperá unos segundos.
 - **Documentación relacionada:** [Entrada y salida](input-output.md#validación-y-errores-del-lote)

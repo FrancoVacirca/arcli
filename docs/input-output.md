@@ -124,10 +124,10 @@ Si el archivo contiene un array, ARCLI procesa un lote del mismo comando.
 
 ### Validación y errores del lote
 
-**Antes de emitir el primer comprobante, ARCLI valida todos los del lote**: la forma del JSON y las reglas de negocio (IVA receptor por letra, fechas, FCE, montos…).
+**Antes de emitir el primer comprobante, ARCLI valida todos los del lote**: la forma del JSON, las consultas a ARCA que se hacen antes de emitir (IVA receptor desde el padrón, cotización oficial) y las reglas de negocio (IVA receptor por letra, fechas, FCE, montos…).
 
-- Si alguno es inválido, **no se emite ninguno** y el error `BATCH_VALIDATION_ERROR` lista **todos** los ítems con problemas, con su índice (desde 1) y el motivo.
-- Si la emisión se corta a mitad del lote (red, ARCA), ARCLI **muestra primero los comprobantes ya procesados** y después el error `BATCH_EMISSION_ERROR`, que indica en qué ítem falló y cuáles quedaron sin procesar. **No vuelvas a cargar los ya emitidos**. El que falló puede haberse emitido igual (`detalles.sinConfirmar`): verificalo con `arcli ultimos` antes de reintentarlo, y después reintentá los que quedaron sin procesar.
+- Si alguno es inválido o falla su consulta, **no se emite ninguno** y el error `BATCH_VALIDATION_ERROR` lista **todos** los ítems con problemas, con su índice (desde 1) y el motivo.
+- Si la emisión se corta a mitad del lote (red, ARCA), ARCLI **muestra primero los comprobantes ya procesados**, con su PDF si corresponde (según `pdf` o `--exportar-pdf`, igual que en un lote completo; en `--json`, cada uno con su campo `pdf`), y después el error `BATCH_EMISSION_ERROR`, que indica en qué ítem falló y cuáles quedaron sin procesar. **No vuelvas a cargar los ya emitidos**. El que falló puede haberse emitido igual (`detalles.sinConfirmar`): verificalo con `arcli ultimos` antes de reintentarlo, y después reintentá los que quedaron sin procesar.
 
 ```json
 {
