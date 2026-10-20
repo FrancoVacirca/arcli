@@ -348,6 +348,17 @@ Cuando el error viene de Zod o de validación de entrada:
 }
 ```
 
+Si el `config.json` tiene JSON inválido, sale con el mismo código, la ruta del archivo y qué hacer:
+
+```json
+{
+  "codigo": "CONFIGURATION_ERROR",
+  "detalles": { "ruta": "/Users/ana/Library/Preferences/arcli/config.json" },
+  "error": "El archivo de configuracion tiene JSON invalido y no se puede leer.",
+  "sugerencia": "Corregilo a mano, o renombralo (por ejemplo, a config.json.bak) y volve a cargar los datos con `arcli config establecer` o desde \"Configuracion\" en `arcli`. ARCLI no lo borra ni lo pisa."
+}
+```
+
 ### Emisión sin confirmar
 
 Si falla la llamada que emite en ARCA (red, timeout, transacción activa), no se sabe si el comprobante quedó autorizado: pudo emitirse y perderse la respuesta. **No reintentes sin verificar**, porque se duplicaría.

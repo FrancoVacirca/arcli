@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { ConfigurationError } from '../../../lib/errors/app-error';
 import { ConfigService } from '../config.service';
 
 const temporaryDirectories: string[] = [];
@@ -247,5 +248,28 @@ describe('config.service', () => {
     } finally {
       service.close();
     }
+  });
+
+  it('reports a corrupt config file as a configuration error with its path, without touching it', () => {
+    const cwd = mkdtempSync(join(tmpdir(), 'arcli-config-test-'));
+    const configPath = join(cwd, 'config.json');
+    const corruptContent = '{ "cuit": "20123456789", ';
+
+    temporaryDirectories.push(cwd);
+    writeFileSync(configPath, corruptContent, 'utf8');
+
+    let thrown: unknown;
+
+    try {
+      new ConfigService({ cwd, projectName: 'arcli-test' }).close();
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(ConfigurationError);
+    expect((thrown as ConfigurationError).message).toMatch(/JSON invalido/);
+    expect((thrown as ConfigurationError).details).toEqual({ path: configPath });
+    expect((thrown as ConfigurationError).suggestion).toMatch(/arcli config/);
+    expect(readFileSync(configPath, 'utf8')).toBe(corruptContent);
   });
 });

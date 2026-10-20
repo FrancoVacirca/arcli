@@ -2,6 +2,8 @@ import Conf from 'conf';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 
+import { ConfigurationError } from '../../lib/errors/app-error';
+
 import {
   ArcliConfig,
   arcliConfigSchema,
@@ -55,18 +57,48 @@ export interface ConfigServiceOptions {
   readonly projectName?: string;
 }
 
+function storeLocation(options: ConfigServiceOptions) {
+  return {
+    configName: options.configName ?? 'config',
+    cwd: options.cwd,
+    projectName: options.projectName ?? 'arcli',
+    projectSuffix: '',
+  };
+}
+
+/**
+ * Ruta del config.json sin leerlo: `Conf` la calcula al construirse, pero tambien lee el archivo. Sin defaults y
+ * con un deserializador que no parsea, no hay nada que escribir y el archivo queda como esta.
+ */
+function resolveStorePath(options: ConfigServiceOptions): string {
+  return new Conf({ ...storeLocation(options), deserialize: () => ({}) }).path;
+}
+
+function invalidConfigFileError(path: string): ConfigurationError {
+  return new ConfigurationError(
+    'El archivo de configuracion tiene JSON invalido y no se puede leer.',
+    { path },
+    'Corregilo a mano, o renombralo (por ejemplo, a config.json.bak) y volve a cargar los datos con `arcli config establecer` o desde "Configuracion" en `arcli`. ARCLI no lo borra ni lo pisa.',
+  );
+}
+
 export class ConfigService {
   private readonly store: Conf<ArcliConfig>;
 
   public constructor(options: ConfigServiceOptions = {}) {
-    this.store = new Conf<ArcliConfig>({
-      clearInvalidConfig: false,
-      configName: options.configName ?? 'config',
-      cwd: options.cwd,
-      defaults: CONFIG_DEFAULTS,
-      projectName: options.projectName ?? 'arcli',
-      projectSuffix: '',
-    });
+    try {
+      this.store = new Conf<ArcliConfig>({
+        ...storeLocation(options),
+        clearInvalidConfig: false,
+        defaults: CONFIG_DEFAULTS,
+      });
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        throw invalidConfigFileError(resolveStorePath(options));
+      }
+
+      throw error;
+    }
   }
 
   public close(): void {

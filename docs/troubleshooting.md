@@ -79,6 +79,24 @@ arcli config establecer key.testing /ruta/a/la/clave.key
 
 - **Documentación relacionada:** [Configuración](configuration.md), [Cómo obtener los certificados de ARCA](obtencion-certificados.md)
 
+### `config.json` con JSON inválido
+
+- **Severidad:** crítico
+- **Síntoma:** cualquier comando falla con `Error de configuracion` ("El archivo de configuracion tiene JSON invalido y no se puede leer."), con la ruta del archivo en `Ruta` (`detalles.ruta` con `--json`). Antes salía como "Error inesperado".
+- **Causa:** el `config.json` quedó mal escrito, casi siempre por una edición a mano (una coma de más, comillas sin cerrar) o un archivo vacío.
+- **Solución:** corregir el JSON a mano en esa ruta, o renombrar el archivo y volver a cargar los datos. ARCLI no lo borra ni lo pisa: lo que tenía sigue ahí para recuperarlo.
+
+```bash
+mv "<ruta>" "<ruta>.bak"
+arcli config establecer cuit 20168598204
+arcli config establecer cert.testing /ruta/al/certificado.crt
+arcli config establecer key.testing /ruta/a/la/clave.key
+```
+
+O abrí `arcli` y elegí "Configuracion" para la configuración guiada.
+
+- **Documentación relacionada:** [Configuración](configuration.md)
+
 ## Validación
 
 ### Falta un dato obligatorio

@@ -17,10 +17,11 @@ export class AppError extends Error {
 }
 
 export class ConfigurationError extends AppError {
-  public constructor(message: string, details?: Record<string, unknown>) {
+  public constructor(message: string, details?: Record<string, unknown>, suggestion?: string) {
     super(message, {
       code: 'CONFIGURATION_ERROR',
       details,
+      suggestion,
     });
     this.name = 'ConfigurationError';
   }
