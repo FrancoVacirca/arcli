@@ -1,3 +1,12 @@
 {
-    "recommendations": ["dbaeumer.vscode-eslint", "peterschmalfeldt.explorer-exclude", "esbenp.prettier-vscode"]
+  "recommendations": [
+    "aaron-bond.better-comments",
+    "dbaeumer.vscode-eslint",
+    "eamodio.gitlens",
+    "esbenp.prettier-vscode",
+    "kamikillerto.vscode-colorize",
+    "peterschmalfeldt.explorer-exclude",
+    "pflannery.vscode-versionlens",
+    "yoavbls.pretty-ts-errors"
+  ]
 }

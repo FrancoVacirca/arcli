@@ -1,0 +1,145 @@
+{
+    //
+    // DEBUG
+    //
+    "Print to console": {
+        "prefix": "clg",
+        "body": [
+            "",
+            "console.log( '\\n\\n','## $1', $1 ,'\\n\\n')",
+            ""
+        ],
+        "description": "Log output to console",
+    },
+    "Pretty print to console": {
+        "prefix": "plg",
+        "body": [
+            "",
+            "console.log( '\\n\\n','## $1', JSON.stringify($1, undefined, 2) ,'\\n\\n')",
+            ""
+        ],
+        "description": "Log pretty output to console",
+    },
+    "Log colorful output to console": {
+        "prefix": "blg",
+        "body": [
+            "",
+            "console.log('\\n\\n %c ## $1 ➤ ','color:#f3e5f5; background-color:#7b1fa2; border-radius:4px; padding:4px;', $1 ,'\\n\\n');",
+            "",
+        ],
+        "description": "Log colorful output to console",
+    },
+    "Console time": {
+        "prefix": "clt",
+        "body": [
+            "",
+            "console.time('$1')",
+            ""
+        ],
+        "description": "start timer console",
+    },
+    "Console time end": {
+        "prefix": "clte",
+        "body": [
+            "",
+            "console.timeEnd('$1')",
+            ""
+        ],
+        "description": "stop timer console",
+    },
+    //
+    // CODIGO
+    //
+    "Header": {
+        "scope": "typescript,typescriptreact,javascript",
+        "prefix": "header",
+        "body": [
+            "// ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════",
+            "// ${1:Área} · ${2:tema}",
+            "//",
+            "// ${3:Qué hace este archivo y por qué.}",
+            "// ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "$0",
+        ],
+        "description": "Encabezado de archivo: título y qué hace (va primero, siempre)",
+    },
+    "Divider": {
+        "scope": "typescript,typescriptreact,javascript",
+        "prefix": "divider",
+        "body": [
+            "// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────",
+            "// ${1:Sección}",
+            "// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────",
+            "",
+            "$0",
+        ],
+        "description": "Separador de sección (en archivos de más de ~100 líneas)",
+    },
+    "Footer": {
+        "scope": "typescript,typescriptreact,javascript",
+        "prefix": "footer",
+        "body": [
+            "",
+            "// ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈",
+            "// ${1:Nota de cierre}",
+            "// ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈",
+        ],
+        "description": "Cierre de archivo con una nota (opcional)",
+    },
+    "Nota": {
+        "scope": "typescript,typescriptreact,javascript",
+        "prefix": "nota",
+        "body": [
+            "// ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─",
+            "// ${1:Nota}",
+            "// ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─",
+            "$0",
+        ],
+        "description": "Nota en medio del código",
+    },
+    "Nota importante": {
+        "scope": "typescript,typescriptreact,javascript",
+        "prefix": "notaimportante",
+        "body": [
+            "// ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─",
+            "// * ${1:Importante}",
+            "// ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─",
+            "$0",
+        ],
+        "description": "Nota en medio del código (Better Comments: *)",
+    },
+    "Nota de aviso": {
+        "scope": "typescript,typescriptreact,javascript",
+        "prefix": "notaaviso",
+        "body": [
+            "// ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─",
+            "// ! ${1:Aviso o deprecación}",
+            "// ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─",
+            "$0",
+        ],
+        "description": "Nota en medio del código (Better Comments: !)",
+    },
+    "Nota pregunta": {
+        "scope": "typescript,typescriptreact,javascript",
+        "prefix": "notapregunta",
+        "body": [
+            "// ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─",
+            "// ? ${1:Pregunta}",
+            "// ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─",
+            "$0",
+        ],
+        "description": "Nota en medio del código (Better Comments: ?)",
+    },
+    "Nota pendiente": {
+        "scope": "typescript,typescriptreact,javascript",
+        "prefix": "notatodo",
+        "body": [
+            "// ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─",
+            "// TODO: ${1:Pendiente}",
+            "// ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─",
+            "$0",
+        ],
+        "description": "Nota en medio del código (Better Comments: TODO:)",
+    },
+}
