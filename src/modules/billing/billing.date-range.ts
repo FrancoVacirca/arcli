@@ -5,6 +5,7 @@ import {
   parseArgentineDateInputAsArcaDate,
   toArgentineCalendarDate,
 } from '../../lib/dates/arca-date';
+import { InputValidationError } from '../../lib/errors/app-error';
 
 import { isElectronicCreditInvoice } from './billing.fce';
 import type { BillingCommandInput } from './billing.schemas';
@@ -23,22 +24,40 @@ export interface BillingDateRange {
   readonly serviceStartDate?: string;
 }
 
-/** Fecha ARCA del proximo `dueDay`, contando desde hoy en Argentina. La cuenta va en UTC para no cruzar zonas. */
+const MONTH_NAMES = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+] as const;
+
+/**
+ * Fecha ARCA del proximo `dueDay`, contando desde hoy en Argentina. La cuenta va en UTC para no cruzar zonas y
+ * arranca del dia 1: sumar un mes al 31/03 daria el 1/05. Si el dia no existe en ese mes (31 en abril), es un error.
+ */
 function resolvePaymentDateFromDueDay(dueDay: number, now = new Date()): string {
   const today = toArgentineCalendarDate(now);
-  const paymentDate = new Date(Date.UTC(today.year, today.month - 1, today.day));
+  const monthOffset = dueDay < today.day ? 1 : 0;
+  const firstOfMonth = new Date(Date.UTC(today.year, today.month - 1 + monthOffset, 1));
+  const year = firstOfMonth.getUTCFullYear();
+  const monthIndex = firstOfMonth.getUTCMonth();
+  const daysInMonth = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
 
-  if (dueDay < today.day) {
-    paymentDate.setUTCMonth(paymentDate.getUTCMonth() + 1);
+  if (dueDay > daysInMonth) {
+    throw new InputValidationError(
+      `--dia ${dueDay} no existe en ${MONTH_NAMES[monthIndex]} de ${year}. Indique la fecha exacta con --servicio-hasta.`,
+    );
   }
 
-  paymentDate.setUTCDate(dueDay);
-
-  return calendarDateToArcaDate({
-    day: paymentDate.getUTCDate(),
-    month: paymentDate.getUTCMonth() + 1,
-    year: paymentDate.getUTCFullYear(),
-  });
+  return calendarDateToArcaDate({ day: dueDay, month: monthIndex + 1, year });
 }
 
 /**

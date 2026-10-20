@@ -59,7 +59,7 @@ Shortcuts (`family` = comando alternativo `arcli <family> <letra>`, ej. `arcli f
 - Identidad del receptor: `--cuit <n>` / `--cuil <n>` / `--dni <n>` / `--consumidor-final` (alias `--cfinal`, documento 0). Usar como máximo una. Desde $10.000.000 (total × cotización) no se puede usar `--consumidor-final`: identificar con `--dni`/`--cuit`/`--cuil` y `--ir-cf`.
 - Punto de venta: `--punto-venta <n>` (alias `--pv`). Si no se pasa, usa el default de config.
 - Moneda: `--moneda <codigo>` (alias `--mda`, ej. `ARS`/`USD`; `USD` se envía como `DOL`) y `--cotizacion-moneda <n>` (alias `--cm`). En moneda extranjera la cotización es obligatoria y no puede ser 1; si el pago es en la misma moneda extranjera, usar `--misma-moneda` en lugar de `--cm` (consulta la cotización oficial a ARCA). En pesos no pasar cotización distinta de 1.
-- Fechas: `-f, --fecha <fecha>` acepta formato argentino día-primero: `D`, `DD`, `D/M`, `DD/MM`, `D-M-YY`, `DD-MM-YYYY` (con `-` o `/`); si se omiten mes/año usa los actuales. También `--servicio-desde`/`--sd` y `--servicio-hasta`/`--sh`, y `-d, --dia <n>` (día de vencimiento; no se combina con `--fecha` ni `--servicio-hasta`). "Hoy" es siempre la fecha argentina, aunque el equipo esté en UTC. `--vencimiento <fecha>` (alias `--vto`) fija `FchVtoPago` aparte del período de servicio (servicios y facturas FCE; no en productos ni NC/ND FCE). Ventana de `--fecha` respecto de hoy: productos ±5 días, servicios ±10, FCE −5/+1; en productos y FCE una fecha futura tiene que caer en el mes actual.
+- Fechas: `-f, --fecha <fecha>` acepta formato argentino día-primero: `D`, `DD`, `D/M`, `DD/MM`, `D-M-YY`, `DD-MM-YYYY` (con `-` o `/`); si se omiten mes/año usa los actuales. También `--servicio-desde`/`--sd` y `--servicio-hasta`/`--sh`, y `-d, --dia <n>` (día de vencimiento: este mes si todavía no pasó, si no el mes que viene; si ese día no existe en el mes, como 31 en abril, da error; no se combina con `--fecha` ni `--servicio-hasta`). "Hoy" es siempre la fecha argentina, aunque el equipo esté en UTC. `--vencimiento <fecha>` (alias `--vto`) fija `FchVtoPago` aparte del período de servicio (servicios y facturas FCE; no en productos ni NC/ND FCE). Ventana de `--fecha` respecto de hoy: productos ±5 días, servicios ±10, FCE −5/+1; en productos y FCE una fecha futura tiene que caer en el mes actual.
 - Comprobante asociado (obligatorio en notas de crédito/débito): `--ac <shortcut>` (ej. `fc`), `--apv <n>` (punto de venta, alias `--asociado-punto-venta`), `--ar <n>` (número), `--acuit <n>`, `--at <n>` (tipo ARCA, alternativa a `--ac`; no combinar ambos), `--afecha <fecha>` (fecha del asociado, opcional salvo en NC/ND FCE). En notas comunes, en lugar del bloque `--ac` se puede usar un período: `--periodo-desde <fecha>` y `--periodo-hasta <fecha>` (alias `--pd`/`--ph`); no se combinan con `--ac`/`--at`, no aplican a FCE y el período no puede terminar después de la nota.
 - Crédito electrónico (FCE): las facturas `fcea/fceb/fcec` requieren `--cbu <22 dígitos>` (o `arcli config establecer cbu ...`); opcionales `--alias <alias>` y `--transferencia sca|adc` (default `sca`). Las NC/ND FCE (`ncea`…`ndec`) requieren `--afecha`, aceptan `--anulacion`, toman `--acuit` del CUIT emisor si se omite y no aceptan `--cbu`/`--alias`/`--transferencia`. Fuera de FCE esos flags dan error.
 - Régimen FCE: `arcli fce-obligado <cuit> [--fecha <fecha>] [--json]` consulta en ARCA (`wsfecred`) si el receptor está obligado a recibir FCE y desde qué monto. Con `arcli config establecer verificarFce true`, cada factura con CUIT hace esa consulta y devuelve avisos en `avisos` (JSON) sin bloquear. Requiere autorizar `wsfecred` en ARCA además de `wsfe`.
@@ -132,9 +132,9 @@ Con múltiples comprobantes (batch o `--cargar` con array) la salida es un array
 objetos. Con `--bruto` se agrega `respuesta` con la respuesta cruda del SDK.
 
 **Importante:** un comprobante rechazado por ARCA (`"estado": "rechazado"`) es una respuesta
-válida, no una excepción — el proceso termina con exit code `0` igual. Para saber si un
-comprobante fue realmente aprobado hay que revisar `estado`/`resultado`/`errores` en el
-JSON, nunca alcanza con chequear el exit code.
+válida, no una excepción: sale por stdout como cualquier resultado y el proceso termina con
+exit code `2`. En un lote, `2` si ARCA rechazó al menos uno; para saber cuáles, revisar
+`estado`/`resultado`/`errores` de cada uno. `observado` es aprobado (tiene CAE) y sale con `0`.
 
 ## Salida de error
 
@@ -147,7 +147,7 @@ que viene en `sugerencia`), `TRANSIENT_ERROR` (consultas: reintentar), `UNEXPECT
 `{indice, error}`) y `BATCH_EMISSION_ERROR` (se cortó a mitad: los resultados ya procesados salen antes por
 stdout; si viene `detalles.sinConfirmar`, verificar ese índice con `arcli ultimos` antes de reintentarlo;
 después reintentar `detalles.sinProcesar`, nunca los ya emitidos). El proceso termina con
-exit code `1` en cualquier error.
+exit code `1` en cualquier error. Resumen: `0` aprobado (u observado), `1` error, `2` rechazado por ARCA.
 
 ## Comando `config`
 
@@ -164,8 +164,8 @@ Claves válidas: `cuit`, `cbu`, `aliasCbu` (solo facturas FCE), `verificarFce`, 
 `si/no`, `1/0`), `cert.testing`, `cert.produccion`, `key.testing`, `key.produccion`
 (rutas a archivos PEM, se validan al guardar), `ticketPath` (carpeta donde se cachea el
 ticket WSAA; por defecto una carpeta junto al archivo de config).
-Para el PDF: `pdf` (`siempre`/`preguntar`/`nunca`), `pdfCarpeta` (por defecto `~/arcli/comprobantes`; los de
-testing van a `testing/`), `pdfNavegador` (ruta a Chrome/Chromium/Edge), `emisor.razonSocial`, `emisor.domicilio`,
+Para el PDF: `pdf` (`siempre`/`preguntar`/`nunca`), `pdfCarpeta` (por defecto `~/arcli/comprobantes`; una subcarpeta
+por CUIT emisor, los de testing en `testing/<CUIT>/`, y nunca se pisa un PDF existente: se suma `-2`, `-3`), `pdfNavegador` (ruta a Chrome/Chromium/Edge), `emisor.razonSocial`, `emisor.domicilio`,
 `emisor.inicioActividades` (fecha con año), `emisor.iibb`, `emisor.condicionIva`, `emisor.logo` (PNG o JPG).
 
 `config revisar` también avisa si un certificado ya venció o vence en menos de 30 días.

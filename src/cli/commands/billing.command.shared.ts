@@ -3,6 +3,7 @@ import type { Command } from 'commander';
 import type { BillingCommandInput } from '../../modules/billing/billing.schemas';
 import { BillingService } from '../../modules/billing/billing.service';
 import type { VoucherShortcut } from '../../modules/billing/billing.types';
+import type { BillingExecutionResult } from '../../modules/billing/billing.types.internal';
 import { getVoucherKindByShortcut } from '../../modules/billing/voucher-kind-map';
 import type { FceObligationGateway } from '../../modules/fce/fce-obligation';
 import { ArcaBillingGateway } from '../../services/arca/arca-billing.gateway';
@@ -17,6 +18,16 @@ import { runInteractiveBillingPreview } from './billing.command.interactive-prev
 import { writeBillingCommandResults, writePdfOutcomes } from './billing.command.output';
 import { parseBillingCommandPlan, registerBillingOptions } from './billing.command.parser';
 import { attachPdfs } from './billing.command.pdf';
+
+/** Exit code cuando ARCA rechaza algun comprobante: la operacion corrio bien, pero no hay CAE. */
+export const REJECTED_EXIT_CODE = 2;
+
+/** 2 si ARCA rechazo alguno de los comprobantes emitidos; si no, no se toca (queda en 0). */
+export function setExitCodeForResults(results: readonly BillingExecutionResult[]): void {
+  if (results.some((result) => !result.dryRun && result.response.status === 'rechazado')) {
+    process.exitCode = REJECTED_EXIT_CODE;
+  }
+}
 
 export function registerGlobalOptions(command: Command): void {
   command
@@ -122,6 +133,7 @@ export async function executeBillingCommand(command: Command, shortcut: VoucherS
     });
 
     spinner?.stop();
+    setExitCodeForResults(results);
 
     const pdfOptions = {
       config: runtime.config,

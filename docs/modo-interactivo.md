@@ -77,7 +77,7 @@ Después de emitir, si `config.pdf` es `preguntar` (el valor por defecto), pregu
 
 Si respondés que sí, pregunta tres datos opcionales que solo van en el PDF (Enter para omitirlos): la descripción, el nombre y el domicilio del receptor. Si faltan datos del emisor (razón social, domicilio, inicio de actividades), los pregunta una vez y ofrece guardarlos en la config. Si falta el plugin, ofrece instalarlo. Ver [PDF de comprobantes](pdf.md).
 
-El comando equivalente se muestra antes de emitir, así que no incluye los flags del PDF.
+El comando equivalente se muestra antes de emitir, así que no incluye los flags del PDF. Siempre lleva el entorno (`--testing` o `--produccion`): si después cambiás el entorno en la config, el comando pegado sigue emitiendo donde lo armaste.
 
 ### Opcionales
 

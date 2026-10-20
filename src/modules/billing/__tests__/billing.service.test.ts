@@ -123,6 +123,51 @@ describe('billing.service', () => {
     expect(payload.FchVtoPago).toBe('20260325');
   });
 
+  it('keeps --dia in the next month when today is the 31st', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-31T12:00:00Z'));
+
+    const payload = new BillingService().buildVoucherPayload(
+      createBillingInput({ concept: 'servicios', dueDay: 15, shortcut: 'fc' }),
+      createRuntime(),
+    );
+
+    expect(payload.FchServHasta).toBe('20260415');
+    expect(payload.FchVtoPago).toBe('20260415');
+  });
+
+  it('rolls --dia over to January when it already passed in December', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-12-20T12:00:00Z'));
+
+    const payload = new BillingService().buildVoucherPayload(
+      createBillingInput({ concept: 'servicios', dueDay: 10, shortcut: 'fc' }),
+      createRuntime(),
+    );
+
+    expect(payload.FchVtoPago).toBe('20270110');
+  });
+
+  it('rejects --dia when that day does not exist in the month', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-31T12:00:00Z'));
+
+    expect(() =>
+      new BillingService().buildVoucherPayload(
+        createBillingInput({ concept: 'servicios', dueDay: 30, shortcut: 'fc' }),
+        createRuntime(),
+      ),
+    ).not.toThrow();
+    // 31 ya paso en marzo y abril no tiene 31.
+    vi.setSystemTime(new Date('2026-04-01T12:00:00Z'));
+    expect(() =>
+      new BillingService().buildVoucherPayload(
+        createBillingInput({ concept: 'servicios', dueDay: 31, shortcut: 'fc' }),
+        createRuntime(),
+      ),
+    ).toThrow(/--dia 31 no existe en abril de 2026/);
+  });
+
   it('builds invoice payload with explicit billing date in Argentine format', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-03-18T12:00:00Z'));

@@ -86,7 +86,8 @@ export function buildEquivalentCommand(
   parts.push(...associatedFlags(input));
 
   if (input.cancellation) parts.push('--anulacion');
-  if (options.environment === 'produccion') parts.push('--produccion');
+  // Siempre explicito: si la config cambia de entorno, el comando pegado sigue emitiendo donde se armo.
+  parts.push(`--${options.environment}`);
 
   parts.push('--emitir');
 

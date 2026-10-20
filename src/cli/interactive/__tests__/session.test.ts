@@ -92,7 +92,7 @@ describe('previewAndEmit', () => {
     await previewAndEmit(session, input);
 
     expect(write.mock.calls.map(([chunk]) => String(chunk)).join('')).toContain(
-      'arcli fc -m 1000 --cs --consumidor-final --ir consumidor-final --emitir',
+      'arcli fc -m 1000 --cs --consumidor-final --ir consumidor-final --testing --emitir',
     );
   });
 });

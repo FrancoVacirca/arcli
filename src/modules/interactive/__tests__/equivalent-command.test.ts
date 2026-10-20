@@ -28,9 +28,9 @@ function input(overrides: Record<string, unknown>): BillingCommandInput {
 }
 
 describe('buildEquivalentCommand', () => {
-  it('arma el comando de una factura a consumidor final', () => {
+  it('arma el comando de una factura a consumidor final, con el entorno explicito', () => {
     expect(buildEquivalentCommand(input({}), { environment: 'testing' })).toBe(
-      'arcli fc -m 1000 --cs --consumidor-final --ir consumidor-final --emitir',
+      'arcli fc -m 1000 --cs --consumidor-final --ir consumidor-final --testing --emitir',
     );
   });
 

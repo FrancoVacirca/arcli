@@ -204,12 +204,31 @@ describe('exportBillingPdf', () => {
 
     const path = await exportBillingPdf({ config, folder, renderer: { render }, result: createResult('testing') });
 
-    expect(path).toBe(join(folder, 'testing', 'factura-c_0003-00000125.pdf'));
+    expect(path).toBe(join(folder, 'testing', '20123456789', 'factura-c_0003-00000125.pdf'));
     expect(readFileSync(path)).toEqual(Buffer.from([1, 2, 3]));
     expect(render).toHaveBeenCalledWith(expect.objectContaining({ cbteDesde: 125 }), {
       footerText: TESTING_FOOTER,
       logo: undefined,
     });
+  });
+
+  it('never overwrites a PDF and keeps each issuer in its own folder', async () => {
+    const folder = createTempDir();
+    const render = vi.fn(async () => new Uint8Array([1]));
+    const result = createResult('produccion');
+
+    const first = await exportBillingPdf({ config, folder, renderer: { render }, result });
+    const again = await exportBillingPdf({ config, folder, renderer: { render }, result });
+    const otherIssuer = await exportBillingPdf({
+      config: { ...config, cuit: '27111111112' },
+      folder,
+      renderer: { render },
+      result,
+    });
+
+    expect(first).toBe(join(folder, '20123456789', 'factura-c_0003-00000125.pdf'));
+    expect(again).toBe(join(folder, '20123456789', 'factura-c_0003-00000125-2.pdf'));
+    expect(otherIssuer).toBe(join(folder, '27111111112', 'factura-c_0003-00000125.pdf'));
   });
 
   it('escapes HTML in every text before rendering, because the plugin template does not', async () => {
@@ -247,7 +266,7 @@ describe('exportBillingPdf', () => {
       result: createResult('produccion'),
     });
 
-    expect(path).toBe(join(folder, 'factura-c_0003-00000125.pdf'));
+    expect(path).toBe(join(folder, '20123456789', 'factura-c_0003-00000125.pdf'));
     expect(render).toHaveBeenCalledWith(expect.anything(), {
       footerText: undefined,
       logo: `data:image/png;base64,${Buffer.from('png').toString('base64')}`,
