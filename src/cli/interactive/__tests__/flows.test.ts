@@ -33,7 +33,7 @@ function createSession(vouchers: IssuedVoucher[] = [], arca: unknown = {}): Inte
 
   return {
     arca: arca as never,
-    billingGateway: { createNextVoucher: vi.fn(), getQuotation: vi.fn() },
+    billingGateway: { createVoucher: vi.fn(), getNextVoucherNumber: vi.fn(), getQuotation: vi.fn() },
     historyGateway,
     runtime: {
       config: { cert: {}, entornoPorDefecto: 'testing', key: {}, output: {} },

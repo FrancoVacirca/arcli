@@ -27,7 +27,10 @@ export interface InteractiveSession {
 }
 
 const PREVIEW_GATEWAY: BillingGateway = {
-  createNextVoucher: async () => {
+  createVoucher: async () => {
+    throw new Error('La vista previa no emite comprobantes.');
+  },
+  getNextVoucherNumber: async () => {
     throw new Error('La vista previa no emite comprobantes.');
   },
   getQuotation: async () => {

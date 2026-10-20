@@ -11,9 +11,9 @@ vi.mock('../prompts', () => ({ confirm: vi.fn() }));
 const confirmMock = vi.mocked(confirm);
 
 function createSession(environment: 'produccion' | 'testing'): InteractiveSession & {
-  readonly createNextVoucher: ReturnType<typeof vi.fn>;
+  readonly createVoucher: ReturnType<typeof vi.fn>;
 } {
-  const createNextVoucher = vi.fn(async () => ({ response: {} }) as never);
+  const createVoucher = vi.fn(async () => ({ response: {} }) as never);
   const runtime = {
     config: { cert: {}, entornoPorDefecto: environment, key: {}, output: {} },
     context: { cuit: 20409509763 },
@@ -25,8 +25,8 @@ function createSession(environment: 'produccion' | 'testing'): InteractiveSessio
 
   return {
     arca: {} as never,
-    billingGateway: { createNextVoucher, getQuotation: vi.fn() },
-    createNextVoucher,
+    billingGateway: { createVoucher, getNextVoucherNumber: vi.fn(async () => 1), getQuotation: vi.fn() },
+    createVoucher,
     historyGateway: { getLastNumber: vi.fn(), getVoucher: vi.fn() },
     runtime,
     service: new BillingService(),
@@ -56,7 +56,7 @@ describe('previewAndEmit', () => {
     confirmMock.mockResolvedValueOnce(false);
     await previewAndEmit(session, input);
 
-    expect(session.createNextVoucher).not.toHaveBeenCalled();
+    expect(session.createVoucher).not.toHaveBeenCalled();
   });
 
   it('emite en testing con una sola confirmacion', async () => {
@@ -66,7 +66,7 @@ describe('previewAndEmit', () => {
     await previewAndEmit(session, input);
 
     expect(confirmMock).toHaveBeenCalledTimes(1);
-    expect(session.createNextVoucher).toHaveBeenCalledTimes(1);
+    expect(session.createVoucher).toHaveBeenCalledTimes(1);
   });
 
   it('en produccion pide una segunda confirmacion antes de emitir', async () => {
@@ -74,13 +74,13 @@ describe('previewAndEmit', () => {
 
     confirmMock.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
     await previewAndEmit(declined, input);
-    expect(declined.createNextVoucher).not.toHaveBeenCalled();
+    expect(declined.createVoucher).not.toHaveBeenCalled();
 
     const accepted = createSession('produccion');
 
     confirmMock.mockResolvedValueOnce(true).mockResolvedValueOnce(true);
     await previewAndEmit(accepted, input);
-    expect(accepted.createNextVoucher).toHaveBeenCalledTimes(1);
+    expect(accepted.createVoucher).toHaveBeenCalledTimes(1);
     expect(confirmMock).toHaveBeenLastCalledWith(expect.stringContaining('PRODUCCION'), 'Si, emitir en produccion');
   });
 

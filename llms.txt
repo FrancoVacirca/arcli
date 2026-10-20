@@ -142,7 +142,7 @@ exit code `2`. En un lote, `2` si ARCA rechazó al menos uno; para saber cuáles
 Sin `--json` (ni `json=true` en la config): panel de texto en stderr. Con `--json` o `json=true`: JSON en stderr con la forma
 `{"codigo": "...", "detalles": {...} | null, "error": "mensaje", "sugerencia": "..." | null}`.
 `codigo` es `CONFIGURATION_ERROR`, `INPUT_VALIDATION_ERROR`, `EMISSION_UNCERTAIN` (falló la llamada
-que emite: puede haberse emitido igual; antes de reintentar, verificar con el `arcli ultimos <tipo> --pv <n>`
+que emite, no el login ni el pedido del último número: puede haberse emitido igual; antes de reintentar, verificar con el `arcli ultimos <tipo> --pv <n>`
 que viene en `sugerencia`), `TRANSIENT_ERROR` (consultas: reintentar), `UNEXPECTED_ERROR`, `VOUCHER_NOT_FOUND` (`consultar`), o en un lote
 (`--cargar` con un array) `BATCH_VALIDATION_ERROR` (no se emitió ninguno; `detalles.comprobantes` lista cada
 `{indice, error}`) y `BATCH_EMISSION_ERROR` (se cortó a mitad: los resultados ya procesados salen antes por

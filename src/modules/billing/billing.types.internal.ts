@@ -1,12 +1,15 @@
 import type { CreateVoucherResultDto } from '@arcasdk/core/lib/application/dto/electronic-billing';
-import type { INextVoucher } from '@arcasdk/core/lib/domain/types/voucher.types';
+import type { INextVoucher, IVoucher } from '@arcasdk/core/lib/domain/types/voucher.types';
 
 import type { PdfOutcome } from '../pdf/pdf.types';
 
 import type { VoucherKindDefinition } from './billing.types';
 
 export interface BillingGateway {
-  createNextVoucher(payload: INextVoucher): Promise<CreateVoucherResultDto>;
+  /** Emite en ARCA. Un error aca puede haber dejado el comprobante autorizado. */
+  createVoucher(voucher: IVoucher): Promise<CreateVoucherResultDto>;
+  /** Autentica y pide el ultimo numero autorizado. Un error aca no emitio nada. */
+  getNextVoucherNumber(pointOfSale: number, voucherType: number): Promise<number>;
   getQuotation(currencyCode: string): Promise<number>;
 }
 

@@ -1,15 +1,35 @@
 import type { Arca } from '@arcasdk/core';
 import type { CreateVoucherResultDto } from '@arcasdk/core/lib/application/dto/electronic-billing';
-import type { INextVoucher } from '@arcasdk/core/lib/domain/types/voucher.types';
+import type { IVoucher } from '@arcasdk/core/lib/domain/types/voucher.types';
 
 import { AppError } from '../../lib/errors/app-error';
 import type { BillingGateway } from '../../modules/billing/billing.types.internal';
 
+/** Tope de numeracion de ARCA; el SDK lo valida igual en `createNextVoucher`. */
+const MAX_VOUCHER_NUMBER = 99_999_999;
+
 export class ArcaBillingGateway implements BillingGateway {
   public constructor(private readonly arca: Arca) {}
 
-  public async createNextVoucher(payload: INextVoucher): Promise<CreateVoucherResultDto> {
-    return this.arca.electronicBillingService.createNextVoucher(payload);
+  /**
+   * Primer paso de `createNextVoucher` del SDK: autentica en WSAA y pide el ultimo numero autorizado.
+   * Si falla, no se envio nada a ARCA. Como el SDK, sin comprobantes previos arranca en 1.
+   */
+  public async getNextVoucherNumber(pointOfSale: number, voucherType: number): Promise<number> {
+    const lastVoucher = await this.arca.electronicBillingService.getLastVoucher(pointOfSale, voucherType);
+
+    const nextNumber = (lastVoucher.cbteNro || 0) + 1;
+
+    if (nextNumber > MAX_VOUCHER_NUMBER) {
+      throw new Error(`Numero de comprobante no puede ser mayor a ${MAX_VOUCHER_NUMBER}`);
+    }
+
+    return nextNumber;
+  }
+
+  /** Segundo paso: la llamada que emite. Si falla, ARCA pudo haber autorizado el comprobante igual. */
+  public async createVoucher(voucher: IVoucher): Promise<CreateVoucherResultDto> {
+    return this.arca.electronicBillingService.createVoucher(voucher);
   }
 
   public async getQuotation(currencyCode: string): Promise<number> {

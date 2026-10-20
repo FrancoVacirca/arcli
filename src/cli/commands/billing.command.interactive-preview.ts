@@ -60,7 +60,10 @@ export async function runInteractiveBillingPreview(options: {
   }
 
   const previewGateway: BillingGateway = {
-    createNextVoucher: async () => {
+    createVoucher: async () => {
+      throw new Error('No deberia ejecutarse la emision real durante la vista previa.');
+    },
+    getNextVoucherNumber: async () => {
       throw new Error('No deberia ejecutarse la emision real durante la vista previa.');
     },
     getQuotation: async () => {

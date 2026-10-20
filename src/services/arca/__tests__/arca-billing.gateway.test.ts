@@ -1,0 +1,54 @@
+import type { Arca } from '@arcasdk/core';
+import type { IVoucher } from '@arcasdk/core/lib/domain/types/voucher.types';
+import { describe, expect, it, vi } from 'vitest';
+
+import { ArcaBillingGateway } from '../arca-billing.gateway';
+
+function createGateway(service: Record<string, unknown>): ArcaBillingGateway {
+  return new ArcaBillingGateway({ electronicBillingService: service } as unknown as Arca);
+}
+
+describe('ArcaBillingGateway', () => {
+  it('returns the last authorized number plus one, like createNextVoucher', async () => {
+    const getLastVoucher = vi.fn(async () => ({ cbteNro: 41 }));
+    const gateway = createGateway({ getLastVoucher });
+
+    await expect(gateway.getNextVoucherNumber(3, 11)).resolves.toBe(42);
+    expect(getLastVoucher).toHaveBeenCalledWith(3, 11);
+  });
+
+  it('starts at 1 when the sales point has no vouchers yet', async () => {
+    const empty = createGateway({ getLastVoucher: vi.fn(async () => ({ cbteNro: 0 })) });
+    const missing = createGateway({ getLastVoucher: vi.fn(async () => ({})) });
+
+    await expect(empty.getNextVoucherNumber(3, 11)).resolves.toBe(1);
+    await expect(missing.getNextVoucherNumber(3, 11)).resolves.toBe(1);
+  });
+
+  it('fails before emitting when the numbering is exhausted', async () => {
+    const gateway = createGateway({ getLastVoucher: vi.fn(async () => ({ cbteNro: 99_999_999 })) });
+
+    await expect(gateway.getNextVoucherNumber(3, 11)).rejects.toThrow(/no puede ser mayor a 99999999/);
+  });
+
+  it('propagates authentication and last-number failures as they are', async () => {
+    const wsaaError = new Error('Certificado expirado');
+    const gateway = createGateway({
+      getLastVoucher: vi.fn(async () => {
+        throw wsaaError;
+      }),
+    });
+
+    await expect(gateway.getNextVoucherNumber(3, 11)).rejects.toBe(wsaaError);
+  });
+
+  it('sends the numbered voucher to createVoucher and returns its result', async () => {
+    const result = { cae: '123', caeFchVto: '20261031', response: {} };
+    const createVoucher = vi.fn(async () => result);
+    const gateway = createGateway({ createVoucher });
+    const voucher = { CbteDesde: 42, CbteHasta: 42, CbteTipo: 11, PtoVta: 3 } as IVoucher;
+
+    await expect(gateway.createVoucher(voucher)).resolves.toBe(result);
+    expect(createVoucher).toHaveBeenCalledWith(voucher);
+  });
+});

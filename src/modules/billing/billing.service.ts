@@ -84,10 +84,17 @@ export class BillingService {
       };
     }
 
-    let response: Awaited<ReturnType<BillingGateway['createNextVoucher']>>;
+    // Fuera del try: si falla la autenticacion o el pedido del ultimo numero, no se envio nada a ARCA
+    // y el error sale tal cual (certificado, ARCA no disponible), sin sugerir que pudo emitirse.
+    const voucherNumber = await options.gateway.getNextVoucherNumber(payload.PtoVta, payload.CbteTipo);
+    let response: Awaited<ReturnType<BillingGateway['createVoucher']>>;
 
     try {
-      response = await options.gateway.createNextVoucher(payload);
+      response = await options.gateway.createVoucher({
+        ...payload,
+        CbteDesde: voucherNumber,
+        CbteHasta: voucherNumber,
+      });
     } catch (error) {
       throw new EmissionUncertainError({ cause: error, pointOfSale: payload.PtoVta, shortcut: voucherKind.shortcut });
     }

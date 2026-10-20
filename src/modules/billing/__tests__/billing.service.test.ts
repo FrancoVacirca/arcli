@@ -429,7 +429,10 @@ describe('billing.service', () => {
     const input = await service.resolveExchangeRate(
       createBillingInput({ currencyCode: 'USD', documentNumber: 0, exchangeRate: undefined, sameCurrency: true }),
       {
-        createNextVoucher: async () => {
+        createVoucher: async () => {
+          throw new Error('No deberia emitirse');
+        },
+        getNextVoucherNumber: async () => {
           throw new Error('No deberia emitirse');
         },
         getQuotation,
@@ -449,7 +452,10 @@ describe('billing.service', () => {
 
     await expect(
       service.resolveExchangeRate(input, {
-        createNextVoucher: async () => {
+        createVoucher: async () => {
+          throw new Error('No deberia emitirse');
+        },
+        getNextVoucherNumber: async () => {
           throw new Error('No deberia emitirse');
         },
         getQuotation,
@@ -1286,7 +1292,10 @@ describe('billing.service', () => {
 
     const result = await service.execute({
       gateway: {
-        createNextVoucher: async () => {
+        createVoucher: async () => {
+          throw new Error('No deberia ejecutarse en dry-run');
+        },
+        getNextVoucherNumber: async () => {
           throw new Error('No deberia ejecutarse en dry-run');
         },
         getQuotation: async () => {
@@ -1308,13 +1317,14 @@ describe('billing.service', () => {
     });
   });
 
-  it('flags a failed emission call as uncertain, because the voucher may have been issued', async () => {
+  it('flags a failed createVoucher call as uncertain, because the voucher may have been issued', async () => {
     const service = new BillingService();
     const run = service.execute({
       gateway: {
-        createNextVoucher: async () => {
+        createVoucher: async () => {
           throw new Error('socket hang up');
         },
+        getNextVoucherNumber: async () => 42,
         getQuotation: async () => 1,
       },
       input: createBillingInput({ documentNumber: 0, dryRun: false, emit: true }),
@@ -1327,6 +1337,58 @@ describe('billing.service', () => {
       code: 'EMISSION_UNCERTAIN',
       suggestion: expect.stringContaining('arcli ultimos fb --pv 3'),
     });
+  });
+
+  it.each([
+    ['an authentication (WSAA) failure', 'Certificado expirado'],
+    ['a failure fetching the last voucher number', 'ARCA no disponible'],
+  ])('does not flag %s as uncertain, because nothing was sent to ARCA', async (_case, message) => {
+    const service = new BillingService();
+    const cause = new Error(message);
+    const createVoucher = vi.fn();
+    const run = service.execute({
+      gateway: {
+        createVoucher,
+        getNextVoucherNumber: async () => {
+          throw cause;
+        },
+        getQuotation: async () => 1,
+      },
+      input: createBillingInput({ documentNumber: 0, dryRun: false, emit: true }),
+      runtime: createRuntime(),
+    });
+
+    await expect(run).rejects.toBe(cause);
+    await expect(run).rejects.not.toBeInstanceOf(EmissionUncertainError);
+    expect(createVoucher).not.toHaveBeenCalled();
+  });
+
+  it('emits the next voucher number with the same payload and maps the response', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-18T12:00:00Z'));
+
+    const service = new BillingService();
+    const arcaResult = {
+      cae: '76123456789012',
+      caeFchVto: '20261029',
+      response: { FeDetResp: { FECAEDetResponse: [{ CbteDesde: 42, CbteHasta: 42, Resultado: 'A' }] } },
+    };
+    const getNextVoucherNumber = vi.fn(async () => 42);
+    const createVoucher = vi.fn(async () => arcaResult as never);
+    const input = createBillingInput({ documentNumber: 0, dryRun: false, emit: true });
+    const payload = service.buildVoucherPayload(input, createRuntime());
+
+    const result = await service.execute({
+      gateway: { createVoucher, getNextVoucherNumber, getQuotation: async () => 1 },
+      input,
+      runtime: createRuntime(),
+    });
+
+    expect(getNextVoucherNumber).toHaveBeenCalledWith(payload.PtoVta, payload.CbteTipo);
+    expect(createVoucher).toHaveBeenCalledWith({ ...payload, CbteDesde: 42, CbteHasta: 42 });
+    expect(result.dryRun).toBe(false);
+    expect(result.payload).toEqual(payload);
+    expect(result.response).toEqual(mapBillingResponse(arcaResult as never));
   });
 
   it('maps the empty CAE of a rejected voucher to null', () => {
