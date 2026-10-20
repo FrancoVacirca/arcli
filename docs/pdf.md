@@ -13,7 +13,7 @@ arcli config establecer emisor.domicilio "Calle 123, Ciudad"
 arcli config establecer emisor.inicioActividades 1/03/2020
 
 # Emitir y generar el PDF
-arcli fc -m 150000 --cs --cfinal --emitir --exportar-pdf --descripcion "Servicios de septiembre"
+arcli fc -m 150000 --cs --cfinal --ir-cf --emitir --exportar-pdf --descripcion "Servicios de septiembre"
 ```
 
 La primera vez, ARCLI ofrece descargar el plugin de PDF. El archivo queda en `~/arcli/comprobantes/20123456789/factura-c_0003-00000125.pdf`.
@@ -86,6 +86,8 @@ El CUIT es el de siempre (`cuit`). Si falta algún dato obligatorio, el PDF no s
 | `--receptor-nombre <texto>`    | `receptorNombre`         | "Consumidor Final" o `- -` |
 | `--receptor-domicilio <texto>` | `receptorDomicilio`      | `- -`                      |
 
+Al facturar con `--cuit` y sin `--ir` (con `consultarPadron` activo, como viene por defecto), el nombre y el domicilio del receptor que no pases salen del padrón de ARCA. Con `--ir` explícito no se consulta el padrón y valen los de la tabla.
+
 Estos datos **solo van en el PDF**: ARCA no los recibe. Si los pasás y al final no se genera ningún PDF, ARCLI avisa que no quedaron en ningún lado.
 
 El detalle del PDF tiene un renglón por alícuota de IVA con la descripción y su importe neto, o un solo renglón en las facturas `C`. Exento y no gravado van en renglones aparte.
@@ -134,4 +136,4 @@ Códigos posibles: `PDF_PLUGIN_MISSING`, `PDF_PLUGIN_INSTALL_ERROR`, `PDF_ISSUER
 
 - **Regenerar el PDF de un comprobante ya emitido.** La consulta de ARCA que usa el SDK no devuelve el detalle de IVA, los comprobantes asociados ni las fechas de servicio, así que el PDF saldría incompleto. Por ahora el PDF se genera al emitir.
 - Ítems detallados (cantidad × precio unitario), duplicado y triplicado, plantilla propia y envío por mail.
-- Completar el emisor o el receptor desde el padrón de ARCA.
+- Completar los datos del emisor desde el padrón de ARCA (los del receptor sí se completan; ver [Del comprobante](#del-comprobante-flags-opcionales)).

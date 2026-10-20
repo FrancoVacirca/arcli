@@ -34,27 +34,26 @@ function resolveIdentityShort(definition: VoucherKindDefinition): string[] {
   return ['--cfinal', '--ir-cf'];
 }
 
+/** Una nota asocia una factura de su misma letra y categoria: `nca` -> `fa`, `ndeb` -> `fceb`. */
 function resolveAssociatedShortcut(definition: VoucherKindDefinition): string {
-  if (!definition.requiresAssociatedVoucher) {
-    return '';
-  }
-
-  if (definition.family === 'nota-credito') {
-    return `f${definition.letter}`;
-  }
-
-  if (definition.family === 'nota-debito') {
-    return `f${definition.letter}`;
-  }
-
-  if (definition.family === 'nota-credito-electronica') {
-    return `fce${definition.letter}`;
-  }
-
-  return `fce${definition.letter}`;
+  return `${definition.isElectronicCredit ? 'fce' : 'f'}${definition.letter}`;
 }
 
 const EXAMPLE_CBU = '0110599520000012345678';
+
+/** En NC/ND FCE el asociado tiene que ser del CUIT emisor: `--acuit` se omite y se toma de la config. */
+function resolveAssociatedFlags(definition: VoucherKindDefinition, form: 'long' | 'short'): string[] {
+  if (!definition.requiresAssociatedVoucher) {
+    return [];
+  }
+
+  return [
+    `--ac ${resolveAssociatedShortcut(definition)}`,
+    form === 'long' ? '--asociado-punto-venta 3' : '--apv 3',
+    '--ar 120',
+    ...(definition.isElectronicCredit ? [] : ['--acuit 20409509763']),
+  ];
+}
 
 interface ExampleDates {
   readonly associated: string;
@@ -116,16 +115,9 @@ function buildMinimalLong(definition: VoucherKindDefinition, dates: ExampleDates
   ];
   command.push(...resolveIdentityLong(definition));
 
-  if (definition.requiresAssociatedVoucher) {
-    command.push(
-      `--ac ${resolveAssociatedShortcut(definition)}`,
-      '--asociado-punto-venta 3',
-      '--ar 120',
-      '--acuit 20409509763',
-    );
-  }
+  command.push(...resolveAssociatedFlags(definition, 'long'));
 
-  command.push(...resolveElectronicCreditFlags(definition, dates, 'minimal'), '--previsualizar');
+  command.push(...resolveElectronicCreditFlags(definition, dates, 'minimal'));
 
   return command.join(' ');
 }
@@ -134,11 +126,9 @@ function buildMinimalShort(definition: VoucherKindDefinition, dates: ExampleDate
   const command = [`arcli ${definition.shortcut}`, `-m ${resolveAmount(definition)}`, '--cs'];
   command.push(...resolveIdentityShort(definition));
 
-  if (definition.requiresAssociatedVoucher) {
-    command.push(`--ac ${resolveAssociatedShortcut(definition)}`, '--apv 3', '--ar 120', '--acuit 20409509763');
-  }
+  command.push(...resolveAssociatedFlags(definition, 'short'));
 
-  command.push(...resolveElectronicCreditFlags(definition, dates, 'minimal'), '--previsualizar');
+  command.push(...resolveElectronicCreditFlags(definition, dates, 'minimal'));
 
   return command.join(' ');
 }
@@ -162,14 +152,7 @@ function buildFullLong(definition: VoucherKindDefinition, dates: ExampleDates): 
 
   command.push(...resolveIdentityLong(definition));
 
-  if (definition.requiresAssociatedVoucher) {
-    command.push(
-      `--ac ${resolveAssociatedShortcut(definition)}`,
-      '--asociado-punto-venta 3',
-      '--ar 120',
-      '--acuit 20409509763',
-    );
-  }
+  command.push(...resolveAssociatedFlags(definition, 'long'));
 
   command.push(...resolveElectronicCreditFlags(definition, dates, 'full'), '--previsualizar');
 
@@ -195,9 +178,7 @@ function buildFullShort(definition: VoucherKindDefinition, dates: ExampleDates):
 
   command.push(...resolveIdentityShort(definition));
 
-  if (definition.requiresAssociatedVoucher) {
-    command.push(`--ac ${resolveAssociatedShortcut(definition)}`, '--apv 3', '--ar 120', '--acuit 20409509763');
-  }
+  command.push(...resolveAssociatedFlags(definition, 'short'));
 
   command.push(...resolveElectronicCreditFlags(definition, dates, 'full'), '--previsualizar');
 
@@ -209,10 +190,10 @@ function formatVoucherExample(definition: VoucherKindDefinition, dates: ExampleD
     sectionHeading(definition.displayName),
     '',
     `${badge('MINIMA LARGA', 'info')}`,
-    `${buildMinimalLong(definition, dates)}`,
+    `${buildMinimalLong(definition, dates)} --previsualizar`,
     '',
     `${badge('MINIMA CORTA', 'success')}`,
-    `${buildMinimalShort(definition, dates)}`,
+    `${buildMinimalShort(definition, dates)} --previsualizar`,
     '',
     `${badge('FULL LARGA', 'warning')}`,
     `${buildFullLong(definition, dates)}`,
@@ -227,6 +208,16 @@ function renderFamilyExamples(family: VoucherFamily, dates: ExampleDates): strin
     .filter((definition) => definition.family === family)
     .map((definition) => formatVoucherExample(definition, dates))
     .join('\n\n\n');
+}
+
+/** El comando minimo por shortcut (`arcli nca -m 1 --cs ...`), sin modo de ejecucion. Lo usa tambien la ayuda. */
+export function buildMinimalShortcutExample(definition: VoucherKindDefinition, today = new Date()): string {
+  return buildMinimalShort(definition, resolveExampleDates(today));
+}
+
+/** El comando minimo por familia y letra (`arcli nota-credito a --monto 1 ...`), sin modo de ejecucion. */
+export function buildMinimalFamilyExample(definition: VoucherKindDefinition, today = new Date()): string {
+  return buildMinimalLong(definition, resolveExampleDates(today));
 }
 
 export function renderExamples(today = new Date()): string {

@@ -18,7 +18,7 @@ import { startSpinner } from '../spinner';
 import { emitBatch, prepareBatch } from './billing.command.batch';
 import { runInteractiveBillingPreview } from './billing.command.interactive-preview';
 import { writeBillingCommandResults, writePdfOutcomes } from './billing.command.output';
-import { parseBillingCommandPlan, registerBillingOptions } from './billing.command.parser';
+import { type BillingCommandDefaults, parseBillingCommandPlan, registerBillingOptions } from './billing.command.parser';
 import { attachPdfs } from './billing.command.pdf';
 
 /** Exit code cuando ARCA rechaza algun comprobante: la operacion corrio bien, pero no hay CAE. */
@@ -34,6 +34,21 @@ export function setExitCodeForResults(results: readonly BillingExecutionResult[]
 export function registerBillingCommandOptions(command: Command): void {
   registerGlobalOptions(command);
   registerBillingOptions(command);
+}
+
+/** Los defaults de la config que completan lo que no viene por flags ni por JSON. */
+export function resolveBillingCommandDefaults(config: ArcliConfig): BillingCommandDefaults {
+  return {
+    defaultCbu: config.cbu,
+    defaultCbuAlias: config.aliasCbu,
+    defaultConcept: config.conceptoPorDefecto,
+    defaultCurrencyCode: config.monedaPorDefecto,
+    defaultEmit: config.output.emitirPorDefecto,
+    defaultExchangeRate: config.cotizacionPorDefecto,
+    defaultIvaCondition: config.ivaReceptorPorDefecto,
+    defaultIvaRate: config.alicuotaPorDefecto,
+    lookupIvaConditionInPadron: config.consultarPadron !== false,
+  };
 }
 
 /**
@@ -90,17 +105,7 @@ export async function executeBillingCommand(command: Command, shortcut: VoucherS
 
   try {
     const runtime = resolveArcaRuntime(globalOptions);
-    const plan = parseBillingCommandPlan(command, shortcut, {
-      defaultCbu: runtime.config.cbu,
-      defaultCbuAlias: runtime.config.aliasCbu,
-      defaultConcept: runtime.config.conceptoPorDefecto,
-      defaultCurrencyCode: runtime.config.monedaPorDefecto,
-      defaultEmit: runtime.config.output.emitirPorDefecto,
-      defaultExchangeRate: runtime.config.cotizacionPorDefecto,
-      defaultIvaCondition: runtime.config.ivaReceptorPorDefecto,
-      defaultIvaRate: runtime.config.alicuotaPorDefecto,
-      lookupIvaConditionInPadron: runtime.config.consultarPadron !== false,
-    });
+    const plan = parseBillingCommandPlan(command, shortcut, resolveBillingCommandDefaults(runtime.config));
     const service = new BillingService();
     const arca = new ArcaClientFactory().create(runtime);
     const gateway = new ArcaBillingGateway(arca);

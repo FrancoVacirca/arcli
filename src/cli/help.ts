@@ -2,7 +2,12 @@ import type { Command } from 'commander';
 
 import { CERTIFICATE_GUIDE_URL } from '../lib/links';
 import type { VoucherFamily, VoucherShortcut } from '../modules/billing/billing.types';
-import { getVoucherKindByShortcut } from '../modules/billing/voucher-kind-map';
+import {
+  getVoucherKindByFamilyAndLetter,
+  getVoucherKindByShortcut,
+  VOUCHER_LETTERS,
+} from '../modules/billing/voucher-kind-map';
+import { buildMinimalFamilyExample, buildMinimalShortcutExample } from '../modules/examples/examples';
 import { renderLogo } from '../ui';
 
 import { CLI_VERSION } from './version';
@@ -266,9 +271,7 @@ function createShortcutMinimum(shortcut: VoucherShortcut): string {
     return '';
   }
 
-  const example = definition.requiresAssociatedVoucher
-    ? `  - Ejemplo minimo: arcli ${shortcut} -m 1 --cs --cuit 20168598204 --ir-ri --ac fa --apv 3 --ar 6 --acuit 20409509763`
-    : `  - Ejemplo minimo: arcli ${shortcut} -m 300000 --cs --consumidor-final --ir-cf`;
+  const example = `  - Ejemplo minimo: ${buildMinimalShortcutExample(definition)}`;
 
   return section(
     'Para empezar',
@@ -288,17 +291,12 @@ function createShortcutExamples(shortcut: VoucherShortcut): string {
     return '';
   }
 
-  const examples = definition.requiresAssociatedVoucher
-    ? [
-        `  - Previsualizar: arcli ${shortcut} -m 1 --cs --cuit 20168598204 --ir-ri --ac fa --apv 3 --ar 6 --acuit 20409509763 --previsualizar`,
-        `  - Emitir: arcli ${shortcut} -m 1 --cs --cuit 20168598204 --ir-ri --ac fa --apv 3 --ar 6 --acuit 20409509763 --emitir --bruto`,
-        `  - JSON: arcli ${shortcut} --cargar ./voucher.json --json`,
-      ]
-    : [
-        `  - Rapido: arcli ${shortcut} -m 15000 --cs --consumidor-final --ir-cf`,
-        `  - Emitir: arcli ${shortcut} -m 1 --cs --cuit 20168598204 --ir-ri --emitir --bruto`,
-        `  - JSON: arcli ${shortcut} --cargar ./voucher.json --json`,
-      ];
+  const minimal = buildMinimalShortcutExample(definition);
+  const examples = [
+    `  - Previsualizar: ${minimal} --previsualizar`,
+    `  - Emitir: ${minimal} --emitir --bruto`,
+    `  - JSON: arcli ${shortcut} --cargar ./voucher.json --json`,
+  ];
 
   return section('Ejemplos', examples.join('\n'));
 }
@@ -401,9 +399,12 @@ function createFamilyExamples(family: VoucherFamily): string {
   return section(
     'Ejemplos por letra',
     [
-      `  - Letra A: arcli ${family} a -m 15000 --cs --cuit 20168598204 --ir-ri`,
-      `  - Letra B: arcli ${family} b -m 15000 --cs --consumidor-final --ir-cf`,
-      `  - Letra C con JSON: arcli ${family} c --cargar ./voucher.json --json`,
+      ...VOUCHER_LETTERS.map((letter) => {
+        const definition = getVoucherKindByFamilyAndLetter(family, letter);
+
+        return definition ? `  - Letra ${letter.toUpperCase()}: ${buildMinimalFamilyExample(definition)}` : '';
+      }),
+      `  - Con JSON: arcli ${family} c --cargar ./voucher.json --json`,
     ].join('\n'),
   );
 }

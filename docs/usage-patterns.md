@@ -147,7 +147,7 @@ Cuando vendés a una empresa grande dentro del régimen FCE MiPyMEs y el comprob
 arcli config establecer cbu 0110599520000012345678
 
 arcli fcea -m 1500000 --cs --cuit 30709965812 --ir-ri \
-  --vencimiento 30-10-2026 \
+  --dia 25 \
   --transferencia sca
 ```
 
@@ -216,7 +216,7 @@ Cuando además de emitir querés el PDF con el QR de ARCA para mandarle al clien
 ### Comando
 
 ```bash
-arcli fc -m 150000 --cs --cfinal --emitir --exportar-pdf \
+arcli fc -m 150000 --cs --cfinal --ir-cf --emitir --exportar-pdf \
   --descripcion "Servicios de septiembre" --receptor-nombre "Cliente SA"
 ```
 

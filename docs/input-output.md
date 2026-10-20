@@ -138,13 +138,10 @@ Los nombres de las claves no siempre coinciden con los flags. Si pasás las dos 
   "codigoMoneda": "ARS",
   "cotizacionMoneda": 1,
   "emitir": false,
-  "fechaComprobante": "27-03-2026",
   "ivaReceptor": "responsable-inscripto",
   "montoTotal": 15000,
   "numeroDocumento": 20168598204,
   "puntoVenta": 3,
-  "servicioDesde": "27-03-2026",
-  "servicioHasta": "27-03-2026",
   "tipoDocumento": "cuit"
 }
 ```

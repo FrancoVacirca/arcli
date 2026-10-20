@@ -22,6 +22,9 @@ describe('examples', () => {
     expect(output).toContain(
       'arcli fcea -m 1 --cs --cuit 20168598204 --ir-ri --cbu 0110599520000012345678 --previsualizar',
     );
-    expect(output).toContain('--acuit 20409509763 --afecha 01-03-2026 --previsualizar');
+    expect(output).toContain(
+      'arcli ncea -m 1 --cs --cuit 20168598204 --ir-ri --ac fcea --apv 3 --ar 120 --afecha 01-03-2026',
+    );
+    expect(output).toContain('arcli ncb -m 15000 --cs --cfinal --ir-cf --ac fb --apv 3 --ar 120 --acuit 20409509763');
   });
 });

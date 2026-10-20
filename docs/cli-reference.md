@@ -512,6 +512,8 @@ arcli fc --cargar ./voucher.json --json
 Si ya guardaste `cuit`, `puntoVenta`, `concepto` e `ivaReceptor` en config:
 
 ```bash
+arcli config establecer concepto servicios
+arcli config establecer ivaReceptor consumidor-final
 arcli fc -m 300000
 ```
 
