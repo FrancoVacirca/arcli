@@ -50,6 +50,14 @@ export function writeTerminalError(content: string): void {
   process.stderr.write(formatTerminalOutput(content, { target: 'stderr' }));
 }
 
+/**
+ * Aviso antes de la salida del comando, en stderr. Sin la linea vacia de cierre: lo que sigue ya empieza con una
+ * y quedarian dos.
+ */
+export function writeTerminalNotice(content: string): void {
+  process.stderr.write(`\n${sanitizeTerminalText(content)}\n`);
+}
+
 export function writeTerminalJsonError(content: string): void {
   process.stderr.write(formatTerminalOutput(content, { json: true, target: 'stderr' }));
 }

@@ -24,6 +24,7 @@ import { writeTerminalOutput } from '../../../ui';
 
 function createRuntime(overrides: Partial<ResolvedArcaRuntime> = {}): ResolvedArcaRuntime {
   return {
+    certificateNotices: [],
     config: {
       cert: {},
       emisor: {},

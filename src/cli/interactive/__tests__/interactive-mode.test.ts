@@ -44,7 +44,13 @@ vi.mock('../history.flow', () => ({ runHistoryFlow: vi.fn() }));
 vi.mock('../update.flow', () => ({ runUpdateFlow: vi.fn() }));
 vi.mock('../../../modules/parameters/health', () => ({ checkArcaHealth: vi.fn(async () => 'funcionando') }));
 vi.mock('../../../modules/update-check/update-check.service', () => ({ checkForUpdate: vi.fn(async () => null) }));
-const runtime = { config: {}, context: { cuit: 20409509763 }, environment: 'testing', pointOfSale: 3 };
+const runtime = {
+  certificateNotices: [],
+  config: {},
+  context: { cuit: 20409509763 },
+  environment: 'testing',
+  pointOfSale: 3,
+};
 
 vi.mock('../session', () => ({
   createInteractiveSession: vi.fn(() => ({ runtime })),
@@ -112,7 +118,12 @@ describe('runInteractiveMode', () => {
 
   it('shows a certificate box right below the status bar when the certificate is about to expire', async () => {
     vi.mocked(createInteractiveSession).mockReturnValueOnce({
-      runtime: { ...runtime, certificateExpiry: certificateNotice(false), environment: 'produccion' },
+      runtime: {
+        ...runtime,
+        certificateExpiry: certificateNotice(false),
+        certificateNotices: [certificateNotice(false)],
+        environment: 'produccion',
+      },
     } as never);
     chooseOneMock.mockResolvedValueOnce('salir');
 
@@ -126,6 +137,20 @@ describe('runInteractiveMode', () => {
     expect(boxIndex).toBeGreaterThan(barIndex);
     expect(plain).toContain(`Renovalo: ${CERTIFICATE_GUIDE_URL}`);
     expect(plain.slice(barIndex, boxIndex)).toMatch(/┌/);
+  });
+
+  it('shows the production certificate box while working in testing', async () => {
+    vi.mocked(createInteractiveSession).mockReturnValueOnce({
+      runtime: { ...runtime, certificateNotices: [certificateNotice(false)] },
+    } as never);
+    chooseOneMock.mockResolvedValueOnce('salir');
+
+    await runInteractiveMode();
+
+    const plain = stripAnsi(output);
+
+    expect(plain).toMatch(/━━ 20-40950976-3 · PV 3 ━+ ARCA FUNCIONANDO ━ TESTING ━━/);
+    expect(plain).toContain('El certificado de produccion vence el 20/11/2026 (en 10 días).');
   });
 
   it('shows no certificate box when the certificate is fine', async () => {

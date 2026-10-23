@@ -1,8 +1,11 @@
 import { Separator } from '@inquirer/select';
 
 import { formatCuit } from '../../lib/identity/format-cuit';
-import { CERTIFICATE_GUIDE_URL } from '../../lib/links';
-import { CertificateExpiredError, type CertificateExpiryNotice } from '../../modules/config/certificate-expiry';
+import {
+  CertificateExpiredError,
+  type CertificateExpiryNotice,
+  inspectConfiguredCertificates,
+} from '../../modules/config/certificate-expiry';
 import type { ArcliEnvironment } from '../../modules/config/config.schemas';
 import { ConfigService } from '../../modules/config/config.service';
 import { listMissingSetupKeys } from '../../modules/interactive/config-fields';
@@ -10,7 +13,6 @@ import { type ArcaHealth, checkArcaHealth } from '../../modules/parameters/healt
 import { checkForUpdate, type UpdateCheckResult } from '../../modules/update-check/update-check.service';
 import { ArcaParametersGateway } from '../../services/arca/arca-parameters.gateway';
 import {
-  certificateBanner,
   colorize,
   formatCliError,
   noticePanel,
@@ -21,6 +23,7 @@ import {
   writeTerminalError,
   writeTerminalOutput,
 } from '../../ui';
+import { renderCertificateNotices } from '../arca-runtime';
 import { startSpinner } from '../spinner';
 import type { GlobalCliOptions } from '../types';
 import { CLI_VERSION } from '../version';
@@ -101,15 +104,34 @@ function environmentSegment(environment: ArcliEnvironment): StatusBarSegment {
     : { color: 'testing', text: 'TESTING' };
 }
 
-/** Recuadro del certificado debajo de la barra: queda arriba de todo lo que se haga en la sesion. */
-function withCertificateBox(bar: string, notice: CertificateExpiryNotice | undefined): string {
-  if (!notice) {
-    return bar;
+/**
+ * Recuadro de los certificados por vencer o vencidos, de cualquier entorno, debajo de la barra: queda arriba de
+ * todo lo que se haga en la sesion.
+ */
+function withCertificateBox(bar: string, notices: readonly CertificateExpiryNotice[]): string {
+  const box = renderCertificateNotices(notices);
+
+  return box ? `${bar}\n\n${box}` : bar;
+}
+
+/**
+ * Con el certificado activo vencido la sesion no se crea, asi que los del resto de los entornos se leen aparte de
+ * la config. Si no se puede, queda solo el vencido.
+ */
+function noticesWithExpired(expired: CertificateExpiryNotice): CertificateExpiryNotice[] {
+  const service = new ConfigService();
+
+  try {
+    const others = inspectConfiguredCertificates(service.getConfig().cert ?? {}, {
+      activeEnvironment: expired.environment,
+    }).filter((notice) => notice.environment !== expired.environment);
+
+    return [expired, ...others];
+  } catch {
+    return [expired];
+  } finally {
+    service.close();
   }
-
-  const box = certificateBanner({ expired: notice.expired, guideUrl: CERTIFICATE_GUIDE_URL, summary: notice.summary });
-
-  return `${bar}\n\n${box}`;
 }
 
 /**
@@ -131,7 +153,7 @@ async function buildHeader(options: GlobalCliOptions): Promise<string> {
         { rightSeparator: 'rule' },
       );
 
-      return withCertificateBox(bar, error.notice);
+      return withCertificateBox(bar, noticesWithExpired(error.notice));
     }
 
     return statusBar([{ text: 'falta completar la configuracion' }], [{ color: 'muted', text: 'ARCA SIN VERIFICAR' }]);
@@ -143,7 +165,7 @@ async function buildHeader(options: GlobalCliOptions): Promise<string> {
   spinner?.stop();
 
   const [label, color] = HEALTH_LABELS[health];
-  const { certificateExpiry, config, context, environment, pointOfSale } = session.runtime;
+  const { certificateNotices, config, context, environment, pointOfSale } = session.runtime;
   const bar = statusBar(
     [
       { text: formatIssuer(config.emisor?.razonSocial, context.cuit) },
@@ -153,7 +175,7 @@ async function buildHeader(options: GlobalCliOptions): Promise<string> {
     { rightSeparator: 'rule' },
   );
 
-  return withCertificateBox(bar, certificateExpiry);
+  return withCertificateBox(bar, certificateNotices);
 }
 
 function formatIssuer(businessName: string | undefined, cuit: number): string {

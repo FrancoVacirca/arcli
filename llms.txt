@@ -183,8 +183,8 @@ por CUIT emisor, los de testing en `testing/<CUIT>/`, y nunca se pisa un PDF exi
 `config revisar` también avisa si un certificado ya venció o vence en menos de 30 días. Con `--json` devuelve
 `{ok, chequeos: [{categoria: "ok"|"warning"|"error", etiqueta, detalle}]}`; `ok: false` sale igual con exit code `0`.
 `arcli config --json` devuelve la config con las rutas enmascaradas (`cert`, `key` y `emisor` como objetos).
-Además, a menos de 30 días de vencer, cada comando que va a ARCA avisa en stderr (nunca en stdout) y la facturación
-lo suma a `avisos` del JSON.
+Además, a menos de 30 días de vencer cualquiera de los certificados configurados (testing o producción, sin importar el entorno
+en uso), cada comando que va a ARCA avisa en stderr (nunca en stdout) y la facturación lo suma a `avisos` del JSON.
 
 ## Otros comandos
 

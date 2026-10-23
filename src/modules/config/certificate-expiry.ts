@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 import { formatArcaDateAsArgentineDate, formatDateAsArcaDate } from '../../lib/dates/arca-date';
 import { AppError } from '../../lib/errors/app-error';
 import { CERTIFICATE_GUIDE_URL } from '../../lib/links';
@@ -7,7 +9,7 @@ import {
   readCertificateExpiry,
 } from '../../lib/security/certificate';
 
-import type { ArcliEnvironment } from './config.schemas';
+import { type ArcliEnvironment, arcliEnvironmentSchema } from './config.schemas';
 
 /** A menos de estos dias de vencer, el certificado se avisa en cada comando y en `config revisar`. */
 export const CERTIFICATE_EXPIRY_WARNING_DAYS = 30;
@@ -74,6 +76,52 @@ export function inspectCertificateExpiry(
 ): CertificateExpiryNotice | undefined {
   try {
     return describeCertificateExpiry(readCertificateExpiry(pemContent, now), environment);
+  } catch {
+    return undefined;
+  }
+}
+
+export interface ConfiguredCertificatesOptions {
+  readonly activeEnvironment: ArcliEnvironment;
+  /** El PEM del entorno activo, si ya se leyo para el contexto: no se vuelve a leer el archivo. */
+  readonly activePem?: string;
+  readonly now?: Date;
+}
+
+/**
+ * Avisos de todos los certificados configurados (testing y produccion), sin importar con cual se trabaja: quien
+ * factura en testing tambien tiene que enterarse de que vence el de produccion. El del entorno activo va primero.
+ * Un certificado sin configurar o que no se puede leer no avisa.
+ */
+export function inspectConfiguredCertificates(
+  certPaths: Partial<Record<ArcliEnvironment, string>>,
+  options: ConfiguredCertificatesOptions,
+): CertificateExpiryNotice[] {
+  const environments = arcliEnvironmentSchema.options.filter(
+    (environment) => environment !== options.activeEnvironment,
+  );
+  const notices: CertificateExpiryNotice[] = [];
+
+  for (const environment of [options.activeEnvironment, ...environments]) {
+    const pem = environment === options.activeEnvironment ? options.activePem : undefined;
+    const content = pem ?? readCertificateQuietly(certPaths[environment]);
+    const notice = content === undefined ? undefined : inspectCertificateExpiry(content, environment, options.now);
+
+    if (notice) {
+      notices.push(notice);
+    }
+  }
+
+  return notices;
+}
+
+function readCertificateQuietly(filePath: string | undefined): string | undefined {
+  if (!filePath) {
+    return undefined;
+  }
+
+  try {
+    return readFileSync(filePath, 'utf8');
   } catch {
     return undefined;
   }

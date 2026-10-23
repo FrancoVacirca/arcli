@@ -1,13 +1,20 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it } from 'vitest';
 
 import { CERTIFICATE_GUIDE_URL } from '../../../lib/links';
+import {
+  createSelfSignedCertificate,
+  removeSelfSignedCertificates,
+} from '../../../lib/security/__tests__/self-signed-certificate';
 import { computeCertificateExpiry } from '../../../lib/security/certificate';
 import {
   CERTIFICATE_EXPIRY_WARNING_DAYS,
   CertificateExpiredError,
   describeCertificateExpiry,
   inspectCertificateExpiry,
+  inspectConfiguredCertificates,
 } from '../certificate-expiry';
+
+afterAll(removeSelfSignedCertificates);
 
 // 20/11/2026 23:59:59 en Argentina.
 const EXPIRES_AT = new Date('2026-11-21T02:59:59Z');
@@ -54,6 +61,54 @@ describe('inspectCertificateExpiry', () => {
     expect(inspectCertificateExpiry('-----BEGIN CERTIFICATE-----\nnope\n-----END CERTIFICATE-----', 'testing')).toBe(
       undefined,
     );
+  });
+});
+
+describe('inspectConfiguredCertificates', () => {
+  it('warns about the certificate of the other environment too, the active one first', () => {
+    const testing = createSelfSignedCertificate(10);
+    const production = createSelfSignedCertificate(5);
+
+    const notices = inspectConfiguredCertificates(
+      { produccion: production.certPath, testing: testing.certPath },
+      { activeEnvironment: 'testing' },
+    );
+
+    expect(notices.map((notice) => notice.environment)).toEqual(['testing', 'produccion']);
+    expect(notices.every((notice) => !notice.expired)).toBe(true);
+  }, 10_000);
+
+  it('warns about the other environment even when the active certificate is fine', () => {
+    const testing = createSelfSignedCertificate(365);
+    const production = createSelfSignedCertificate(10);
+
+    const notices = inspectConfiguredCertificates(
+      { produccion: production.certPath, testing: testing.certPath },
+      { activeEnvironment: 'testing' },
+    );
+
+    expect(notices).toHaveLength(1);
+    expect(notices[0]).toMatchObject({ environment: 'produccion', expired: false });
+    expect(notices[0]?.summary).toMatch(/^El certificado de produccion vence el/);
+  }, 10_000);
+
+  it('uses the active certificate already read instead of reading its file again', () => {
+    const production = createSelfSignedCertificate(10);
+
+    const notices = inspectConfiguredCertificates(
+      { produccion: '/no/existe/cert.pem' },
+      { activeEnvironment: 'produccion', activePem: production.pem },
+    );
+
+    expect(notices).toHaveLength(1);
+    expect(notices[0]?.environment).toBe('produccion');
+  }, 10_000);
+
+  it('skips certificates that are not configured or cannot be read', () => {
+    expect(inspectConfiguredCertificates({}, { activeEnvironment: 'testing' })).toEqual([]);
+    expect(
+      inspectConfiguredCertificates({ produccion: '/no/existe/cert.pem' }, { activeEnvironment: 'testing' }),
+    ).toEqual([]);
   });
 });
 

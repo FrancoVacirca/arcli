@@ -315,6 +315,7 @@ function createConfig(settings: ReadonlyArray<readonly [string, string]>) {
 async function validate(args: readonly string[], settings: Example['config'] = []): Promise<void> {
   const config = createConfig(settings);
   const runtime = {
+    certificateNotices: [],
     config,
     context: { cert: 'CERT', cuit: Number(config.cuit), key: 'KEY', production: false },
     environment: 'testing' as const,

@@ -5,7 +5,7 @@ import type { GlobalCliOptions } from '../../cli/types';
 import { ConfigurationError } from '../../lib/errors/app-error';
 import { restrictFolderToOwner } from '../../lib/files/restrict-to-owner';
 import { ensurePathExists, readPemFile } from '../../lib/security/pem';
-import { type CertificateExpiryNotice, inspectCertificateExpiry } from '../../modules/config/certificate-expiry';
+import { type CertificateExpiryNotice, inspectConfiguredCertificates } from '../../modules/config/certificate-expiry';
 import type { ArcliConfig, ArcliEnvironment } from '../../modules/config/config.schemas';
 import { ConfigService } from '../../modules/config/config.service';
 
@@ -18,10 +18,12 @@ export interface ResolveArcaContextOptions {
 
 export interface ResolvedArcaRuntime {
   /**
-   * Solo si el certificado vence en menos de 30 dias o ya vencio. Se calcula una vez, con el PEM ya leido para el
-   * contexto: sin red ni otra lectura del archivo.
+   * El del entorno activo, solo si vence en menos de 30 dias o ya vencio: vencido, corta antes de ir a ARCA. Se
+   * calcula con el PEM ya leido para el contexto, sin red.
    */
   readonly certificateExpiry?: CertificateExpiryNotice;
+  /** Los avisos de todos los certificados configurados, el del entorno activo primero: los que se muestran. */
+  readonly certificateNotices: readonly CertificateExpiryNotice[];
   readonly config: ArcliConfig;
   readonly context: Context;
   readonly environment: ArcliEnvironment;
@@ -55,9 +57,15 @@ export class ArcaContextResolver {
   public resolve(): ResolvedArcaRuntime {
     const validation = this.validate();
     const cert = this.readRequiredFile(validation.certPath, 'certificado');
+    const certificateNotices = inspectConfiguredCertificates(validation.config.cert, {
+      activeEnvironment: validation.environment,
+      activePem: cert,
+      now: this.now,
+    });
 
     return {
-      certificateExpiry: inspectCertificateExpiry(cert, validation.environment, this.now),
+      certificateExpiry: certificateNotices.find((notice) => notice.environment === validation.environment),
+      certificateNotices,
       config: validation.config,
       context: {
         cert,

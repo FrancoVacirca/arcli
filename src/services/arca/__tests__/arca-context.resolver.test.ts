@@ -351,7 +351,34 @@ describe('arca-context.resolver', () => {
     }, 10_000);
 
     it('stays silent for a certificate far from expiring', () => {
-      expect(resolveWithCertificate(365).certificateExpiry).toBeUndefined();
+      const runtime = resolveWithCertificate(365);
+
+      expect(runtime.certificateExpiry).toBeUndefined();
+      expect(runtime.certificateNotices).toEqual([]);
+    }, 10_000);
+
+    it('also warns about the production certificate while working in testing', () => {
+      const cwd = createTempDirectory();
+      const testing = createSelfSignedCertificate(365);
+      const production = createSelfSignedCertificate(10);
+      const configService = createConfigService(cwd);
+
+      configService.setValue('cuit', '20123456789');
+      configService.setValue('cert.testing', testing.certPath);
+      configService.setValue('key.testing', testing.keyPath);
+      configService.setValue('cert.produccion', production.certPath);
+
+      try {
+        const runtime = new ArcaContextResolver({ configService }).resolve();
+
+        expect(runtime.environment).toBe('testing');
+        expect(runtime.certificateExpiry).toBeUndefined();
+        expect(runtime.certificateNotices).toEqual([
+          expect.objectContaining({ environment: 'produccion', expired: false }),
+        ]);
+      } finally {
+        configService.close();
+      }
     }, 10_000);
 
     it('does not invent a notice when the certificate cannot be parsed', () => {

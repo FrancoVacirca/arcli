@@ -45,7 +45,7 @@ Debajo del logo va la versión de ARCLI. Arriba del menú, la barra de estado mu
 
 La consulta es la misma de `arcli estado` sin el punto de venta (no pide autenticación) y se hace al abrir el asistente. **Si falta algo obligatorio** (CUIT, certificado y clave de testing o punto de venta), al abrir el asistente propone hacer la [configuración guiada](#configuración).
 
-**Certificado por vencer.** Si al certificado del entorno activo le quedan menos de 30 días, debajo de la barra va un recuadro amarillo con la fecha, los días que faltan y el link a la [guía para renovarlo](obtencion-certificados.md). Queda arriba de todo lo que hagas en la sesión. Si ya venció, el recuadro es rojo, la barra dice `certificado vencido` y `ARCA SIN VERIFICAR`, y emitir o consultar muestra el error `Certificado vencido` sin llegar a ARCA. La configuración sigue disponible para cargar el certificado nuevo.
+**Certificado por vencer.** Si a alguno de los certificados configurados (de testing o de producción, sin importar el entorno activo) le quedan menos de 30 días, debajo de la barra va un recuadro amarillo, con una línea por certificado, la fecha, los días que faltan y el link a la [guía para renovarlo](obtencion-certificados.md). Queda arriba de todo lo que hagas en la sesión. Si alguno ya venció, el recuadro es rojo. Si es el del entorno activo, además la barra dice `certificado vencido` y `ARCA SIN VERIFICAR`, y emitir o consultar muestra el error `Certificado vencido` sin llegar a ARCA. La configuración sigue disponible para cargar el certificado nuevo.
 
 ## Actualizar
 

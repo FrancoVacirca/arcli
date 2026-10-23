@@ -8,6 +8,7 @@ import { mapBillingResponse } from '../billing-response';
 
 function createRuntime(): ResolvedArcaRuntime {
   return {
+    certificateNotices: [],
     config: {
       cert: {},
       emisor: {},

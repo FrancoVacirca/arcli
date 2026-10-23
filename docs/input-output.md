@@ -266,7 +266,7 @@ ARCLI serializa un resumen del resultado. Con `--bruto` se agrega además el cam
 
 ### Aviso del certificado
 
-Si al certificado del entorno le quedan menos de 30 días, el aviso sale al principio del comando en **stderr** (stdout queda solo para el JSON) y, en los comandos de facturación, también como un texto más en `avisos`:
+Si a alguno de los certificados configurados (de testing o de producción, sin importar con cuál se trabaja) le quedan menos de 30 días, el aviso sale al principio del comando en **stderr** (stdout queda solo para el JSON) y, en los comandos de facturación, también como un texto más en `avisos`:
 
 ```json
 {
@@ -277,7 +277,7 @@ Si al certificado del entorno le quedan menos de 30 días, el aviso sale al prin
 }
 ```
 
-En texto sale solo el banner del principio, no se repite en el panel de avisos. Si ya venció, no hay resultado: sale el error [`CERTIFICATE_EXPIRED`](#certificado-vencido).
+En texto sale solo el banner del principio, no se repite en el panel de avisos. Si ya venció el del entorno que se usa, no hay resultado: sale el error [`CERTIFICATE_EXPIRED`](#certificado-vencido). Uno vencido de otro entorno solo se avisa.
 
 ### `estado` vs `resultado`
 
