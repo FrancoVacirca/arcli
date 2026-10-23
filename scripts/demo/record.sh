@@ -25,6 +25,10 @@ for dir in "$demo_home/Library/Preferences/arcli" "$demo_home/.config/arcli"; do
     const config = JSON.parse(fs.readFileSync(source, "utf8"));
     // Testing siempre, sin preguntar por el PDF, y reutilizando el ticket WSAA (rate limit).
     Object.assign(config, { entornoPorDefecto: "testing", pdf: "nunca", ticketPath: config.ticketPath ?? tickets });
+    // Sin las credenciales de produccion: la demo no las usa, y si ese certificado esta por vencer su aviso
+    // saldria en cada grabacion.
+    delete config.cert?.produccion;
+    delete config.key?.produccion;
     fs.writeFileSync(target, JSON.stringify(config, null, 2));
   ' "$config" "$dir/config.json" "$(dirname "$config")/tickets"
 done
