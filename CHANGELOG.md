@@ -8,6 +8,21 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ## [Sin publicar]
 
+## [2.1.0] - 2026-10-23
+
+Trae `arcli padron` y el IVA receptor desde el padrón al facturar con `--cuit`, el aviso de vencimiento del certificado y una guía para el punto de venta de web service. Además corrige un montón de cosas que salen de una revisión del repo: el JSON de `--cargar` se valida clave por clave, los errores con `--json` tienen siempre la misma forma, y los ejemplos de la ayuda y de los docs se pueden copiar y andan.
+
+Algunos cambios rompen scripts que dependían del comportamiento anterior. Revisá la sección "Cambiado":
+
+- **Exit code `2`** cuando ARCA rechaza un comprobante (antes, `0`).
+- **Validación estricta del JSON de `--cargar`:** una clave desconocida o con otro tipo ahora es error.
+- **Un array de un elemento en `--cargar`** sale como array.
+- **`--bruto`** agrega `respuesta` en lugar de reemplazar el resumen.
+- **`config revisar`** ya no recibe `--testing` ni `--produccion`.
+- **Los PDFs** se guardan en una subcarpeta por CUIT.
+
+Los comandos, los flags de facturación y las claves de config siguen siendo los mismos.
+
 ### Agregado
 
 - **`arcli padron <cuit>`:** nombre o razón social, domicilio fiscal, condición IVA, impuestos, categoría de monotributo y actividad de un CUIT, desde el padrón de ARCA (`ws_sr_constancia_inscripcion`). Con `--json` para scripts.
@@ -323,7 +338,8 @@ Primera versión publicada en npm.
 - `llms.txt`: referencia condensada para que un agente de IA con acceso a terminal ejecute el CLI.
 - Publicación con npm Trusted Publishers (OIDC).
 
-[Sin publicar]: https://github.com/LcsGrz/arcli/compare/v2.0.0...HEAD
+[Sin publicar]: https://github.com/LcsGrz/arcli/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/LcsGrz/arcli/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/LcsGrz/arcli/compare/v1.8.0...v2.0.0
 [1.8.0]: https://github.com/LcsGrz/arcli/compare/v1.7.1...v1.8.0
 [1.7.1]: https://github.com/LcsGrz/arcli/compare/v1.7.0...v1.7.1

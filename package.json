@@ -1,6 +1,6 @@
 {
   "name": "arcli",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "CLI para previsualizar y emitir comprobantes ARCA desde terminal, con validaciones claras y salida lista para automatizar",
   "keywords": [
     "arca",
