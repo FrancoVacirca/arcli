@@ -30,7 +30,6 @@
     ".": "./dist/cli/index.js"
   },
   "main": "./dist/cli/index.js",
-  "types": "./dist/cli/index.d.ts",
   "bin": {
     "arcli": "dist/cli/index.js"
   },

@@ -6,30 +6,7 @@
     "source.fixAll.eslint": "explicit"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.fontFamily": "FiraCode Nerd Font",
-  "editor.fontLigatures": true,
-  "editor.guides.bracketPairs": "active",
-  "editor.linkedEditing": true,
-  "editor.semanticHighlighting.enabled": true,
   "editor.formatOnSave": false,
-
-  // ===================
-  // Terminal
-  // ===================
-  "terminal.integrated.fontFamily": "FiraCode Nerd Font",
-  "terminal.integrated.fontLigatures.enabled": true,
-  "terminal.integrated.suggest.enabled": true,
-
-  // ===================
-  // Git
-  // ===================
-  "git.autofetch": true,
-  "git.confirmSync": false,
-
-  // ===================
-  // Extensiones
-  // ===================
-  "colorize.languages": ["typescript", "typescriptreact", "javascript", "javascriptreact", "css", "scss"],
 
   // ===================
   // ESLint
@@ -54,7 +31,7 @@
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
-    "package.json": "yarn.lock, tsconfig*.json, eslint.config.mjs, .prettierrc.cjs, vitest.config.ts, .npmignore, .gitignore",
+    "package.json": "yarn.lock, tsconfig*.json, eslint.config.mjs, .prettierrc.cjs, vitest.config.ts, .gitignore",
     "README.md": "AGENTS.md, CLAUDE.md, CONTRIBUTING.md, SECURITY.md, CHANGELOG.md, LICENSE, llms.txt"
   },
   // Generados que no se tocan nunca.

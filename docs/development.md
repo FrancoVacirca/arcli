@@ -129,7 +129,7 @@ Para desactivarlo: `"disableAllHooks": true` en `.claude/settings.local.json`, o
 
 Están en `docs/assets/demo/` y se regeneran con scripts para que no queden desactualizados:
 
-- **GIF** (`interactivo.gif`, `consultar.gif`, `comandos.gif`) y **video promocional** (`promo.mp4`, 16:9 para redes): los graba [VHS](https://github.com/charmbracelet/vhs) a partir de los guiones de `docs/assets/tapes/`. `scripts/demo/record.sh` usa un `HOME` temporal con una copia de tu config sin las credenciales de producción, así la grabación no muestra tus rutas ni el aviso de vencimiento de ese certificado, y **emite comprobantes reales en testing**.
+- **GIF** (`interactivo.gif`, `consultar.gif`, `comandos.gif`) y **video promocional** (`promo.mp4`, 16:9 para redes): los graba [VHS](https://github.com/charmbracelet/vhs) a partir de los guiones de `docs/assets/tapes/`. `scripts/demo/record.sh` usa un `HOME` temporal con una copia de tu config sin las credenciales de producción, así la grabación no muestra tus rutas ni el aviso de vencimiento de ese certificado, y **emite comprobantes reales en testing**. Es para quien mantiene el repo: la grabación muestra el CUIT de esa config, que es el del certificado de testing.
 
   ```bash
   brew install vhs

@@ -8,10 +8,10 @@
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
         "allowSyntheticDefaultImports": true,
-        "declaration": true,
+        "declaration": false,
         "rootDir": "./src",
         "outDir": "./dist",
-        "sourceMap": true,
+        "sourceMap": false,
         "resolveJsonModule": true,
         "types": ["node"]
     },
