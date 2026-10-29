@@ -12,8 +12,8 @@ import type { GlobalCliOptions } from './types';
  */
 export function registerEnvironmentOptions(command: Command): Command {
   return command
-    .option('--testing', 'usar entorno de testing en esta ejecucion')
-    .option('--produccion', 'usar entorno de produccion en esta ejecucion');
+    .option('--testing', 'usar entorno de testing en esta ejecución')
+    .option('--produccion', 'usar entorno de producción en esta ejecución');
 }
 
 export function registerJsonOption(command: Command): Command {

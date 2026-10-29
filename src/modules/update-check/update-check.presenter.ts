@@ -11,7 +11,7 @@ const MAX_CHANGES_PER_ENTRY = 6;
 
 export function renderUpdateNoticePanel(result: UpdateCheckResult): string {
   return noticePanel(
-    `Nueva version disponible: ${result.latestVersion} (actual: ${result.currentVersion})\n` +
+    `Nueva versión disponible: ${result.latestVersion} (actual: ${result.currentVersion})\n` +
       `Actualiza con: ${UPDATE_COMMAND}`,
     'info',
     'info',
@@ -52,7 +52,7 @@ function formatChanges(changes: readonly ChangelogChange[]): string[] {
   const lines = changes.slice(0, MAX_CHANGES_PER_ENTRY).map(formatChange);
   const hidden = changes.length - MAX_CHANGES_PER_ENTRY;
 
-  return hidden > 0 ? [...lines, colorize(`${CHANGE_INDENT}y ${hidden} cambio(s) mas`, 'muted')] : lines;
+  return hidden > 0 ? [...lines, colorize(`${CHANGE_INDENT}y ${hidden} cambio(s) más`, 'muted')] : lines;
 }
 
 function formatChangelog(entries: readonly ChangelogEntry[] | undefined): string[] {
@@ -72,7 +72,7 @@ function formatChangelog(entries: readonly ChangelogEntry[] | undefined): string
   const hidden = entries.length - MAX_CHANGELOG_ENTRIES;
 
   if (hidden > 0) {
-    lines.push('', colorize(`Y ${hidden} version(es) mas en ${CHANGELOG_PAGE_URL}`, 'muted'));
+    lines.push('', colorize(`Y ${hidden} versión(es) más en ${CHANGELOG_PAGE_URL}`, 'muted'));
   }
 
   return lines;
@@ -83,13 +83,13 @@ export function renderUpdateDetails(result: UpdateCheckResult, entries: readonly
   const versions = renderPanel({
     borderType: 'sheet',
     content: [
-      `Tu version      ${result.currentVersion}`,
-      `Nueva version   ${colorize(bold(result.latestVersion), 'highlight')}`,
+      `Tu versión      ${result.currentVersion}`,
+      `Nueva versión   ${colorize(bold(result.latestVersion), 'highlight')}`,
       '',
       bold('NOVEDADES'),
       ...formatChangelog(entries),
     ],
-    title: 'Actualizacion disponible',
+    title: 'Actualización disponible',
     width: 'wide',
   });
   const howTo = renderPanel({

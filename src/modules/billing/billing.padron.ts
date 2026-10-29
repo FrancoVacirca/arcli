@@ -11,7 +11,7 @@ export interface PadronResolution {
 }
 
 const MISSING_IVA_HINT =
-  'Use --ir <tipo> o un flag --ir-*, o configure uno por defecto con "arcli config establecer ivaReceptor <tipo>".';
+  'Usá --ir <tipo> o un flag --ir-*, o configurá uno por defecto con "arcli config establecer ivaReceptor <tipo>".';
 
 /** Hay que consultar el padron: un CUIT sin IVA receptor explicito (vino de la config o falta). */
 export function needsPadronLookup(input: BillingCommandInput): boolean {
@@ -58,11 +58,11 @@ export async function resolveIvaConditionFromPadron(
   } catch (error) {
     const message = error instanceof Error ? error.message.replace(/\.$/, '') : 'error desconocido';
 
-    return fallBack(input, `No se pudo consultar el padron de ARCA (${message})`, lookupErrorHint(error));
+    return fallBack(input, `No se pudo consultar el padrón de ARCA (${message})`, lookupErrorHint(error));
   }
 
   if (!taxpayer) {
-    return fallBack(input, `El CUIT ${cuit} no figura en el padron de ARCA`);
+    return fallBack(input, `El CUIT ${cuit} no figura en el padrón de ARCA`);
   }
 
   const fromPadron = [
@@ -77,7 +77,7 @@ export async function resolveIvaConditionFromPadron(
   };
 
   if (!taxpayer.ivaCondition) {
-    return fallBack(withReceiver, `El padron de ARCA no informa la condicion IVA del CUIT ${cuit}`);
+    return fallBack(withReceiver, `El padrón de ARCA no informa la condición IVA del CUIT ${cuit}`);
   }
 
   return {

@@ -54,7 +54,7 @@ export function registerPdfCommand(program: Command): void {
   configureSpanishHelp(pdfCommand);
 
   const estadoCommand = registerJsonOption(
-    pdfCommand.command('estado').description('mostrar si el plugin esta instalado, su version y el navegador que usa'),
+    pdfCommand.command('estado').description('mostrar si el plugin está instalado, su versión y el navegador que usa'),
   ).action((_options: unknown, command: Command) => printStatus(createContext(command)));
   configureSpanishHelp(estadoCommand);
 

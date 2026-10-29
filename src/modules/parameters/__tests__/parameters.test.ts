@@ -23,7 +23,7 @@ describe('parameters', () => {
   it('keeps only entries still valid today', () => {
     const entries = [
       { description: 'vigente', id: '1' },
-      { description: 'vence despues', id: '2', validTo: '20271231' },
+      { description: 'vence después', id: '2', validTo: '20271231' },
       { description: 'vencida', id: '3', validTo: '20200101' },
     ];
 
@@ -86,9 +86,9 @@ describe('buildStatusReport', () => {
     ]);
     expect([blocked.ready, missing.ready, unset.ready]).toEqual([false, false, false]);
     expect(formatStatusAsText(missing)).toContain('arcli parametros puntos-venta');
-    expect(formatStatusAsText(missing)).toContain('Factura en linea');
+    expect(formatStatusAsText(missing)).toContain('Factura en línea');
     expect(formatStatusAsText(missing)).toContain('#punto-de-venta-para-web-service');
-    expect(formatStatusAsText(blocked)).not.toContain('Factura en linea');
+    expect(formatStatusAsText(blocked)).not.toContain('Factura en línea');
   });
 
   it('is not ready when a server is down and measures latency', async () => {

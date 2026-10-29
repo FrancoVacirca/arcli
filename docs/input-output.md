@@ -54,7 +54,7 @@ arcli fc --cargar ./voucher.json
 Cada objeto se valida contra esta lista antes de mezclarlo con los flags y la config:
 
 - **Una clave que no está en las tablas es un error** (`INPUT_VALIDATION_ERROR`) que la nombra y, si se parece a una válida o a un flag, sugiere la correcta: `"montototal"` → `montoTotal`, `"vencimiento"` → `vencimientoPago`, `"moneda"` → `codigoMoneda`. Vale también dentro de `comprobanteAsociado`, `periodoAsociado` y cada ítem de `alicuotas`.
-- **Un tipo incorrecto es un error**, no se descarta: `"puntoVenta": "3"` falla con "tiene que ser un numero". Los números van sin comillas y los booleanos son `true` o `false`, no `"true"`. `null` tampoco vale: para no informar un campo, omití la clave. La única clave que acepta texto o número es la tasa de IVA (`alicuotaIva` y `tasa` en `alicuotas`).
+- **Un tipo incorrecto es un error**, no se descarta: `"puntoVenta": "3"` falla con "tiene que ser un número". Los números van sin comillas y los booleanos son `true` o `false`, no `"true"`. `null` tampoco vale: para no informar un campo, omití la clave. La única clave que acepta texto o número es la tasa de IVA (`alicuotaIva` y `tasa` en `alicuotas`).
 - En un lote, cada ítem se valida por separado y el error sale en `BATCH_VALIDATION_ERROR` con su índice (ver [abajo](#validación-y-errores-del-lote)). Un array vacío también es error.
 
 Con un solo comprobante, `detalles.campos` lista cada problema con su ruta en el JSON:
@@ -65,7 +65,7 @@ Con un solo comprobante, `detalles.campos` lista cada problema con su ruta en el
   "detalles": {
     "campos": [
       {
-        "mensaje": "\"puntoVenta\" tiene que ser un numero y llego el texto \"3\". Escribilo sin comillas.",
+        "mensaje": "\"puntoVenta\" tiene que ser un número y llegó el texto \"3\". Escribilo sin comillas.",
         "ruta": ["puntoVenta"]
       },
       { "mensaje": "La clave \"vencimiento\" no existe: ¿quisiste decir \"vencimientoPago\"?", "ruta": ["vencimiento"] }
@@ -207,7 +207,7 @@ Si el archivo contiene un array, ARCLI procesa un lote del mismo comando. **Un a
       }
     ]
   },
-  "error": "2 de 4 comprobantes del lote tienen errores. No se emitio ninguno.\n\n#2: ...",
+  "error": "2 de 4 comprobantes del lote tienen errores. No se emitió ninguno.\n\n#2: ...",
   "sugerencia": null
 }
 ```
@@ -216,7 +216,7 @@ Si el archivo contiene un array, ARCLI procesa un lote del mismo comando. **Un a
 {
   "codigo": "BATCH_EMISSION_ERROR",
   "detalles": { "fallo": 3, "procesados": 2, "sinConfirmar": 3, "sinProcesar": [4], "total": 4 },
-  "error": "El lote se interrumpio en el comprobante #3: ...\nProcesados: 2 de 4. Sin procesar: #4.\nEl #3 puede haberse emitido: verifiquelo con \"arcli ultimos\" antes de reintentarlo.",
+  "error": "El lote se interrumpió en el comprobante #3: ...\nProcesados: 2 de 4. Sin procesar: #4.\nEl #3 puede haberse emitido: verificalo con \"arcli ultimos\" antes de reintentarlo.",
   "sugerencia": null
 }
 ```
@@ -272,7 +272,7 @@ Si a alguno de los certificados configurados (de testing o de producción, sin i
 ```json
 {
   "avisos": [
-    "El certificado de produccion vence el 20/11/2026 (en 10 días). Renovalo: https://github.com/LcsGrz/arcli/blob/main/docs/obtencion-certificados.md"
+    "El certificado de producción vence el 20/11/2026 (en 10 días). Renovalo: https://github.com/LcsGrz/arcli/blob/main/docs/obtencion-certificados.md"
   ],
   "...": "..."
 }
@@ -569,7 +569,7 @@ Las claves son las de [configuración](configuration.md), salvo que `cert.*`, `k
     {
       "categoria": "error",
       "detalle": "Falta el CUIT. Configurelo con \"arcli config establecer cuit <valor>\". Si quiere una guia rapida, use \"arcli config revisar\".",
-      "etiqueta": "Validacion testing"
+      "etiqueta": "Validación testing"
     }
   ],
   "ok": false
@@ -670,13 +670,13 @@ Cuando el error viene de Zod o de validación de entrada:
 
 ### Errores JSON de uso
 
-Una opción desconocida, un valor faltante o un comando que no existe también sale en JSON cuando corresponde (`--json` o `json=true` en la config), con exit code `1`. El mensaje es el de commander, en una sola línea. `--ayuda` y `--version` no son errores.
+Una opción desconocida, un valor faltante o un comando que no existe también sale en JSON cuando corresponde (`--json` o `json=true` en la config), con exit code `1`. El mensaje es el de commander traducido al español, en una sola línea. `--ayuda` y `--version` no son errores.
 
 ```json
 {
   "codigo": "INPUT_VALIDATION_ERROR",
   "detalles": null,
-  "error": "unknown option '--montoo' (Did you mean --monto?)",
+  "error": "opción desconocida '--montoo' (¿quisiste decir --monto?)",
   "sugerencia": "Usá \"arcli ayuda\" o \"arcli <comando> --ayuda\" para ver comandos y opciones."
 }
 ```
@@ -698,7 +698,7 @@ Si el `config.json` tiene JSON inválido, sale con el mismo código, la ruta del
 {
   "codigo": "CONFIGURATION_ERROR",
   "detalles": { "ruta": "/Users/ana/Library/Preferences/arcli/config.json" },
-  "error": "El archivo de configuracion tiene JSON invalido y no se puede leer.",
+  "error": "El archivo de configuración tiene JSON inválido y no se puede leer.",
   "sugerencia": "Corregilo a mano, o renombralo (por ejemplo, a config.json.bak) y volve a cargar los datos con `arcli config establecer` o desde \"Configuracion\" en `arcli`. ARCLI no lo borra ni lo pisa."
 }
 ```

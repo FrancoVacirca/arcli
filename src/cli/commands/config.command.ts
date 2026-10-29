@@ -49,7 +49,7 @@ export function buildRuntimeChecks(config: ArcliConfig): ConfigDoctorRuntimeChec
     } catch (error) {
       return {
         environment,
-        error: error instanceof Error ? error.message : 'No se pudo completar la validacion.',
+        error: error instanceof Error ? error.message : 'No se pudo completar la validación.',
       };
     }
   });
@@ -58,7 +58,7 @@ export function buildRuntimeChecks(config: ArcliConfig): ConfigDoctorRuntimeChec
 export function registerConfigCommand(program: Command): void {
   const configCommand = program
     .command('config')
-    .description('guardar defaults, credenciales y revisar si el CLI esta listo para emitir');
+    .description('guardar defaults, credenciales y revisar si el CLI está listo para emitir');
 
   configureSpanishHelp(configCommand);
 
@@ -82,7 +82,7 @@ export function registerConfigCommand(program: Command): void {
 
   const revisarCommand = configCommand
     .command('revisar')
-    .description('revisar configuracion, defaults, credenciales y validacion de cada entorno')
+    .description('revisar configuración, defaults, credenciales y validación de cada entorno')
     .action((_options: unknown, command: Command) => {
       const service = createConfigService();
       let spinner: ReturnType<typeof startSpinner> = null;
@@ -90,7 +90,7 @@ export function registerConfigCommand(program: Command): void {
       try {
         const config = service.getConfig();
         const useJson = resolveOutputJson(command, config);
-        spinner = useJson ? null : startSpinner('Generando revision...');
+        spinner = useJson ? null : startSpinner('Generando revisión...');
         const report = buildConfigDoctorReport(config, buildRuntimeChecks(config));
         spinner?.stop();
         printConfigResult(formatConfigDoctorAsText(report), formatConfigDoctor(report), useJson);
@@ -105,7 +105,7 @@ export function registerConfigCommand(program: Command): void {
   configureSpanishHelp(revisarCommand);
 
   const rutaCommand = registerJsonOption(
-    configCommand.command('ruta').description('mostrar la ruta del archivo de configuracion'),
+    configCommand.command('ruta').description('mostrar la ruta del archivo de configuración'),
   ).action((_options: unknown, command: Command) => {
     const service = createConfigService();
 
@@ -125,8 +125,8 @@ export function registerConfigCommand(program: Command): void {
 
   const establecerCommand = configCommand
     .command('establecer')
-    .description('guardar un valor de configuracion')
-    .argument('<clave>', 'clave publica de configuracion')
+    .description('guardar un valor de configuración')
+    .argument('<clave>', 'clave publica de configuración')
     .argument('<valor>', 'valor a guardar')
     .addHelpText('after', createConfigSetHelp())
     .action((key: string, value: string, _options: unknown, command: Command) => {
@@ -150,8 +150,8 @@ export function registerConfigCommand(program: Command): void {
 
   const eliminarCommand = configCommand
     .command('eliminar')
-    .description('eliminar un valor de configuracion')
-    .argument('<clave>', 'clave publica de configuracion')
+    .description('eliminar un valor de configuración')
+    .argument('<clave>', 'clave publica de configuración')
     .action((key: string, _options: unknown, command: Command) => {
       // Sin ensureInitialized: si la config quedo invalida, establecer o eliminar la clave es la forma de arreglarla.
       const service = new ConfigService();

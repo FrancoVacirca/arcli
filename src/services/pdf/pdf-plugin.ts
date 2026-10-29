@@ -184,12 +184,12 @@ export class PdfPlugin {
 
       if (result.code !== 0) {
         const message = result.timedOut
-          ? `La instalacion de ${PDF_PLUGIN_PACKAGE} ${describeTimeout(NPM_INSTALL_TIMEOUT_MS)}.`
+          ? `La instalación de ${PDF_PLUGIN_PACKAGE} ${describeTimeout(NPM_INSTALL_TIMEOUT_MS)}.`
           : `npm no pudo instalar ${PDF_PLUGIN_PACKAGE}.`;
 
         throw new PdfError('PDF_PLUGIN_INSTALL_ERROR', message, {
           details: { salida: lastLines(result.output) },
-          suggestion: 'Revise la conexion a internet o el proxy de npm y vuelva a correr `arcli pdf instalar`.',
+          suggestion: 'Revisá la conexión a internet o el proxy de npm y volvé a correr `arcli pdf instalar`.',
         });
       }
     }
@@ -217,7 +217,7 @@ export class PdfPlugin {
         throw new PdfError('PDF_PLUGIN_INSTALL_ERROR', message, {
           details: { salida: lastLines(result.output) },
           suggestion:
-            'Si ya tiene Chrome, Chromium o Edge, indique su ruta con `arcli config establecer pdfNavegador <ruta>`.',
+            'Si ya tiene Chrome, Chromium o Edge, indicá su ruta con `arcli config establecer pdfNavegador <ruta>`.',
         });
       }
     }
@@ -236,7 +236,7 @@ export class PdfPlugin {
       throw new PdfError(
         'PDF_PLUGIN_MISSING',
         installedVersion
-          ? `El plugin de PDF esta en la version ${installedVersion} y arcli usa la ${PDF_PLUGIN_VERSION}.`
+          ? `El plugin de PDF está en la versión ${installedVersion} y arcli usa la ${PDF_PLUGIN_VERSION}.`
           : 'Para generar PDFs falta instalar el plugin de PDF.',
         { suggestion: PDF_INSTALL_SUGGESTION },
       );
@@ -245,8 +245,8 @@ export class PdfPlugin {
     const browser = this.resolveBrowser();
 
     if (!browser) {
-      throw new PdfError('PDF_PLUGIN_MISSING', 'No se encontro un navegador para generar PDFs.', {
-        suggestion: `${PDF_INSTALL_SUGGESTION} Descarga uno, o indique Chrome con \`arcli config establecer pdfNavegador <ruta>\`.`,
+      throw new PdfError('PDF_PLUGIN_MISSING', 'No se encontró un navegador para generar PDFs.', {
+        suggestion: `${PDF_INSTALL_SUGGESTION} Descarga uno, o indicá Chrome con \`arcli config establecer pdfNavegador <ruta>\`.`,
       });
     }
 
@@ -264,7 +264,7 @@ export class PdfPlugin {
           throw new PdfError(
             'PDF_GENERATION_ERROR',
             `No se pudo generar el PDF: ${error instanceof Error ? error.message : String(error)}`,
-            { suggestion: 'Si el navegador falla, pruebe con otro: `arcli config establecer pdfNavegador <ruta>`.' },
+            { suggestion: 'Si el navegador falla, probá con otro: `arcli config establecer pdfNavegador <ruta>`.' },
           );
         }
       },

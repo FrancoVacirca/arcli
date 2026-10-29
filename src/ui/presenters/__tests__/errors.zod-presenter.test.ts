@@ -9,7 +9,7 @@ function parseAndGetError(input: unknown): ZodError {
   const result = billingCommandSchema.safeParse(input);
 
   if (result.success) {
-    throw new Error('se esperaba que la validacion fallara');
+    throw new Error('se esperaba que la validación fallara');
   }
 
   return result.error;
@@ -48,7 +48,7 @@ describe('errors.zod-presenter', () => {
 
     expect(formatZodError(error, false)).toContain('Tipo de documento tiene un valor no soportado.');
     expect(stripAnsi(formatZodError(error, false)).replace(/[│┃\s]+/g, ' ')).toContain(
-      'Valores validos: consumidor-final, cuil, cuit, dni.',
+      'Valores válidos: consumidor-final, cuil, cuit, dni.',
     );
   });
 

@@ -174,9 +174,9 @@ En la práctica, siempre necesitás:
 
 | Flag                    | Alias         | Tipo                                                                                                                                                                                                                                                                                                     | Valor por defecto    | Descripción                                       |
 | ----------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------- |
-| `--cuit <number>`       | ninguno       | `string`                                                                                                                                                                                                                                                                                                 | ninguno              | CUIT del receptor: 11 dígitos, con o sin guiones  |
-| `--cuil <number>`       | ninguno       | `string`                                                                                                                                                                                                                                                                                                 | ninguno              | CUIL del receptor: 11 dígitos, con o sin guiones  |
-| `--dni <number>`        | ninguno       | `string`                                                                                                                                                                                                                                                                                                 | ninguno              | DNI del receptor: 7 u 8 dígitos, con o sin puntos |
+| `--cuit <numero>`       | ninguno       | `string`                                                                                                                                                                                                                                                                                                 | ninguno              | CUIT del receptor: 11 dígitos, con o sin guiones  |
+| `--cuil <numero>`       | ninguno       | `string`                                                                                                                                                                                                                                                                                                 | ninguno              | CUIL del receptor: 11 dígitos, con o sin guiones  |
+| `--dni <numero>`        | ninguno       | `string`                                                                                                                                                                                                                                                                                                 | ninguno              | DNI del receptor: 7 u 8 dígitos, con o sin puntos |
 | `--consumidor-final`    | `--cfinal`    | `boolean`                                                                                                                                                                                                                                                                                                | `false`              | Usa consumidor final con documento `0`            |
 | `--iva-receptor <tipo>` | `--ir <tipo>` | `'cliente-del-exterior' \| 'consumidor-final' \| 'iva-liberado' \| 'iva-no-alcanzado' \| 'monotributista-social' \| 'monotributo-trabajador-independiente-promovido' \| 'proveedor-del-exterior' \| 'responsable-inscripto' \| 'responsable-monotributo' \| 'sujeto-exento' \| 'sujeto-no-categorizado'` | `config.ivaReceptor` | Condición IVA del receptor                        |
 | `--ir-ce`               | ninguno       | `boolean`                                                                                                                                                                                                                                                                                                | `false`              | Cliente del exterior                              |
@@ -206,21 +206,21 @@ En casi todos los casos te va a interesar mirar primero:
 
 | Flag                           | Alias           | Tipo                                                  | Valor por defecto                        | Descripción                                      |
 | ------------------------------ | --------------- | ----------------------------------------------------- | ---------------------------------------- | ------------------------------------------------ |
-| `--cargar <path>`              | ninguno         | `string`                                              | ninguno                                  | Carga datos base desde un archivo JSON           |
-| `--monto <number>`             | `-m`            | `number`                                              | requerido                                | Importe total del comprobante                    |
+| `--cargar <ruta>`              | ninguno         | `string`                                              | ninguno                                  | Carga datos base desde un archivo JSON           |
+| `--monto <numero>`             | `-m`            | `number`                                              | requerido                                | Importe total del comprobante                    |
 | `--alicuota <tasa>`            | ninguno         | `'0' \| '2.5' \| '5' \| '10.5' \| '21' \| '27'`       | `config.alicuota` o `21`                 | Alícuota de IVA (solo `A` y `B`)                 |
 | `--alicuota <tasa>:<monto>`    | ninguno         | repetible                                             | ninguno                                  | Varias alícuotas: monto con IVA de cada una      |
-| `--exento <number>`            | ninguno         | `number`                                              | `0`                                      | Parte exenta del monto (solo `A` y `B`)          |
-| `--nogravado <number>`         | ninguno         | `number`                                              | `0`                                      | Parte no gravada del monto (solo `A` y `B`)      |
+| `--exento <numero>`            | ninguno         | `number`                                              | `0`                                      | Parte exenta del monto (solo `A` y `B`)          |
+| `--nogravado <numero>`         | ninguno         | `number`                                              | `0`                                      | Parte no gravada del monto (solo `A` y `B`)      |
 | `--fecha <fecha>`              | `-f`            | `string`                                              | hoy                                      | Fecha del comprobante                            |
-| `--dia <number>`               | `-d`            | `integer`                                             | ninguno                                  | Día de vencimiento o referencia del servicio     |
-| `--punto-venta <number>`       | `--pv`          | `integer`                                             | `config.puntoVenta`                      | Punto de venta                                   |
+| `--dia <numero>`               | `-d`            | `integer`                                             | ninguno                                  | Día de vencimiento o referencia del servicio     |
+| `--punto-venta <numero>`       | `--pv`          | `integer`                                             | `config.puntoVenta`                      | Punto de venta                                   |
 | `--concepto <tipo>`            | `-c`            | `'productos' \| 'servicios' \| 'productos-servicios'` | `config.concepto`                        | `productos`, `servicios` o `productos-servicios` |
 | `--cs`                         | ninguno         | `boolean`                                             | `false`                                  | Equivale a `--concepto servicios`                |
 | `--cp`                         | ninguno         | `boolean`                                             | `false`                                  | Equivale a `--concepto productos`                |
 | `--csp`                        | ninguno         | `boolean`                                             | `false`                                  | Equivale a `--concepto productos-servicios`      |
 | `--moneda <codigo>`            | `--mda`         | `'ARS' \| 'USD' \| string(3)`                         | `config.moneda` o `ARS`                  | Moneda del comprobante                           |
-| `--cotizacion-moneda <number>` | `--cm`          | `number`                                              | `config.cotizacion` o `1`                | Cotización de la moneda                          |
+| `--cotizacion-moneda <numero>` | `--cm`          | `number`                                              | `config.cotizacion` o `1`                | Cotización de la moneda                          |
 | `--misma-moneda`               | ninguno         | `boolean`                                             | `false`                                  | El pago se cancela en la moneda extranjera       |
 | `--servicio-desde <fecha>`     | `--sd <fecha>`  | `string`                                              | ninguno                                  | Fecha de inicio del servicio                     |
 | `--servicio-hasta <fecha>`     | `--sh <fecha>`  | `string`                                              | ninguno                                  | Fecha de fin del servicio                        |
@@ -250,10 +250,10 @@ Dicho más directo: **no aplican a `factura`, `factura-credito-electronica`, `fa
 | Flag                              | Alias            | Tipo         | Valor por defecto | Descripción                        |
 | --------------------------------- | ---------------- | ------------ | ----------------- | ---------------------------------- |
 | `--ac <atajo>`                    | ninguno          | `string`     | ninguno           | Atajo del comprobante asociado     |
-| `--at <number>`                   | ninguno          | `integer`    | ninguno           | Tipo ARCA del comprobante asociado |
-| `--asociado-punto-venta <number>` | `--apv <number>` | `integer`    | ninguno           | Punto de venta del asociado        |
-| `--ar <number>`                   | ninguno          | `integer`    | ninguno           | Número del comprobante asociado    |
-| `--acuit <number>`                | ninguno          | `string(11)` | ninguno           | CUIT del comprobante asociado      |
+| `--at <numero>`                   | ninguno          | `integer`    | ninguno           | Tipo ARCA del comprobante asociado |
+| `--asociado-punto-venta <numero>` | `--apv <numero>` | `integer`    | ninguno           | Punto de venta del asociado        |
+| `--ar <numero>`                   | ninguno          | `integer`    | ninguno           | Número del comprobante asociado    |
+| `--acuit <numero>`                | ninguno          | `string(11)` | ninguno           | CUIT del comprobante asociado      |
 | `--afecha <fecha>`                | ninguno          | `string`     | ninguno           | Fecha del comprobante asociado     |
 | `--periodo-desde <fecha>`         | `--pd <fecha>`   | `string`     | ninguno           | Inicio del período asociado        |
 | `--periodo-hasta <fecha>`         | `--ph <fecha>`   | `string`     | ninguno           | Fin del período asociado           |
@@ -358,14 +358,14 @@ arcli fa -m 1 --cs --cuit 20168598204 --ir-ri
 
 | Parámetro                                                                       | Alias           | Tipo                                                  | Requerido   | Cuándo usarlo                                 |
 | ------------------------------------------------------------------------------- | --------------- | ----------------------------------------------------- | ----------- | --------------------------------------------- |
-| `--monto <number>`                                                              | `-m`            | `number`                                              | Sí          | Siempre                                       |
+| `--monto <numero>`                                                              | `-m`            | `number`                                              | Sí          | Siempre                                       |
 | `--concepto <tipo>`                                                             | `-c`            | `'productos' \| 'servicios' \| 'productos-servicios'` | Sí          | Siempre                                       |
 | `--cs`, `--cp`, `--csp`                                                         | ninguno         | `boolean`                                             | Condicional | Si preferís el atajo en lugar de `--concepto` |
-| `--cuit <number>` / `--cuil <number>` / `--dni <number>` / `--consumidor-final` | `--cfinal`      | `string` / `boolean`                                  | Sí          | Siempre, una sola identidad                   |
+| `--cuit <numero>` / `--cuil <numero>` / `--dni <numero>` / `--consumidor-final` | `--cfinal`      | `string` / `boolean`                                  | Sí          | Siempre, una sola identidad                   |
 | `--iva-receptor <tipo>` / `--ir <tipo>` / `--ir-*`                              | ninguno         | unión de IVA receptor o `boolean`                     | Sí          | Siempre, una sola forma de IVA receptor       |
-| `--punto-venta <number>`                                                        | `--pv <number>` | `integer`                                             | Condicional | Si no está en config                          |
+| `--punto-venta <numero>`                                                        | `--pv <numero>` | `integer`                                             | Condicional | Si no está en config                          |
 | `--fecha <fecha>`                                                               | `-f`            | `string`                                              | No          | Si querés fijar una fecha específica          |
-| `--dia <number>`                                                                | `-d`            | `integer`                                             | Condicional | Si el concepto usa servicio                   |
+| `--dia <numero>`                                                                | `-d`            | `integer`                                             | Condicional | Si el concepto usa servicio                   |
 | `--servicio-desde <fecha>`                                                      | `--sd <fecha>`  | `string`                                              | Condicional | Si el concepto usa servicio                   |
 | `--servicio-hasta <fecha>`                                                      | `--sh <fecha>`  | `string`                                              | Condicional | Si el concepto usa servicio                   |
 | `--vencimiento <fecha>`                                                         | `--vto <fecha>` | `string`                                              | No          | Servicios y facturas FCE                      |
@@ -426,10 +426,10 @@ El período no puede terminar después de la fecha de la nota. Las notas FCE no 
 | Parámetro                         | Alias            | Tipo         | Requerido   | Cuándo usarlo                                                       |
 | --------------------------------- | ---------------- | ------------ | ----------- | ------------------------------------------------------------------- |
 | `--ac <atajo>`                    | ninguno          | `string`     | Condicional | Si querés identificar el asociado por shortcut                      |
-| `--at <number>`                   | ninguno          | `integer`    | Condicional | Si querés identificar el asociado por tipo ARCA                     |
-| `--asociado-punto-venta <number>` | `--apv <number>` | `integer`    | Condicional | Con `--ac`/`--at`                                                   |
-| `--ar <number>`                   | ninguno          | `integer`    | Condicional | Con `--ac`/`--at`                                                   |
-| `--acuit <number>`                | ninguno          | `string(11)` | Condicional | Con `--ac`/`--at`; no con período; en NC/ND FCE toma el CUIT emisor |
+| `--at <numero>`                   | ninguno          | `integer`    | Condicional | Si querés identificar el asociado por tipo ARCA                     |
+| `--asociado-punto-venta <numero>` | `--apv <numero>` | `integer`    | Condicional | Con `--ac`/`--at`                                                   |
+| `--ar <numero>`                   | ninguno          | `integer`    | Condicional | Con `--ac`/`--at`                                                   |
+| `--acuit <numero>`                | ninguno          | `string(11)` | Condicional | Con `--ac`/`--at`; no con período; en NC/ND FCE toma el CUIT emisor |
 
 ### Factura de crédito electrónica `A`, `B` y `C`
 
@@ -594,7 +594,7 @@ Al facturar con `--cuit` sin `--ir` (ni `ivaReceptor` en el JSON), ARCLI consult
 | El padrón no responde o no informa la condición | Se usa `ivaReceptor` de la config, con un aviso en `avisos` |
 | Lo mismo, sin `ivaReceptor` en la config        | Error `INPUT_VALIDATION_ERROR`: indicala con `--ir`         |
 
-Para no consultarlo: `arcli config establecer consultarPadron false`. El modo interactivo hace la misma consulta al cargar un CUIT y propone esa condición, marcada "(segun el padron)".
+Para no consultarlo: `arcli config establecer consultarPadron false`. El modo interactivo hace la misma consulta al cargar un CUIT y propone esa condición, marcada "(según el padrón)".
 
 ## Autocompletado
 
@@ -624,7 +624,7 @@ Comandos `config` y claves disponibles: [Configuración](configuration.md).
 
 ## Estabilidad
 
-Todos los comandos de esta referencia son estables, salvo `storybook`, una herramienta interna de desarrollo.
+Todos los comandos de esta referencia son estables, salvo `storybook`, una herramienta interna de desarrollo que no aparece en la ayuda ni en `llms.txt`.
 
 ## Ver también
 

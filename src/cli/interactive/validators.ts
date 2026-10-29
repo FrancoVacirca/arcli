@@ -5,7 +5,7 @@ import { EXCHANGE_RATE_DECIMALS, parseArgentineAmount } from '../../lib/numbers/
 export function validateAmount(value: string): string | true {
   const result = parseArgentineAmount(value);
 
-  return result.ok ? true : `Monto invalido: ${result.reason}. Por ejemplo 150000, 150.000 o 1.500,50.`;
+  return result.ok ? true : `Monto inválido: ${result.reason}. Por ejemplo 150000, 150.000 o 1.500,50.`;
 }
 
 export function validateCuit(value: string): string | true {
@@ -32,7 +32,7 @@ export function validateDate(value: string): string | true {
 
     return true;
   } catch {
-    return 'Fecha invalida. Usa D/M/AAAA, D/M o solo el dia (por ejemplo 15/10).';
+    return 'Fecha inválida. Usa D/M/AAAA, D/M o solo el día (por ejemplo 15/10).';
   }
 }
 
@@ -45,8 +45,8 @@ export function validateExchangeRate(value: string): string | true {
   const result = parseArgentineAmount(value, { maxDecimals: EXCHANGE_RATE_DECIMALS });
 
   if (!result.ok) {
-    return `Cotizacion invalida: ${result.reason}. Por ejemplo 1200 o 1.185,50.`;
+    return `Cotización inválida: ${result.reason}. Por ejemplo 1200 o 1.185,50.`;
   }
 
-  return result.value !== 1 ? true : 'Ingresa la cotizacion acordada, por ejemplo 1200 o 1.185,50.';
+  return result.value !== 1 ? true : 'Ingresa la cotización acordada, por ejemplo 1200 o 1.185,50.';
 }

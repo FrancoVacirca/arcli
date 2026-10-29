@@ -4,7 +4,7 @@ import { readPemFile } from '../../lib/security/pem';
 import { listMissingIssuerKeys } from '../pdf/pdf-issuer';
 
 import { CERTIFICATE_EXPIRY_WARNING_DAYS, formatCertificateExpiryDate } from './certificate-expiry';
-import type { ArcliConfig, ArcliEnvironment } from './config.schemas';
+import { type ArcliConfig, type ArcliEnvironment, formatEnvironmentLabel } from './config.schemas';
 
 export interface ConfigDoctorReport {
   readonly checks: ReadonlyArray<{
@@ -36,13 +36,13 @@ function buildCertificateExpiryCheck(
     const formattedDate = formatCertificateExpiryDate(expiry.expiresAt);
 
     if (expiry.isExpired) {
-      return { category: 'error', detail: `El certificado vencio el ${formattedDate}.`, label };
+      return { category: 'error', detail: `El certificado venció el ${formattedDate}.`, label };
     }
 
     if (isCertificateExpiringSoon(expiry, CERTIFICATE_EXPIRY_WARNING_DAYS)) {
       return {
         category: 'warning',
-        detail: `El certificado vence en ${expiry.daysRemaining} dias (${formattedDate}). Renuevelo pronto.`,
+        detail: `El certificado vence en ${expiry.daysRemaining} días (${formattedDate}). Renuevelo pronto.`,
         label,
       };
     }
@@ -73,13 +73,13 @@ export function buildConfigDoctorReport(
       label: 'CUIT',
       ok: config.cuit,
       okDetail: 'CUIT listo para emitir comprobantes.',
-      warningDetail: 'Configure su CUIT con "arcli config establecer cuit <valor>".',
+      warningDetail: 'Configurá su CUIT con "arcli config establecer cuit <valor>".',
     },
     {
       label: 'Punto de venta',
       ok: config.puntoVentaPorDefecto,
       okDetail: `Punto de venta por defecto: ${config.puntoVentaPorDefecto}.`,
-      warningDetail: 'Configure un punto de venta por defecto con "arcli config establecer puntoVenta <valor>".',
+      warningDetail: 'Configurá un punto de venta por defecto con "arcli config establecer puntoVenta <valor>".',
     },
     {
       label: 'Concepto',
@@ -98,14 +98,14 @@ export function buildConfigDoctorReport(
       label: 'Credenciales testing',
       ok: config.cert.testing && config.key.testing,
       okDetail: 'Certificado y clave de testing configurados.',
-      warningDetail: `Faltan credenciales de testing. Configure "cert.testing" y "key.testing" con "arcli config establecer". Si todavia no tiene certificado: ${CERTIFICATE_GUIDE_URL}`,
+      warningDetail: `Faltan credenciales de testing. Configurá "cert.testing" y "key.testing" con "arcli config establecer". Si todavia no tiene certificado: ${CERTIFICATE_GUIDE_URL}`,
     },
     {
-      label: 'Credenciales produccion',
+      label: 'Credenciales producción',
       ok: config.cert.produccion && config.key.produccion,
-      okDetail: 'Certificado y clave de produccion configurados.',
+      okDetail: 'Certificado y clave de producción configurados.',
       warningDetail:
-        'Todavia no hay credenciales de produccion configuradas. Puede cargarlas con "cert.produccion" y "key.produccion".',
+        'Todavía no hay credenciales de producción configuradas. Puede cargarlas con "cert.produccion" y "key.produccion".',
     },
   ];
 
@@ -119,7 +119,7 @@ export function buildConfigDoctorReport(
 
   for (const [label, certPath] of [
     ['Vencimiento cert. testing', config.cert.testing],
-    ['Vencimiento cert. produccion', config.cert.produccion],
+    ['Vencimiento cert. producción', config.cert.produccion],
   ] as const) {
     const certificateCheck = buildCertificateExpiryCheck(label, certPath);
 
@@ -137,7 +137,7 @@ export function buildConfigDoctorReport(
   checks.push({
     category: 'ok',
     detail: `Emitir por defecto: ${config.output.emitirPorDefecto ? 'si' : 'no'}.`,
-    label: 'Emision',
+    label: 'Emisión',
   });
 
   checks.push({
@@ -160,18 +160,19 @@ export function buildConfigDoctorReport(
   } else if (config.pdf === 'siempre') {
     checks.push({
       category: 'warning',
-      detail: `Con pdf=siempre faltan datos del emisor: ${missingIssuerKeys.join(', ')}. Configurelos con "arcli config establecer".`,
+      detail: `Con pdf=siempre faltan datos del emisor: ${missingIssuerKeys.join(', ')}. Configuralos con "arcli config establecer".`,
       label: 'PDF',
     });
   }
 
   for (const runtimeCheck of runtimeChecks) {
-    const label = `Validacion ${runtimeCheck.environment}`;
+    const environment = formatEnvironmentLabel(runtimeCheck.environment);
+    const label = `Validación ${environment}`;
 
     checks.push(
       runtimeCheck.error
         ? { category: 'error', detail: runtimeCheck.error, label }
-        : { category: 'ok', detail: `Configuracion valida para ${runtimeCheck.environment}.`, label },
+        : { category: 'ok', detail: `Configuración válida para ${environment}.`, label },
     );
   }
 

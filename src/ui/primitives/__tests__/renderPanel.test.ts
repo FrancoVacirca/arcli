@@ -44,7 +44,7 @@ describe('renderPanel', () => {
 
   it('renders footer divider and footer when provided', () => {
     const output = renderPanel({
-      content: ['Linea 1', 'Linea 2'],
+      content: ['Línea 1', 'Línea 2'],
       footer: 'APROBADO',
       footerDivider: true,
       title: 'Demo',
@@ -71,7 +71,7 @@ describe('renderPanel', () => {
       ['warning', '┌', '├╌'],
       ['info', '╭', '├─'],
       ['data', '┌', '├┈'],
-    ] as const)('dibuja el borde %s con su linea divisoria unida al borde', (borderType, corner, junction) => {
+    ] as const)('dibuja el borde %s con su línea divisoria unida al borde', (borderType, corner, junction) => {
       const lines = stripAnsi(renderPanel({ borderType, content: ['x'], footer: 'OK', footerDivider: true, width: 30 }))
         .split('\n')
         // El ticket va centrado: se saca la sangria.

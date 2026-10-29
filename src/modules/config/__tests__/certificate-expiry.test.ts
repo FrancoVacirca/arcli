@@ -36,8 +36,8 @@ describe('describeCertificateExpiry', () => {
       environment: 'produccion',
       expired: false,
       expiresOn: '20/11/2026',
-      message: `El certificado de produccion vence el 20/11/2026 (en 10 días). Renovalo: ${CERTIFICATE_GUIDE_URL}`,
-      summary: 'El certificado de produccion vence el 20/11/2026 (en 10 días).',
+      message: `El certificado de producción vence el 20/11/2026 (en 10 días). Renovalo: ${CERTIFICATE_GUIDE_URL}`,
+      summary: 'El certificado de producción vence el 20/11/2026 (en 10 días).',
     });
   });
 
@@ -51,7 +51,7 @@ describe('describeCertificateExpiry', () => {
   it('describes an expired certificate', () => {
     expect(noticeAt('2026-11-25T12:00:00-03:00')).toMatchObject({
       expired: true,
-      message: `El certificado de produccion venció el 20/11/2026. Renovalo: ${CERTIFICATE_GUIDE_URL}`,
+      message: `El certificado de producción venció el 20/11/2026. Renovalo: ${CERTIFICATE_GUIDE_URL}`,
     });
   });
 });
@@ -89,7 +89,7 @@ describe('inspectConfiguredCertificates', () => {
 
     expect(notices).toHaveLength(1);
     expect(notices[0]).toMatchObject({ environment: 'produccion', expired: false });
-    expect(notices[0]?.summary).toMatch(/^El certificado de produccion vence el/);
+    expect(notices[0]?.summary).toMatch(/^El certificado de producción vence el/);
   }, 10_000);
 
   it('uses the active certificate already read instead of reading its file again', () => {
@@ -123,7 +123,7 @@ describe('CertificateExpiredError', () => {
     const error = new CertificateExpiredError(notice);
 
     expect(error.code).toBe('CERTIFICATE_EXPIRED');
-    expect(error.message).toBe('El certificado de produccion venció el 20/11/2026: ARCA no lo acepta.');
+    expect(error.message).toBe('El certificado de producción venció el 20/11/2026: ARCA no lo acepta.');
     expect(error.details).toEqual({ entorno: 'produccion', vencimiento: '20/11/2026' });
     expect(error.suggestion).toContain('cert.produccion');
     expect(error.suggestion).toContain(CERTIFICATE_GUIDE_URL);

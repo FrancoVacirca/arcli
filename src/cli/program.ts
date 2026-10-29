@@ -31,9 +31,9 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
   program
     .name('arcli')
     .description(
-      'Emití y revisá comprobantes ARCA desde terminal con una UX mas simple, validaciones claras y salida lista para automatizar.',
+      'Emití y revisá comprobantes ARCA desde terminal con una UX más simple, validaciones claras y salida lista para automatizar.',
     )
-    .version(CLI_VERSION)
+    .version(CLI_VERSION, '-V, --version', 'mostrar la versión instalada')
     .showHelpAfterError('(usa "ayuda" para ver comandos y ejemplos)');
 
   configureSpanishHelp(program);

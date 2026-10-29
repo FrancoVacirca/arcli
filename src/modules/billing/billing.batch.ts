@@ -27,8 +27,8 @@ export class BatchValidationError extends AppError {
     super(
       [
         errors.length === 1
-          ? `1 de ${total} ${total === 1 ? 'comprobante' : 'comprobantes'} del lote tiene errores. No se emitio ninguno.`
-          : `${errors.length} de ${total} comprobantes del lote tienen errores. No se emitio ninguno.`,
+          ? `1 de ${total} ${total === 1 ? 'comprobante' : 'comprobantes'} del lote tiene errores. No se emitió ninguno.`
+          : `${errors.length} de ${total} comprobantes del lote tienen errores. No se emitió ninguno.`,
         '',
         ...lines,
       ].join('\n'),
@@ -59,10 +59,10 @@ export class BatchEmissionError extends AppError {
 
     super(
       [
-        `El lote se interrumpio en el comprobante #${options.failedIndex}: ${describeBatchItemError(options.cause)}`,
+        `El lote se interrumpió en el comprobante #${options.failedIndex}: ${describeBatchItemError(options.cause)}`,
         `Procesados: ${options.emitted} de ${options.total}.${pending.length > 0 ? ` Sin procesar: ${pending.map((index) => `#${index}`).join(', ')}.` : ''}`,
         ...(uncertain
-          ? [`El #${options.failedIndex} puede haberse emitido: verifiquelo con "arcli ultimos" antes de reintentarlo.`]
+          ? [`El #${options.failedIndex} puede haberse emitido: verificalo con "arcli ultimos" antes de reintentarlo.`]
           : []),
       ].join('\n'),
       {

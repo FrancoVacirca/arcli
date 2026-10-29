@@ -42,7 +42,7 @@ export function ensurePemFormat(content: string, filePath: string, label: PemKin
 
   if (!hasAcceptedHeader || !hasAcceptedFooter) {
     throw new ConfigurationError(
-      `La ${label === 'certificado' ? 'ruta del certificado' : 'ruta de la clave privada'} apunta a un archivo con formato PEM invalido: ${maskPath(filePath)}. Debe contener un bloque como ${expectedPemHeader(label)}.`,
+      `La ${label === 'certificado' ? 'ruta del certificado' : 'ruta de la clave privada'} apunta a un archivo con formato PEM inválido: ${maskPath(filePath)}. Debe contener un bloque como ${expectedPemHeader(label)}.`,
       {
         path: maskPath(filePath),
       },

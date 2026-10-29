@@ -40,7 +40,7 @@ export function resolveBillingCurrencyFields(
     }
 
     if (typeof input.exchangeRate === 'number' && input.exchangeRate !== DEFAULT_EXCHANGE_RATE) {
-      throw new InputValidationError('En pesos la cotizacion debe ser 1. Quite --cotizacion-moneda o use --cm 1.');
+      throw new InputValidationError('En pesos la cotización debe ser 1. Sacá --cotizacion-moneda o usá --cm 1.');
     }
 
     // ARCA rechaza CanMisMonExt cuando MonId = PES (error 10241).
@@ -53,12 +53,12 @@ export function resolveBillingCurrencyFields(
   if (input.sameCurrency) {
     if (billingDate < today) {
       throw new InputValidationError(
-        'Con --misma-moneda la fecha del comprobante no puede ser anterior a hoy: ARCA exige la cotizacion oficial de ese dia y solo se puede consultar la vigente.',
+        'Con --misma-moneda la fecha del comprobante no puede ser anterior a hoy: ARCA exige la cotización oficial de ese día y solo se puede consultar la vigente.',
       );
     }
 
     if (typeof input.exchangeRate !== 'number') {
-      throw new InputValidationError(`No se pudo obtener la cotizacion oficial de ${inputCurrencyCode} desde ARCA.`);
+      throw new InputValidationError(`No se pudo obtener la cotización oficial de ${inputCurrencyCode} desde ARCA.`);
     }
 
     return {
@@ -70,7 +70,7 @@ export function resolveBillingCurrencyFields(
 
   if (typeof input.exchangeRate !== 'number' || input.exchangeRate === DEFAULT_EXCHANGE_RATE) {
     throw new InputValidationError(
-      `Falta la cotizacion de ${inputCurrencyCode}. Use --cotizacion-moneda o --cm, o --misma-moneda si el pago se hace en ${inputCurrencyCode}.`,
+      `Falta la cotización de ${inputCurrencyCode}. Usá --cotizacion-moneda o --cm, o --misma-moneda si el pago se hace en ${inputCurrencyCode}.`,
     );
   }
 

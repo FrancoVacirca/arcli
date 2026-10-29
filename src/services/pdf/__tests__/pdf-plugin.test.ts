@@ -65,7 +65,7 @@ describe('PdfPlugin', () => {
     fakeNpmInstall(path);
 
     expect(plugin.getStatus().installed).toBe(false);
-    expect(() => plugin.load()).toThrow(/No se encontro un navegador/);
+    expect(() => plugin.load()).toThrow(/No se encontró un navegador/);
   });
 
   it('installs with npm ignoring scripts and skips the browser download when the system has one', async () => {
@@ -167,7 +167,7 @@ describe('PdfPlugin', () => {
     const plugin = new PdfPlugin({ env: {}, findSystemBrowser: () => '/chrome', path });
 
     expect(plugin.getStatus()).toMatchObject({ installed: false, installedVersion: '0.1.0' });
-    expect(() => plugin.load()).toThrow(/version 0.1.0/);
+    expect(() => plugin.load()).toThrow(/versión 0.1.0/);
   });
 
   it('prefers the configured browser and removes everything on uninstall', () => {

@@ -10,7 +10,7 @@ import {
 } from '../../modules/padron/padron';
 
 const NOT_AUTHORIZED_MESSAGE =
-  'El certificado no esta autorizado para el servicio ws_sr_constancia_inscripcion (padron). Autoricelo igual que wsfe: en testing desde WSASS ("Crear autorizacion a servicio") y en produccion desde el Administrador de Relaciones.';
+  'El certificado no está autorizado para el servicio ws_sr_constancia_inscripcion (padrón). Autorizalo igual que wsfe: en testing desde WSASS ("Crear autorizacion a servicio") y en producción desde el Administrador de Relaciones.';
 
 /** La respuesta real trae mas de lo que tipa el SDK: se lee de forma defensiva. */
 type UnknownRecord = Record<string, unknown>;

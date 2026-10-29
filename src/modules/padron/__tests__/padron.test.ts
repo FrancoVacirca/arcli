@@ -60,13 +60,13 @@ describe('padron presenter', () => {
   it('en texto muestra la actividad principal y cuantas mas hay', () => {
     const text = formatPadronAsText({ environment: 'testing', taxpayer });
 
-    expect(text).toContain('ALQUILER (y 1 mas)');
+    expect(text).toContain('ALQUILER (y 1 más)');
     expect(text).toContain('Responsable Inscripto');
   });
 
   it('sin condicion IVA pide indicarla con --ir', () => {
     expect(formatPadronAsText({ environment: 'testing', taxpayer: { ...taxpayer, ivaCondition: null } })).toContain(
-      'indiquela con --ir',
+      'indicala con --ir',
     );
   });
 });

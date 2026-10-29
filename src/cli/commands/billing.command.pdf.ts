@@ -82,7 +82,7 @@ async function resolveDecisions(options: PdfStepOptions, deps: PdfStepDependenci
 
   const answer = await deps.confirm(
     pending === 1 ? '¿Generamos el PDF del comprobante?' : `¿Generamos los PDFs de los ${pending} comprobantes?`,
-    pending === 1 ? 'Si, generar el PDF' : 'Si, generar los PDFs',
+    pending === 1 ? 'Sí, generar el PDF' : 'Sí, generar los PDFs',
     'No',
   );
 
@@ -93,8 +93,8 @@ async function resolveDecisions(options: PdfStepOptions, deps: PdfStepDependenci
 async function loadRenderer(plugin: PdfPlugin, interactive: boolean, deps: PdfStepDependencies): Promise<PdfRenderer> {
   if (!plugin.getStatus().installed && interactive) {
     const install = await deps.confirm(
-      'Para generar PDFs hay que descargar un componente (~160 MB, o ~360 MB si no tenes Chrome). ¿Instalarlo ahora?',
-      'Si, instalar',
+      'Para generar PDFs hay que descargar un componente (~160 MB, o ~360 MB si no tenés Chrome). ¿Instalarlo ahora?',
+      'Sí, instalar',
       'No',
     );
 

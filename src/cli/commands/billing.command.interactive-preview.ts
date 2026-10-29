@@ -17,9 +17,9 @@ export interface InteractiveBillingPreviewOutcome {
 /** Esc cuenta como no, igual que en el modo interactivo. */
 async function promptForEmission(count: number, voucherLabel: string): Promise<boolean> {
   return chooseOne(
-    count > 1 ? `¿Desea emitir los ${count} comprobantes ahora?` : `¿Desea emitir ${voucherLabel} ahora?`,
+    count > 1 ? `¿Querés emitir los ${count} comprobantes ahora?` : `¿Querés emitir ${voucherLabel} ahora?`,
     [
-      { name: 'Si, emitir ahora', value: true },
+      { name: 'Sí, emitir ahora', value: true },
       { name: 'No, dejar sin emitir', value: false },
     ],
     true,
@@ -62,13 +62,13 @@ export async function runInteractiveBillingPreview(options: {
 
   const previewGateway: BillingGateway = {
     createVoucher: async () => {
-      throw new Error('No deberia ejecutarse la emision real durante la vista previa.');
+      throw new Error('No debería ejecutarse la emisión real durante la vista previa.');
     },
     getNextVoucherNumber: async () => {
-      throw new Error('No deberia ejecutarse la emision real durante la vista previa.');
+      throw new Error('No debería ejecutarse la emisión real durante la vista previa.');
     },
     getQuotation: async () => {
-      throw new Error('La cotizacion se resuelve antes de la vista previa.');
+      throw new Error('La cotización se resuelve antes de la vista previa.');
     },
   };
   const previewResults: BillingExecutionResult[] = [];

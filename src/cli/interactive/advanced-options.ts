@@ -38,7 +38,7 @@ function describeCurrency(options: AdvancedOptions): string {
     return 'pesos';
   }
 
-  return options.sameCurrency ? 'dolares, cotizacion oficial de ARCA' : `dolares, cotizacion ${options.exchangeRate}`;
+  return options.sameCurrency ? 'dólares, cotización oficial de ARCA' : `dólares, cotización ${options.exchangeRate}`;
 }
 
 function describeAmounts(options: AdvancedOptions): string {
@@ -53,7 +53,7 @@ function describeAmounts(options: AdvancedOptions): string {
 async function askCurrency(current: AdvancedOptions): Promise<AdvancedOptions | Back> {
   const currency = await chooseStep('Moneda del comprobante:', [
     { name: 'Pesos', value: 'PES' as const },
-    { name: 'Dolares (USD)', value: 'USD' as const },
+    { name: 'Dólares (USD)', value: 'USD' as const },
   ]);
 
   if (currency === BACK) {
@@ -64,9 +64,9 @@ async function askCurrency(current: AdvancedOptions): Promise<AdvancedOptions | 
     return { ...current, currencyCode: 'ARS', exchangeRate: undefined, sameCurrency: false };
   }
 
-  const payment = await chooseStep('¿Como te pagan?', [
-    { description: 'Ingresas la cotizacion acordada', name: 'En pesos', value: 'pesos' as const },
-    { description: 'Se usa la cotizacion oficial de ARCA', name: 'En dolares', value: 'dolares' as const },
+  const payment = await chooseStep('¿Cómo te pagan?', [
+    { description: 'Ingresas la cotización acordada', name: 'En pesos', value: 'pesos' as const },
+    { description: 'Se usa la cotización oficial de ARCA', name: 'En dólares', value: 'dolares' as const },
   ]);
 
   if (payment === BACK) {
@@ -77,7 +77,7 @@ async function askCurrency(current: AdvancedOptions): Promise<AdvancedOptions | 
     return { ...current, currencyCode: 'USD', exchangeRate: undefined, sameCurrency: true };
   }
 
-  const rate = await askTextStep('Cotizacion del dolar:', { validate: validateExchangeRate });
+  const rate = await askTextStep('Cotización del dólar:', { validate: validateExchangeRate });
 
   return rate === BACK
     ? BACK
@@ -85,7 +85,7 @@ async function askCurrency(current: AdvancedOptions): Promise<AdvancedOptions | 
 }
 
 async function askExemptAmounts(current: AdvancedOptions): Promise<AdvancedOptions | Back> {
-  const exempt = await askTextStep('Parte exenta del monto total (vacio si no hay):', {
+  const exempt = await askTextStep('Parte exenta del monto total (vacío si no hay):', {
     validate: validateOptionalAmount,
   });
 
@@ -93,7 +93,7 @@ async function askExemptAmounts(current: AdvancedOptions): Promise<AdvancedOptio
     return BACK;
   }
 
-  const untaxed = await askTextStep('Parte no gravada del monto total (vacio si no hay):', {
+  const untaxed = await askTextStep('Parte no gravada del monto total (vacío si no hay):', {
     validate: validateOptionalAmount,
   });
 
@@ -123,7 +123,7 @@ async function askPaymentDueDate(current: AdvancedOptions): Promise<AdvancedOpti
 }
 
 async function askIvaRate(current: AdvancedOptions, context: AdvancedContext): Promise<AdvancedOptions | Back> {
-  const ivaRate = await chooseStep('Alicuota de IVA:', ivaRateChoices(), current.ivaRate ?? context.defaultIvaRate);
+  const ivaRate = await chooseStep('Alícuota de IVA:', ivaRateChoices(), current.ivaRate ?? context.defaultIvaRate);
 
   return ivaRate === BACK ? BACK : { ...current, ivaRate };
 }
@@ -132,7 +132,7 @@ async function askTransferMode(current: AdvancedOptions): Promise<AdvancedOption
   const transferMode = await chooseStep(
     'Modalidad de transferencia:',
     [
-      { description: 'La opcion habitual', name: 'Sistema de circulacion abierta (SCA)', value: 'sca' as const },
+      { description: 'La opción habitual', name: 'Sistema de circulación abierta (SCA)', value: 'sca' as const },
       { name: 'Agente de deposito colectivo (ADC)', value: 'adc' as const },
     ],
     current.transferMode ?? 'sca',
@@ -151,7 +151,7 @@ function optionalChoices(options: AdvancedOptions, context: AdvancedContext) {
       ? [
           {
             description: `${(options.ivaRate ?? context.defaultIvaRate).replace('.', ',')}%`,
-            name: 'Alicuota de IVA',
+            name: 'Alícuota de IVA',
             value: 'alicuota' as const,
           },
         ]
@@ -164,7 +164,7 @@ function optionalChoices(options: AdvancedOptions, context: AdvancedContext) {
       ? [
           {
             description: options.serviceStartDate ? `${options.serviceStartDate} al ${options.serviceEndDate}` : 'hoy',
-            name: 'Periodo del servicio',
+            name: 'Período del servicio',
             value: 'servicio' as const,
           },
         ]
@@ -212,7 +212,7 @@ export async function askAdvancedOptions(
 
   for (;;) {
     const picked = await chooseManyStep<Option>(
-      '¿Agregamos algun opcional? (espacio para marcar, Enter para seguir)',
+      '¿Agregamos algún opcional? (espacio para marcar, Enter para seguir)',
       optionalChoices(options, context),
       selected,
     );

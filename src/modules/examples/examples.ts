@@ -4,7 +4,7 @@ import type { VoucherFamily, VoucherKindDefinition } from '../billing/billing.ty
 import { VOUCHER_FAMILIES, VOUCHER_KIND_MAP, VOUCHER_SHORTCUTS } from '../billing/voucher-kind-map';
 
 const ISSUER_HINT =
-  'Estos ejemplos asumen que ya resolviste cuit emisor, credenciales y, en la version minima, tambien punto de venta por config.';
+  'Estos ejemplos asumen que ya resolviste cuit emisor, credenciales y, en la versión mínima, también punto de venta por config.';
 
 function resolveAmount(definition: VoucherKindDefinition): number {
   if (definition.letter === 'a') {
@@ -189,10 +189,10 @@ function formatVoucherExample(definition: VoucherKindDefinition, dates: ExampleD
   return [
     sectionHeading(definition.displayName),
     '',
-    `${badge('MINIMA LARGA', 'info')}`,
+    `${badge('MÍNIMA LARGA', 'info')}`,
     `${buildMinimalLong(definition, dates)} --previsualizar`,
     '',
-    `${badge('MINIMA CORTA', 'success')}`,
+    `${badge('MÍNIMA CORTA', 'success')}`,
     `${buildMinimalShort(definition, dates)} --previsualizar`,
     '',
     `${badge('FULL LARGA', 'warning')}`,
@@ -226,15 +226,15 @@ export function renderExamples(today = new Date()): string {
   return [
     renderLogo().trim(),
     '',
-    `${badge('MINIMA', 'info')} datos esenciales`,
-    `${badge('FULL', 'warning')} mas campos explicitados`,
+    `${badge('MÍNIMA', 'info')} datos esenciales`,
+    `${badge('FULL', 'warning')} más campos explicitados`,
     `${badge('LARGA', 'success')} comando largo`,
     `${badge('CORTA', 'debug')} shortcut y aliases`,
     '',
     toneText('SEGURIDAD', 'warning'),
     'Todos usan --previsualizar para evitar emisiones reales por error.',
-    'Si queres emitir de verdad, reemplaza --previsualizar por --emitir.',
-    'Para emitir en produccion necesitas --produccion junto con --emitir.',
+    'Si querés emitir de verdad, reemplaza --previsualizar por --emitir.',
+    'Para emitir en producción necesitas --produccion junto con --emitir.',
     'Para guardar el PDF con el QR, agrega --exportar-pdf al emitir (ver docs/pdf.md).',
     '',
     ISSUER_HINT,

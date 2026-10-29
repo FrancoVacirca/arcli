@@ -4,7 +4,7 @@ import { AppError } from '../../lib/errors/app-error';
 import type { FceObligation, FceObligationGateway } from '../../modules/fce/fce-obligation';
 
 const NOT_AUTHORIZED_MESSAGE =
-  'El certificado no esta autorizado para el servicio wsfecred (Factura de Credito Electronica). Autoricelo igual que wsfe: en testing desde WSASS ("Crear autorizacion a servicio") y en produccion desde el Administrador de Relaciones.';
+  'El certificado no está autorizado para el servicio wsfecred (Factura de Crédito Electrónica). Autorizalo igual que wsfe: en testing desde WSASS ("Crear autorizacion a servicio") y en producción desde el Administrador de Relaciones.';
 
 function toIsoDate(arcaDate: string): string {
   return `${arcaDate.slice(0, 4)}-${arcaDate.slice(4, 6)}-${arcaDate.slice(6, 8)}`;
@@ -34,7 +34,7 @@ export class ArcaFceObligationGateway implements FceObligationGateway {
 
     if (errors.length > 0) {
       throw new AppError(
-        `ARCA no pudo informar si el receptor esta obligado a FCE: ${errors.map((item) => `${item.codigo} ${item.descripcion}`).join('; ')}`,
+        `ARCA no pudo informar si el receptor está obligado a FCE: ${errors.map((item) => `${item.codigo} ${item.descripcion}`).join('; ')}`,
         { code: 'FCE_OBLIGATION_ERROR', details: { errors } },
       );
     }

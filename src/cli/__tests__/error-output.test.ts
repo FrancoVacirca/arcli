@@ -6,7 +6,7 @@ describe('shouldPrintErrorAsJson', () => {
   it('uses JSON with --json without reading the config', () => {
     expect(
       shouldPrintErrorAsJson(['node', 'arcli', 'estado', '--json'], () => {
-        throw new Error('no deberia leer la config');
+        throw new Error('no debería leer la config');
       }),
     ).toBe(true);
   });
@@ -19,7 +19,7 @@ describe('shouldPrintErrorAsJson', () => {
   it('falls back to text when the config cannot be read', () => {
     expect(
       shouldPrintErrorAsJson(['node', 'arcli', 'estado'], () => {
-        throw new Error('config invalida');
+        throw new Error('config inválida');
       }),
     ).toBe(false);
   });

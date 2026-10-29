@@ -48,7 +48,7 @@ export function repeatSteps(
     {
       name: 'tipo',
       run: async () => {
-        const voucherKind = await chooseStep('¿Que tipo de factura queres repetir?', invoiceKindChoices());
+        const voucherKind = await chooseStep('¿Qué tipo de factura querés repetir?', invoiceKindChoices());
 
         return voucherKind === BACK ? BACK : { voucherKind };
       },
@@ -57,7 +57,7 @@ export function repeatSteps(
       name: 'factura',
       run: async (state) => {
         const voucherKind = state.voucherKind as VoucherKindDefinition;
-        const picked = await pickInvoice(session, { message: '¿Cual repetimos?', pointOfSale, voucherKind });
+        const picked = await pickInvoice(session, { message: '¿Cuál repetimos?', pointOfSale, voucherKind });
 
         if (picked === BACK) {
           return BACK;
@@ -81,7 +81,7 @@ export function repeatSteps(
 
         if (copy.limitation) {
           writeTerminalOutput(
-            noticePanel(`${copy.limitation} Revisa la alicuota y el monto antes de emitir.`, 'warning'),
+            noticePanel(`${copy.limitation} Revisa la alícuota y el monto antes de emitir.`, 'warning'),
           );
         }
 
@@ -118,7 +118,7 @@ export function repeatSteps(
         const reproducible = !copyInvoiceAmounts(original, state.voucherKind?.letter ?? 'c').limitation;
         const scope = reproducible
           ? await chooseStep('¿Mismo monto?', [
-              { name: `Si, ${formatMoneyLabel(original.total)}`, value: 'mismo' as const },
+              { name: `Sí, ${formatMoneyLabel(original.total)}`, value: 'mismo' as const },
               { name: 'No, ingresar otro monto', value: 'otro' as const },
             ])
           : ('otro' as const);
@@ -137,11 +137,11 @@ export function repeatSteps(
       run: async (state) => {
         const current = currentMonthPeriod(today);
         const previous = previousMonthPeriod(today);
-        const choice = await chooseStep<'hoy' | 'otro' | ServicePeriod>('Periodo del servicio:', [
+        const choice = await chooseStep<'hoy' | 'otro' | ServicePeriod>('Período del servicio:', [
           { description: describePeriod(current), name: 'Este mes', value: current },
           { description: describePeriod(previous), name: 'El mes pasado', value: previous },
           { description: 'Desde y hasta hoy', name: 'Solo hoy', value: 'hoy' as const },
-          { name: 'Otro periodo', value: 'otro' as const },
+          { name: 'Otro período', value: 'otro' as const },
         ]);
 
         if (choice === BACK) {
@@ -187,7 +187,7 @@ export function repeatSteps(
 
         if (foreign) {
           writeTerminalOutput(
-            noticePanel('La factura original era en moneda extranjera: completa la moneda y la cotizacion.', 'info'),
+            noticePanel('La factura original era en moneda extranjera: completa la moneda y la cotización.', 'info'),
           );
         }
 

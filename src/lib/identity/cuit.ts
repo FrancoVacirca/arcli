@@ -29,7 +29,7 @@ export function parseCuit(raw: number | string): CuitParseResult {
   }
 
   if (computeCheckDigit(value.slice(0, 10)) !== Number(value[10])) {
-    return { ok: false, reason: 'el digito verificador no coincide; revise que este bien escrito' };
+    return { ok: false, reason: 'el digito verificador no coincide; revisá que esté bien escrito' };
   }
 
   return { ok: true, value };

@@ -38,7 +38,7 @@ async function lookupReceiver(
     return state.receiver;
   }
 
-  const spinner = startSpinner('Consultando el padron...');
+  const spinner = startSpinner('Consultando el padrón...');
 
   try {
     const taxpayer = await new ArcaPadronGateway(session.arca).getTaxpayer(cuit);
@@ -70,10 +70,10 @@ export async function askReceiverIvaCondition(
   const fromPadron =
     receiver?.ivaCondition && isIvaConditionAllowed(letter, receiver.ivaCondition) ? receiver.ivaCondition : undefined;
   const choices = ivaConditionChoices(letter).map((choice) =>
-    choice.value === fromPadron ? { ...choice, name: `${choice.name} (segun el padron)` } : choice,
+    choice.value === fromPadron ? { ...choice, name: `${choice.name} (según el padrón)` } : choice,
   );
   const ivaCondition = await chooseStep(
-    receiver?.name ? `Condicion frente al IVA de ${receiver.name}:` : 'Condicion frente al IVA del receptor:',
+    receiver?.name ? `Condición frente al IVA de ${receiver.name}:` : 'Condición frente al IVA del receptor:',
     choices,
     fromPadron ?? configDefault,
   );

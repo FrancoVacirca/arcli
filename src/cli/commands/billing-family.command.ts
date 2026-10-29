@@ -10,16 +10,15 @@ import {
 } from '../../modules/billing/voucher-kind-map';
 import { configureSpanishHelp, createFamilyHelp } from '../help';
 
+import { hideInapplicableBillingOptions } from './billing.command.options';
 import { executeBillingCommand, registerBillingCommandOptions } from './billing.command.shared';
 
 export function registerBillingFamilyCommands(program: Command): void {
   for (const family of VOUCHER_FAMILIES) {
-    const familyShortcuts = Object.values(VOUCHER_KIND_MAP)
-      .filter((definition) => definition.family === family)
-      .map((definition) => definition.shortcut)
-      .join(', ');
+    const definitions = Object.values(VOUCHER_KIND_MAP).filter((definition) => definition.family === family);
+    const familyShortcuts = definitions.map((definition) => definition.shortcut).join(', ');
     const command = program
-      .command(family)
+      .command(family, { hidden: true })
       .description(
         `usar ${family} por letra A, B o C con ejemplos y atajos${familyShortcuts ? ` (${familyShortcuts})` : ''}`,
       )
@@ -28,10 +27,15 @@ export function registerBillingFamilyCommands(program: Command): void {
     configureSpanishHelp(command);
 
     registerBillingCommandOptions(command);
+    hideInapplicableBillingOptions(command, {
+      isElectronicCredit: definitions.some((definition) => definition.isElectronicCredit),
+      isNote: definitions.some((definition) => definition.requiresAssociatedVoucher),
+      letters: definitions.map((definition) => definition.letter),
+    });
 
     command.action(async (letter: string) => {
       if (!VOUCHER_LETTERS.includes(letter as VoucherLetter)) {
-        throw new InputValidationError(`La letra "${letter}" no es valida. Use a, b o c.`);
+        throw new InputValidationError(`La letra "${letter}" no es válida. Usá a, b o c.`);
       }
 
       const definition = getVoucherKindByFamilyAndLetter(family, letter as VoucherLetter);

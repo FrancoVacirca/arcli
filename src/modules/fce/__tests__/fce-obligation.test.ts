@@ -9,7 +9,7 @@ const notObligated = { minimumAmount: 0, obligated: false };
 describe('evaluateFceObligation', () => {
   it('avisa cuando una factura comun deberia ser FCE', () => {
     expect(evaluateFceObligation(obligated, VOUCHER_KIND_MAP.fa, 5_000_000)).toEqual([
-      'El receptor esta obligado a recibir FCE desde $3.958.316 y este monto lo supera. Corresponde emitir fcea en lugar de fa.',
+      'El receptor está obligado a recibir FCE desde $3.958.316 y este monto lo supera. Corresponde emitir fcea en lugar de fa.',
     ]);
   });
 
@@ -27,13 +27,13 @@ describe('evaluateFceObligation', () => {
 
   it('avisa cuando se emite FCE a un receptor no obligado', () => {
     expect(evaluateFceObligation(notObligated, VOUCHER_KIND_MAP.fcea, 5_000_000)).toEqual([
-      'Para este comprobante el receptor no esta obligado a recibir FCE. Corresponde emitir fa en lugar de fcea.',
+      'Para este comprobante el receptor no está obligado a recibir FCE. Corresponde emitir fa en lugar de fcea.',
     ]);
   });
 
   it('avisa cuando se emite FCE por debajo del minimo', () => {
     expect(evaluateFceObligation(obligated, VOUCHER_KIND_MAP.fceb, 1_000)).toEqual([
-      'Para este comprobante el monto es menor al minimo del regimen ($3.958.316). Corresponde emitir fb en lugar de fceb.',
+      'Para este comprobante el monto es menor al mínimo del régimen ($3.958.316). Corresponde emitir fb en lugar de fceb.',
     ]);
   });
 

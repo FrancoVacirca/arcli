@@ -117,7 +117,7 @@ describe('billing.presenter', () => {
   it('shows a friendly raw message when there was no real emission', () => {
     const output = formatBillingResultAsJson(createDryRunResult(), { raw: true });
 
-    expect(output).toContain('Sin emision real');
+    expect(output).toContain('Sin emisión real');
     expect(output).not.toContain('"respuesta": null');
   });
 

@@ -96,19 +96,19 @@ export async function previewAndEmit(session: InteractiveSession, rawInput: Bill
   );
 
   const label = preview.voucherKind.displayName;
-  const environmentLabel = runtime.environment === 'produccion' ? 'PRODUCCION' : 'testing';
+  const environmentLabel = runtime.environment === 'produccion' ? 'PRODUCCIÓN' : 'testing';
 
   if (!(await confirm(`¿Emitimos la ${label} en ${environmentLabel}?`, 'Emitir ahora'))) {
-    writeTerminalOutput(noticePanel('No se emitio nada.', 'muted'));
+    writeTerminalOutput(noticePanel('No se emitió nada.', 'muted'));
 
     return;
   }
 
   if (
     runtime.environment === 'produccion' &&
-    !(await confirm('Vas a emitir un comprobante real en PRODUCCION. ¿Confirmas?', 'Si, emitir en produccion'))
+    !(await confirm('Vas a emitir un comprobante real en PRODUCCIÓN. ¿Confirmás?', 'Sí, emitir en producción'))
   ) {
-    writeTerminalOutput(noticePanel('No se emitio nada.', 'muted'));
+    writeTerminalOutput(noticePanel('No se emitió nada.', 'muted'));
 
     return;
   }

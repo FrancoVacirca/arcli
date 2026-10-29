@@ -27,7 +27,7 @@ describe('readJsonFile', () => {
 
     const inputPath = join(directory, 'broken.json');
 
-    writeFileSync(inputPath, '{ invalido', 'utf8');
+    writeFileSync(inputPath, '{ inválido', 'utf8');
 
     expect(() => readJsonFile(inputPath)).toThrow(InputValidationError);
     expect(() => readJsonFile(inputPath)).toThrow(/No se pudo leer el archivo JSON/);

@@ -45,14 +45,14 @@ export function evaluateFceObligation(
 
   if (voucherKind.family === 'factura' && requiresFce) {
     return [
-      `El receptor esta obligado a recibir FCE desde ${formatMoney(obligation.minimumAmount)} y este monto lo supera. Corresponde emitir ${fceShortcut} en lugar de ${regularShortcut}.`,
+      `El receptor está obligado a recibir FCE desde ${formatMoney(obligation.minimumAmount)} y este monto lo supera. Corresponde emitir ${fceShortcut} en lugar de ${regularShortcut}.`,
     ];
   }
 
   if (voucherKind.family === 'factura-credito-electronica' && !requiresFce) {
     const reason = obligation.obligated
-      ? `el monto es menor al minimo del regimen (${formatMoney(obligation.minimumAmount)})`
-      : 'el receptor no esta obligado a recibir FCE';
+      ? `el monto es menor al mínimo del régimen (${formatMoney(obligation.minimumAmount)})`
+      : 'el receptor no está obligado a recibir FCE';
 
     return [`Para este comprobante ${reason}. Corresponde emitir ${regularShortcut} en lugar de ${fceShortcut}.`];
   }

@@ -16,6 +16,12 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - **`numero` en el JSON de facturación:** el número que le tocó al comprobante emitido (`null` en una previsualización), y `solicitud` lo trae en `CbteDesde`/`CbteHasta`. El panel de texto muestra `Número: 00003-00000125`. Antes el número solo se veía con `--bruto`.
 - **Autocompletado con Tab** para bash, zsh y fish. Se instala con `arcli completado instalar`, que agrega una línea al archivo de inicio del shell (`~/.zshrc`, `~/.bashrc`…), y se saca con `arcli completado desinstalar`; también desde el modo interactivo, en Configuración → Autocompletado. Completa comandos y atajos, flags, valores (`--iva-receptor`, `--concepto`, `--alicuota`, `--moneda`, `--transferencia`, `--ac`), claves de config y sus valores, tablas de `parametros` y letras de las familias; donde va una ruta, archivos. No hay que reinstalarlo al actualizar arcli. Ver [Autocompletado](docs/cli-reference.md#autocompletado).
 
+### Cambiado
+
+- **Ayuda más corta y toda en español.** `arcli --ayuda` pasa de unas 145 líneas a 57: los 18 atajos van en una tabla familia × letra y `storybook` (herramienta de desarrollo) ya no aparece, aunque sigue funcionando. La ayuda de cada comprobante (`arcli fc --ayuda`) pasa de 177 a 79 líneas: muestra solo los flags que aplican a ese comprobante, menciona los alias en la opción principal (`punto de venta (alias: --pv)`) y ya no repite la tabla de parámetros. Los flags ocultos se siguen aceptando igual. "Usage", "Options", `[options]`, `<number>` y la descripción de `--version` ahora están en español.
+- **Errores de uso en español:** opción o comando desconocido, valor faltante y argumentos de más (`opción desconocida '--montoo' (¿quisiste decir --monto?)`). También en el `error` del JSON con `--json`; el `codigo` sigue siendo `INPUT_VALIDATION_ERROR`.
+- **Voseo y tildes en toda la salida:** mensajes, ayuda, modo interactivo y PDF ("Usá", "Revisá", "número", "configuración"). Los flags, claves de config, valores (`produccion`, `cotizacion`) y claves JSON no cambian. Si un script compara el texto de un mensaje de error en lugar de `codigo`, puede necesitar un ajuste.
+
 ### Corregido
 
 - **Punto de venta inválido:** la facturación seguía con el número 1 y recién fallaba al emitir con un error confuso, y `arcli ultimos` mostraba que no había comprobantes. Ahora cortan con `ARCA_LAST_VOUCHER_ERROR`.

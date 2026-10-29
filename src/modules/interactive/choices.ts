@@ -28,7 +28,7 @@ export function invoiceKindChoices(): Array<InteractiveChoice<VoucherKindDefinit
   return INVOICE_SHORTCUTS.map((shortcut) => {
     const definition = VOUCHER_KIND_MAP[shortcut];
     const description = definition.isElectronicCredit
-      ? 'Factura de Credito Electronica MiPyMEs, para grandes empresas'
+      ? 'Factura de Crédito Electrónica MiPyMEs, para grandes empresas'
       : INVOICE_DESCRIPTIONS[definition.letter];
 
     return { description, name: `${definition.displayName} (${shortcut})`, value: definition };

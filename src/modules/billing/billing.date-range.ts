@@ -53,7 +53,7 @@ function resolvePaymentDateFromDueDay(dueDay: number, now = new Date()): string 
 
   if (dueDay > daysInMonth) {
     throw new InputValidationError(
-      `--dia ${dueDay} no existe en ${MONTH_NAMES[monthIndex]} de ${year}. Indique la fecha exacta con --servicio-hasta.`,
+      `--dia ${dueDay} no existe en ${MONTH_NAMES[monthIndex]} de ${year}. Indicá la fecha exacta con --servicio-hasta.`,
     );
   }
 

@@ -15,7 +15,7 @@ describe('billing.command.shortcuts', () => {
 
     it('rejects more than one --ir-* flag at the same time', () => {
       expect(() => resolveIvaShortcut({ irCf: true, irRi: true })).toThrow(
-        /Use solo un flag de IVA receptor entre las opciones --ir-\*/,
+        /Usá solo un flag de IVA receptor entre las opciones --ir-\*/,
       );
     });
   });
@@ -53,10 +53,10 @@ describe('billing.command.shortcuts', () => {
 
     it('rejects mixing more than one receiver identity flag', () => {
       expect(() => resolveDocumentIdentity({ cuit: 20123456786, dni: 12345678 })).toThrow(
-        /Use solo una identidad de receptor/,
+        /Usá solo una identidad de receptor/,
       );
       expect(() => resolveDocumentIdentity({ cfinal: true, cuil: 20123456786 })).toThrow(
-        /Use solo una identidad de receptor/,
+        /Usá solo una identidad de receptor/,
       );
     });
   });
@@ -74,7 +74,7 @@ describe('billing.command.shortcuts', () => {
 
     it('rejects more than one concept shortcut at the same time', () => {
       expect(() => resolveConceptShortcut({ cp: true, cs: true })).toThrow(
-        /Use solo un flag de concepto entre --cs, --cp o --csp/,
+        /Usá solo un flag de concepto entre --cs, --cp o --csp/,
       );
     });
   });

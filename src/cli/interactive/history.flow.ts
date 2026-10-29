@@ -19,7 +19,7 @@ export async function runHistoryFlow(session: InteractiveSession): Promise<void>
   }
 
   const voucherKind = await chooseStep(
-    '¿Que comprobantes queres consultar?',
+    '¿Qué comprobantes querés consultar?',
     VOUCHER_SHORTCUTS.map((shortcut) => ({
       name: `${VOUCHER_KIND_MAP[shortcut].displayName} (${shortcut})`,
       value: VOUCHER_KIND_MAP[shortcut],
@@ -31,7 +31,7 @@ export async function runHistoryFlow(session: InteractiveSession): Promise<void>
   }
 
   await pickInvoice(session, {
-    message: `¿Que ${voucherKind.displayName} queres ver?`,
+    message: `¿Qué ${voucherKind.displayName} querés ver?`,
     onPick: (picked) =>
       writeTerminalOutput(
         formatVoucherDetailAsText({

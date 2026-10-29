@@ -12,7 +12,7 @@ export function isInteractiveTerminal(): boolean {
 export function registerInteractiveCommand(program: Command): void {
   const command = program
     .command('interactivo')
-    .description('asistente paso a paso para emitir comprobantes; tambien se abre con "arcli" sin argumentos');
+    .description('asistente paso a paso para emitir comprobantes; también se abre con "arcli" sin argumentos');
 
   // Solo el entorno: el asistente no tiene salida JSON ni respuesta bruta.
   registerEnvironmentOptions(command);
@@ -21,7 +21,7 @@ export function registerInteractiveCommand(program: Command): void {
   command.action(async (_options: unknown, self: Command) => {
     if (!isInteractiveTerminal()) {
       throw new InputValidationError(
-        'El modo interactivo necesita una terminal interactiva. Use los comandos con flags.',
+        'El modo interactivo necesita una terminal interactiva. Usá los comandos con flags.',
       );
     }
 

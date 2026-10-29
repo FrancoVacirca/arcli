@@ -15,7 +15,7 @@ type Environment = 'produccion' | 'testing';
 
 export function formatParameterTablesAsText(): string {
   const rows = PARAMETER_TABLE_NAMES.map((name) => [name, PARAMETER_TABLES[name]] as const);
-  const allRows = [...rows, ['cotizacion <moneda>', 'Cotizacion oficial de ARCA, por ejemplo USD'] as const];
+  const allRows = [...rows, ['cotización <moneda>', 'Cotización oficial de ARCA, por ejemplo USD'] as const];
 
   return keyValuePanel(
     'Tablas de ARCA',
@@ -32,7 +32,7 @@ export function formatParameterTablesAsJson(): string {
     {
       tablas: [
         ...PARAMETER_TABLE_NAMES.map((name) => ({ descripcion: PARAMETER_TABLES[name], tabla: name })),
-        { descripcion: 'Cotizacion oficial de ARCA', tabla: 'cotizacion' },
+        { descripcion: 'Cotización oficial de ARCA', tabla: 'cotizacion' },
       ],
     },
     null,
@@ -48,8 +48,8 @@ export function formatParameterEntriesAsText(
   if (entries.length === 0) {
     const reason =
       table === 'puntos-venta' && environment === 'testing'
-        ? 'En testing ARCA no informa puntos de venta: cualquier numero sirve para probar.'
-        : `ARCA no devolvio valores para ${PARAMETER_TABLES[table].toLowerCase()}.`;
+        ? 'En testing ARCA no informa puntos de venta: cualquier número sirve para probar.'
+        : `ARCA no devolvió valores para ${PARAMETER_TABLES[table].toLowerCase()}.`;
 
     return noticePanel(reason, 'muted');
   }
@@ -86,12 +86,12 @@ export function formatParameterEntriesAsJson(
 export function formatQuotationAsText(quotation: Quotation, environment: Environment): string {
   const rows = [
     ['Moneda', quotation.currency],
-    ['Cotizacion', new Intl.NumberFormat('es-AR', { maximumFractionDigits: 6 }).format(quotation.rate)],
+    ['Cotización', new Intl.NumberFormat('es-AR', { maximumFractionDigits: 6 }).format(quotation.rate)],
     ['Fecha', quotation.date ? formatArcaDateAsArgentineDate(quotation.date) : 'N/D'],
   ] as const;
 
   return keyValuePanel(
-    `Cotizacion oficial · ${environment}`,
+    `Cotización oficial · ${environment}`,
     renderKeyValueRows(rows, { labelWidth: resolveKeyValueLabelWidth('standard', rows, [30, 70]) }),
     undefined,
     'standard',
@@ -117,7 +117,7 @@ function describePointOfSale(check: PointOfSaleCheck, number: number | undefined
     case 'de-baja':
       return `${number} dado de baja`;
     case 'no-encontrado':
-      return `${number} no esta habilitado para web service en este CUIT`;
+      return `${number} no está habilitado para web service en este CUIT`;
     case 'sin-datos':
       return `${number} (en testing ARCA no informa puntos de venta)`;
     case 'sin-configurar':
@@ -128,7 +128,7 @@ function describePointOfSale(check: PointOfSaleCheck, number: number | undefined
 export function formatStatusAsText(report: StatusReport): string {
   const rows = [
     ['Entorno', report.environment],
-    ['Servidor de aplicacion', report.servers.app],
+    ['Servidor de aplicación', report.servers.app],
     ['Base de datos', report.servers.db],
     ['Autenticacion', report.servers.auth],
     ['Tiempo de respuesta', `${report.latencyMs} ms`],
@@ -137,12 +137,12 @@ export function formatStatusAsText(report: StatusReport): string {
   const footer = report.ready
     ? 'ARCA responde: se puede emitir'
     : report.pointOfSale.kind === 'sin-configurar'
-      ? 'Configure el punto de venta: arcli config establecer puntoVenta <numero>'
+      ? 'Configurá el punto de venta: arcli config establecer puntoVenta <numero>'
       : report.pointOfSale.kind === 'habilitado' || report.pointOfSale.kind === 'sin-datos'
-        ? 'ARCA tiene problemas: espere unos minutos y reintente'
+        ? 'ARCA tiene problemas: esperá unos minutos y reintentá'
         : report.pointOfSale.kind === 'no-encontrado'
-          ? `Revise el punto de venta: arcli parametros puntos-venta. Los de "Factura en linea" no sirven; para crear uno para web service: ${POINT_OF_SALE_GUIDE_URL}`
-          : 'Revise el punto de venta: arcli parametros puntos-venta';
+          ? `Revisá el punto de venta: arcli parametros puntos-venta. Los de "Factura en línea" no sirven; para crear uno para web service: ${POINT_OF_SALE_GUIDE_URL}`
+          : 'Revisá el punto de venta: arcli parametros puntos-venta';
 
   return keyValuePanel(
     'Estado de ARCA',

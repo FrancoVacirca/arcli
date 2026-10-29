@@ -81,7 +81,7 @@ function formatIvaRows(iva: readonly IIva[]): Array<readonly [string, string]> {
   const label = (aliquotId: number) => resolveIvaRateLabel(aliquotId) ?? String(aliquotId);
 
   if (iva.length === 1 && iva[0]) {
-    return [['Alicuota IVA', label(iva[0].Id)]];
+    return [['Alícuota IVA', label(iva[0].Id)]];
   }
 
   return iva.map(
@@ -98,7 +98,7 @@ function formatFriendlyPayloadRows(result: BillingExecutionResult): Array<readon
     ['Fecha del comprobante', formatDateLabel(payload.CbteFch)],
     ['Tipo de documento', formatDocumentTypeLabel(payload.DocTipo)],
     [
-      'Numero de documento',
+      'Número de documento',
       typeof payload.DocNro === 'number'
         ? payload.DocNro === 0
           ? 'Sin especificar'
@@ -110,10 +110,10 @@ function formatFriendlyPayloadRows(result: BillingExecutionResult): Array<readon
     ...(result.receiver?.name ? [['Receptor', result.receiver.name] as const] : []),
     [
       'IVA receptor',
-      `${formatIvaConditionLabel(payload.CondicionIVAReceptorId)}${result.receiver?.ivaConditionFromPadron ? ' (padron)' : ''}`,
+      `${formatIvaConditionLabel(payload.CondicionIVAReceptorId)}${result.receiver?.ivaConditionFromPadron ? ' (padrón)' : ''}`,
     ],
     ['Moneda', formatCurrencyLabel(payload.MonId)],
-    ['Cotizacion', formatDecimalLabel(payload.MonCotiz)],
+    ['Cotización', formatDecimalLabel(payload.MonCotiz)],
     ['Importe neto', formatMoneyLabel(payload.ImpNeto)],
     ['Importe IVA', formatMoneyLabel(payload.ImpIVA)],
     ...formatIvaRows(payload.Iva ?? []),
@@ -142,7 +142,7 @@ function formatFriendlyPayloadRows(result: BillingExecutionResult): Array<readon
 
     rows.push(['Comprobante asociado', associatedKind ? associatedKind.displayName : String(associatedVoucher.Tipo)]);
     rows.push(['Punto de venta asociado', formatNumericLabel(associatedVoucher.PtoVta)]);
-    rows.push(['Numero asociado', formatNumericLabel(associatedVoucher.Nro)]);
+    rows.push(['Número asociado', formatNumericLabel(associatedVoucher.Nro)]);
     rows.push(['CUIT asociado', formatTaxIdLabel(associatedVoucher.Cuit)]);
 
     if (associatedVoucher.CbteFch) {
@@ -152,7 +152,7 @@ function formatFriendlyPayloadRows(result: BillingExecutionResult): Array<readon
 
   if (payload.PeriodoAsoc) {
     rows.push([
-      'Periodo asociado',
+      'Período asociado',
       `${formatDateLabel(payload.PeriodoAsoc.FchDesde)} al ${formatDateLabel(payload.PeriodoAsoc.FchHasta)}`,
     ]);
   }

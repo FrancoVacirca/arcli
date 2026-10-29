@@ -278,7 +278,7 @@ describe('billing.service', () => {
         }),
         createRuntime(),
       ),
-    ).toThrow(/Use D, DD, D-MM, D\/MM, D-MM-YY, D\/MM\/YY, D-MM-YYYY o D\/MM\/YYYY/);
+    ).toThrow(/Usá D, DD, D-MM, D\/MM, D-MM-YY, D\/MM\/YY, D-MM-YYYY o D\/MM\/YYYY/);
   });
 
   it('rejects impossible Argentine dates', () => {
@@ -295,7 +295,7 @@ describe('billing.service', () => {
         }),
         createRuntime(),
       ),
-    ).toThrow(/La fecha "31\/02\/2026" no es valida/);
+    ).toThrow(/La fecha "31\/02\/2026" no es válida/);
   });
 
   it('requires associated vouchers for credit notes and debit notes', () => {
@@ -396,13 +396,13 @@ describe('billing.service', () => {
         createBillingInput({ currencyCode: 'USD', documentNumber: 0, exchangeRate: undefined }),
         createRuntime(),
       ),
-    ).toThrow(/Falta la cotizacion de USD/);
+    ).toThrow(/Falta la cotización de USD/);
     expect(() =>
       service.buildVoucherPayload(
         createBillingInput({ currencyCode: 'USD', documentNumber: 0, exchangeRate: 1 }),
         createRuntime(),
       ),
-    ).toThrow(/Falta la cotizacion de USD/);
+    ).toThrow(/Falta la cotización de USD/);
   });
 
   it('rejects an exchange rate other than 1 for pesos', () => {
@@ -410,7 +410,7 @@ describe('billing.service', () => {
 
     expect(() =>
       service.buildVoucherPayload(createBillingInput({ documentNumber: 0, exchangeRate: 1200 }), createRuntime()),
-    ).toThrow(/En pesos la cotizacion debe ser 1/);
+    ).toThrow(/En pesos la cotización debe ser 1/);
   });
 
   it('rejects --misma-moneda for pesos', () => {
@@ -431,10 +431,10 @@ describe('billing.service', () => {
       createBillingInput({ currencyCode: 'USD', documentNumber: 0, exchangeRate: undefined, sameCurrency: true }),
       {
         createVoucher: async () => {
-          throw new Error('No deberia emitirse');
+          throw new Error('No debería emitirse');
         },
         getNextVoucherNumber: async () => {
-          throw new Error('No deberia emitirse');
+          throw new Error('No debería emitirse');
         },
         getQuotation,
       },
@@ -454,10 +454,10 @@ describe('billing.service', () => {
     await expect(
       service.resolveExchangeRate(input, {
         createVoucher: async () => {
-          throw new Error('No deberia emitirse');
+          throw new Error('No debería emitirse');
         },
         getNextVoucherNumber: async () => {
-          throw new Error('No deberia emitirse');
+          throw new Error('No debería emitirse');
         },
         getQuotation,
       }),
@@ -509,7 +509,7 @@ describe('billing.service', () => {
 
     expect(() =>
       service.buildVoucherPayload(createBillingInput({ documentNumber: 0, shortcut: 'fa' }), createRuntime()),
-    ).toThrow(/factura a no admite IVA receptor "consumidor-final". Use un comprobante letra B/);
+    ).toThrow(/factura a no admite IVA receptor "consumidor-final". Usá un comprobante letra B/);
     expect(() =>
       service.buildVoucherPayload(
         createBillingInput({
@@ -520,7 +520,7 @@ describe('billing.service', () => {
         }),
         createRuntime(),
       ),
-    ).toThrow(/factura b no admite IVA receptor "responsable-inscripto". Use un comprobante letra A/);
+    ).toThrow(/factura b no admite IVA receptor "responsable-inscripto". Usá un comprobante letra A/);
   });
 
   it('accepts any receiver IVA condition for letter C', () => {
@@ -672,7 +672,7 @@ describe('billing.service', () => {
         }),
         createRuntime(),
       ),
-    ).toThrow(/--cuit 2012345678 no es valido .*: debe tener 11 digitos/);
+    ).toThrow(/--cuit 2012345678 no es válido .*: debe tener 11 digitos/);
   });
 
   it('rejects a cuit or cuil with a wrong check digit', () => {
@@ -687,7 +687,7 @@ describe('billing.service', () => {
         }),
         createRuntime(),
       ),
-    ).toThrow(/--cuil 20409509764 no es valido .*digito verificador/);
+    ).toThrow(/--cuil 20409509764 no es válido .*digito verificador/);
   });
 
   it('rejects dni with invalid length', () => {
@@ -745,11 +745,11 @@ describe('billing.service', () => {
       service.buildVoucherPayload(createBillingInput({ documentNumber: 0, ...overrides }), createRuntime());
 
     expect(build({ billingDate: '13/03/2026', concept: 'productos' })).not.toThrow();
-    expect(build({ billingDate: '12/03/2026', concept: 'productos' })).toThrow(/hasta 5 dias antes y 5 despues/);
+    expect(build({ billingDate: '12/03/2026', concept: 'productos' })).toThrow(/hasta 5 días antes y 5 después/);
     expect(build({ billingDate: '08/03/2026' })).not.toThrow();
-    expect(build({ billingDate: '07/03/2026' })).toThrow(/hasta 10 dias antes y 10 despues/);
+    expect(build({ billingDate: '07/03/2026' })).toThrow(/hasta 10 días antes y 10 después/);
     expect(build({ billingDate: '28/03/2026' })).not.toThrow();
-    expect(build({ billingDate: '29/03/2026' })).toThrow(/hasta 10 dias antes y 10 despues/);
+    expect(build({ billingDate: '29/03/2026' })).toThrow(/hasta 10 días antes y 10 después/);
   });
 
   it('rejects future product dates in another month', () => {
@@ -785,8 +785,8 @@ describe('billing.service', () => {
       );
 
     expect(build('19/03/2026')).not.toThrow();
-    expect(build('20/03/2026')).toThrow(/hasta 5 dias antes y 1 despues/);
-    expect(build('12/03/2026')).toThrow(/hasta 5 dias antes y 1 despues/);
+    expect(build('20/03/2026')).toThrow(/hasta 5 días antes y 1 después/);
+    expect(build('12/03/2026')).toThrow(/hasta 5 días antes y 1 después/);
   });
 
   it('sends FchVtoPago on FCE invoices even for products', () => {
@@ -964,7 +964,7 @@ describe('billing.service', () => {
           periodNote({ associatedPeriod: { desde: '01/03/2026', hasta: '19/03/2026' } }),
           createRuntime(),
         ),
-      ).toThrow(/no puede terminar despues/);
+      ).toThrow(/no puede terminar después/);
     });
 
     it('rejects an inverted period', () => {
@@ -989,7 +989,7 @@ describe('billing.service', () => {
       const service = new BillingService();
 
       expect(() => service.buildVoucherPayload(periodNote({ shortcut: 'fb' }), createRuntime())).toThrow(
-        /no usa periodo asociado/,
+        /no usa período asociado/,
       );
       expect(() =>
         service.buildVoucherPayload(
@@ -1001,13 +1001,13 @@ describe('billing.service', () => {
           }),
           createRuntime(),
         ),
-      ).toThrow(/no admite periodo asociado/);
+      ).toThrow(/no admite período asociado/);
     });
 
     it('mentions the period alternative when a regular note has no association', () => {
       expect(() =>
         new BillingService().buildVoucherPayload(periodNote({ associatedPeriod: undefined }), createRuntime()),
-      ).toThrow(/o un periodo con --periodo-desde y --periodo-hasta/);
+      ).toThrow(/o un período con --periodo-desde y --periodo-hasta/);
     });
   });
 
@@ -1059,7 +1059,7 @@ describe('billing.service', () => {
       );
 
       expect(warnings).toEqual([
-        'No se pudo verificar el regimen FCE del receptor: El certificado no esta autorizado para el servicio wsfecred.',
+        'No se pudo verificar el régimen FCE del receptor: El certificado no esta autorizado para el servicio wsfecred.',
       ]);
     });
   });
@@ -1176,7 +1176,7 @@ describe('billing.service', () => {
           createBillingInput({ billingDate: '18/03/2026', cbu: '0110599520000012345678', documentNumber: 0 }),
           createRuntime(),
         ),
-      ).toThrow(/--cbu solo aplica a comprobantes de credito electronica/);
+      ).toThrow(/--cbu solo aplica a comprobantes de crédito electrónica/);
     });
 
     it('keeps the associated date optional on regular credit notes', () => {
@@ -1321,13 +1321,13 @@ describe('billing.service', () => {
     const result = await service.execute({
       gateway: {
         createVoucher: async () => {
-          throw new Error('No deberia ejecutarse en dry-run');
+          throw new Error('No debería ejecutarse en dry-run');
         },
         getNextVoucherNumber: async () => {
-          throw new Error('No deberia ejecutarse en dry-run');
+          throw new Error('No debería ejecutarse en dry-run');
         },
         getQuotation: async () => {
-          throw new Error('No deberia consultarse la cotizacion');
+          throw new Error('No debería consultarse la cotización');
         },
       },
       input: createBillingInput({
@@ -1360,7 +1360,7 @@ describe('billing.service', () => {
     });
 
     await expect(run).rejects.toBeInstanceOf(EmissionUncertainError);
-    await expect(run).rejects.toThrow('No se pudo confirmar la emision: socket hang up');
+    await expect(run).rejects.toThrow('No se pudo confirmar la emisión: socket hang up');
     await expect(run).rejects.toMatchObject({
       code: 'EMISSION_UNCERTAIN',
       suggestion: expect.stringContaining('arcli ultimos fb --pv 3'),
@@ -1441,7 +1441,7 @@ describe('billing.service', () => {
     } as never);
 
     expect(summary.status).toBe('rechazado');
-    expect(summary.suggestions).toEqual([expect.stringContaining('Factura en linea')]);
+    expect(summary.suggestions).toEqual([expect.stringContaining('Factura en línea')]);
     expect(summary.suggestions[0]).toContain('obtencion-certificados.md#punto-de-venta-para-web-service');
   });
 
@@ -1462,12 +1462,12 @@ describe('billing.service', () => {
       cae: '',
       caeFchVto: '',
       response: {
-        Errors: { Err: [{ Code: 10016, Msg: 'El numero de comprobante no es el proximo a autorizar.' }] },
+        Errors: { Err: [{ Code: 10016, Msg: 'El número de comprobante no es el próximo a autorizar.' }] },
         FeDetResp: { FECAEDetResponse: [{ Resultado: 'R' }] },
       },
     } as never);
 
-    expect(summary.suggestions.join(' ')).not.toContain('Factura en linea');
+    expect(summary.suggestions.join(' ')).not.toContain('Factura en línea');
   });
 
   it('maps ARCA responses into a stable summary', () => {

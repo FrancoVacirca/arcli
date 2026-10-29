@@ -46,7 +46,7 @@ describe('ArcaParametersGateway', () => {
       getSalesPoints: vi.fn(async () => ({
         resultGet: {
           ptoVenta: [
-            { bloqueado: 'N', emisionTipo: 'CAE - Factura en linea', fechaBaja: 'NULL', nro: 3 },
+            { bloqueado: 'N', emisionTipo: 'CAE - Factura en línea', fechaBaja: 'NULL', nro: 3 },
             { bloqueado: 'S', emisionTipo: 'CAE', nro: 4 },
           ],
         },
@@ -54,7 +54,7 @@ describe('ArcaParametersGateway', () => {
     });
 
     expect(await gateway.getSalesPoints()).toEqual([
-      { blocked: false, closedOn: undefined, emissionType: 'CAE - Factura en linea', number: 3 },
+      { blocked: false, closedOn: undefined, emissionType: 'CAE - Factura en línea', number: 3 },
       { blocked: true, closedOn: undefined, emissionType: 'CAE', number: 4 },
     ]);
   });

@@ -14,10 +14,10 @@ export function readJsonFile<T>(filePath: string): T {
   try {
     return JSON.parse(rawContent) as T;
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'JSON invalido';
+    const message = error instanceof Error ? error.message : 'JSON inválido';
 
     throw new InputValidationError(`No se pudo leer el archivo JSON "${filePath}": ${message}`, {
-      cause: error instanceof Error ? error.message : 'JSON invalido',
+      cause: error instanceof Error ? error.message : 'JSON inválido',
       path: filePath,
     });
   }

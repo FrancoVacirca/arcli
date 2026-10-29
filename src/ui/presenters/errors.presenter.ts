@@ -10,17 +10,17 @@ import { formatZodError } from './errors.zod-presenter';
 function formatErrorTitle(code: string): string {
   switch (code) {
     case 'CONFIGURATION_ERROR':
-      return 'Error de configuracion';
+      return 'Error de configuración';
     case 'CERTIFICATE_EXPIRED':
       return 'Certificado vencido';
     case 'INPUT_VALIDATION_ERROR':
       return 'Error de entrada';
     case 'BATCH_VALIDATION_ERROR':
-      return 'Lote invalido';
+      return 'Lote inválido';
     case 'BATCH_EMISSION_ERROR':
       return 'Lote interrumpido';
     case 'EMISSION_UNCERTAIN':
-      return 'Emision sin confirmar';
+      return 'Emisión sin confirmar';
     case 'PDF_GENERATION_ERROR':
     case 'PDF_ISSUER_INCOMPLETE':
     case 'PDF_PLUGIN_MISSING':
@@ -39,13 +39,13 @@ function formatErrorHint(error: AppError): string | null {
 
   switch (error.code) {
     case 'CONFIGURATION_ERROR':
-      return 'Revise la configuracion con `arcli config` o corra `arcli config revisar`.';
+      return 'Revisá la configuración con `arcli config` o corré `arcli config revisar`.';
     case 'INPUT_VALIDATION_ERROR':
-      return 'Revise los parametros del comando con `ayuda` e intente nuevamente.';
+      return 'Revisá los parámetros del comando con `ayuda` e intentá nuevamente.';
     case 'BATCH_VALIDATION_ERROR':
-      return 'Corrija esos comprobantes en el archivo y vuelva a correr el lote completo.';
+      return 'Corregí esos comprobantes en el archivo y volvé a correr el lote completo.';
     case 'BATCH_EMISSION_ERROR':
-      return 'Los comprobantes de arriba ya se emitieron: no los vuelva a cargar. Antes de reintentar el que fallo, verifique con `arcli ultimos` si se emitio; despues reintente los que quedaron sin procesar.';
+      return 'Los comprobantes de arriba ya se emitieron: no los volvé a cargar. Antes de reintentar el que fallo, verificá con `arcli ultimos` si se emitió; después reintentá los que quedaron sin procesar.';
     default:
       return null;
   }
@@ -58,7 +58,7 @@ function detectTransientError(message: string): {
   if (message.includes('coe.alreadyAuthenticated')) {
     return {
       sugerencia:
-        'WSAA informo que ya existe un TA valido para este servicio. Espere unos segundos y vuelva a intentar sin cambiar el payload.',
+        'WSAA informo que ya existe un TA válido para este servicio. Esperá unos segundos y volvé a intentar sin cambiar el payload.',
       title: 'Error transitorio WSAA',
     };
   }
@@ -66,7 +66,7 @@ function detectTransientError(message: string): {
   if (message.includes('Transacción Activa')) {
     return {
       sugerencia:
-        'ARCA devolvio una transaccion activa. Espere unos segundos y reintente la emision antes de modificar datos del comprobante.',
+        'ARCA devolvió una transacción activa. Esperá unos segundos y reintentá la emisión antes de modificar datos del comprobante.',
       title: 'Error transitorio ARCA',
     };
   }
@@ -139,6 +139,6 @@ export function formatCliError(error: unknown, useJson: boolean): string {
     transientError?.title ?? 'Error inesperado',
     message,
     [],
-    transientError?.sugerencia ?? 'Si el problema persiste, revise la configuracion o reintente con mas contexto.',
+    transientError?.sugerencia ?? 'Si el problema persiste, revisá la configuración o reintentá con más contexto.',
   );
 }

@@ -9,7 +9,7 @@ import {
   readCertificateExpiry,
 } from '../../lib/security/certificate';
 
-import { type ArcliEnvironment, arcliEnvironmentSchema } from './config.schemas';
+import { type ArcliEnvironment, arcliEnvironmentSchema, formatEnvironmentLabel } from './config.schemas';
 
 /** A menos de estos dias de vencer, el certificado se avisa en cada comando y en `config revisar`. */
 export const CERTIFICATE_EXPIRY_WARNING_DAYS = 30;
@@ -53,7 +53,7 @@ export function describeCertificateExpiry(
     ? `venció el ${expiresOn}`
     : `vence el ${expiresOn} (${formatDaysRemaining(expiry.daysRemaining)})`;
 
-  const summary = `El certificado de ${environment} ${status}.`;
+  const summary = `El certificado de ${formatEnvironmentLabel(environment)} ${status}.`;
 
   return {
     daysRemaining: expiry.daysRemaining,
@@ -132,11 +132,14 @@ export class CertificateExpiredError extends AppError {
   public readonly notice: CertificateExpiryNotice;
 
   public constructor(notice: CertificateExpiryNotice) {
-    super(`El certificado de ${notice.environment} venció el ${notice.expiresOn}: ARCA no lo acepta.`, {
-      code: 'CERTIFICATE_EXPIRED',
-      details: { entorno: notice.environment, vencimiento: notice.expiresOn },
-      suggestion: `Generá uno nuevo siguiendo la guía y cargalo con "arcli config establecer cert.${notice.environment} <ruta>": ${CERTIFICATE_GUIDE_URL}`,
-    });
+    super(
+      `El certificado de ${formatEnvironmentLabel(notice.environment)} venció el ${notice.expiresOn}: ARCA no lo acepta.`,
+      {
+        code: 'CERTIFICATE_EXPIRED',
+        details: { entorno: notice.environment, vencimiento: notice.expiresOn },
+        suggestion: `Generá uno nuevo siguiendo la guía y cargalo con "arcli config establecer cert.${notice.environment} <ruta>": ${CERTIFICATE_GUIDE_URL}`,
+      },
+    );
     this.name = 'CertificateExpiredError';
     this.notice = notice;
   }

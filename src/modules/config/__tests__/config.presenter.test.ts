@@ -84,8 +84,8 @@ describe('config.presenter', () => {
       [{ environment: 'testing', error: 'Falta el punto de venta.' }],
     );
 
-    expect(formatConfigDoctor(report)).toContain('"etiqueta": "Validacion testing"');
-    expect(formatConfigDoctorAsText(report)).toContain('REVISION DE CONFIGURACION');
+    expect(formatConfigDoctor(report)).toContain('"etiqueta": "Validación testing"');
+    expect(formatConfigDoctorAsText(report)).toContain('REVISIÓN DE CONFIGURACIÓN');
     expect(formatConfigDoctorAsText(report)).toContain('Falta el punto de venta.');
   });
 });

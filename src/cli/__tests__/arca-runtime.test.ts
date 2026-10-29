@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CERTIFICATE_GUIDE_URL } from '../../lib/links';
 import type { CertificateExpiryNotice } from '../../modules/config/certificate-expiry';
+import { formatEnvironmentLabel } from '../../modules/config/config.schemas';
 import type { ResolvedArcaRuntime } from '../../services/arca/arca-context.resolver';
 import { stripAnsi } from '../../ui';
 import { certificateWarnings, resolveArcaRuntime, writeCertificateNotice } from '../arca-runtime';
@@ -17,9 +18,10 @@ vi.mock('../../services/arca/arca-context.resolver', () => ({
 }));
 
 function notice(expired: boolean, environment: 'produccion' | 'testing' = 'produccion'): CertificateExpiryNotice {
+  const label = formatEnvironmentLabel(environment);
   const summary = expired
-    ? `El certificado de ${environment} venció el 20/11/2026.`
-    : `El certificado de ${environment} vence el 20/11/2026 (en 10 días).`;
+    ? `El certificado de ${label} venció el 20/11/2026.`
+    : `El certificado de ${label} vence el 20/11/2026 (en 10 días).`;
 
   return {
     daysRemaining: expired ? -1 : 10,
@@ -66,7 +68,7 @@ describe('certificate notice in commands', () => {
 
     expect(resolveArcaRuntime({})).toBe(resolvedRuntime.current);
     expect(stdout).toBe('');
-    expect(stripAnsi(stderr)).toContain('El certificado de produccion vence el 20/11/2026 (en 10 días).');
+    expect(stripAnsi(stderr)).toContain('El certificado de producción vence el 20/11/2026 (en 10 días).');
     expect(stripAnsi(stderr)).toContain(`Renovalo: ${CERTIFICATE_GUIDE_URL}`);
   });
 
@@ -81,7 +83,7 @@ describe('certificate notice in commands', () => {
   it('warns about the certificate of the other environment, independently of the active one', () => {
     writeCertificateNotice(withNotices(false, [notice(false, 'produccion')]));
 
-    expect(stripAnsi(stderr)).toContain('El certificado de produccion vence el 20/11/2026 (en 10 días).');
+    expect(stripAnsi(stderr)).toContain('El certificado de producción vence el 20/11/2026 (en 10 días).');
   });
 
   it('lists both certificates in the same banner', () => {
@@ -90,7 +92,7 @@ describe('certificate notice in commands', () => {
     const plain = stripAnsi(stderr);
 
     expect(plain).toContain('El certificado de testing vence el 20/11/2026 (en 10 días).');
-    expect(plain).toContain('El certificado de produccion vence el 20/11/2026 (en 10 días).');
+    expect(plain).toContain('El certificado de producción vence el 20/11/2026 (en 10 días).');
     expect(plain.match(/Renovalo:/g)).toHaveLength(1);
     expect(plain.match(/┌/g)).toHaveLength(1);
   });
@@ -105,14 +107,14 @@ describe('certificate notice in commands', () => {
   it('warns about an expired certificate in text mode', () => {
     writeCertificateNotice(withNotices(false, [notice(true)], notice(true)));
 
-    expect(stripAnsi(stderr)).toContain('El certificado de produccion venció el 20/11/2026.');
+    expect(stripAnsi(stderr)).toContain('El certificado de producción venció el 20/11/2026.');
   });
 
   it('warns about an expired certificate of the other environment, without blocking', () => {
     writeCertificateNotice(withNotices(true, [notice(true, 'produccion')]));
 
     expect(stdout).toBe('');
-    expect(stripAnsi(stderr)).toContain('El certificado de produccion venció el 20/11/2026.');
+    expect(stripAnsi(stderr)).toContain('El certificado de producción venció el 20/11/2026.');
   });
 
   it('leaves an expired active certificate to the JSON error with --json', () => {

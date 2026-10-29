@@ -17,7 +17,7 @@ const ISSUER_QUESTIONS: Record<IssuerKey, string> = {
   cuit: 'CUIT del emisor',
   'emisor.domicilio': 'Domicilio comercial del emisor',
   'emisor.inicioActividades': 'Fecha de inicio de actividades (D/MM/YYYY)',
-  'emisor.razonSocial': 'Razon social o nombre del emisor',
+  'emisor.razonSocial': 'Razón social o nombre del emisor',
 };
 
 function validateConfigValue(key: IssuerKey, value: string): string | true {
@@ -60,7 +60,7 @@ async function completeIssuer(config: ArcliConfig): Promise<ArcliConfig> {
     completed = applyIssuerValue(completed, key, value);
   }
 
-  if (await confirm('¿Guardamos estos datos en la config para la proxima?', 'Si, guardar', 'No, solo esta vez')) {
+  if (await confirm('¿Guardamos estos datos en la config para la próxima?', 'Sí, guardar', 'No, solo esta vez')) {
     const service = new ConfigService();
 
     try {
@@ -95,17 +95,17 @@ export async function offerPdf(
   try {
     if (
       decision === 'preguntar' &&
-      !(await confirm('¿Generamos el PDF del comprobante?', 'Si, generar el PDF', 'No'))
+      !(await confirm('¿Generamos el PDF del comprobante?', 'Sí, generar el PDF', 'No'))
     ) {
       return;
     }
 
-    const description = await askText('Descripcion del comprobante (Enter para "Segun detalle")');
+    const description = await askText('Descripción del comprobante (Enter para "Segun detalle")');
     // Lo que trajo el padron se propone: Enter lo deja, en lugar de borrarlo.
     const receiverName = await askText(
       input.receiverName
         ? 'Nombre o razón social del receptor:'
-        : 'Nombre o razon social del receptor (Enter para omitir)',
+        : 'Nombre o razón social del receptor (Enter para omitir)',
       { defaultValue: input.receiverName },
     );
     const receiverAddress = await askText(

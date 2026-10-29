@@ -15,7 +15,7 @@ const oneItemBatch = { inputIndexes: [1], invalidItems: [], isBatch: true, total
 
 describe('prepareBatch', () => {
   it('con un solo comprobante deja pasar el error de la consulta como siempre', async () => {
-    const original = new Error('El padron no responde');
+    const original = new Error('El padrón no responde');
 
     await expect(
       prepareBatch({
@@ -38,7 +38,7 @@ describe('prepareBatch', () => {
     };
     const resolve = vi.fn(async (input: string) => {
       if (input === 'sin-cotizacion') {
-        throw new Error('ARCA no devolvio la cotizacion de DOL.');
+        throw new Error('ARCA no devolvió la cotización de DOL.');
       }
 
       return `${input}-resuelto`;
@@ -53,11 +53,11 @@ describe('prepareBatch', () => {
 
     await expect(run).rejects.toThrow(BatchValidationError);
     await run.catch((error: BatchValidationError) => {
-      expect(error.message).toContain('3 de 5 comprobantes del lote tienen errores. No se emitio ninguno.');
-      expect(error.message).toContain('#2: ARCA no devolvio la cotizacion de DOL.');
+      expect(error.message).toContain('3 de 5 comprobantes del lote tienen errores. No se emitió ninguno.');
+      expect(error.message).toContain('#2: ARCA no devolvió la cotización de DOL.');
       expect(error.details).toEqual({
         comprobantes: [
-          { error: 'ARCA no devolvio la cotizacion de DOL.', indice: 2 },
+          { error: 'ARCA no devolvió la cotización de DOL.', indice: 2 },
           { error: 'Falta monto.', indice: 3 },
           { error: 'La factura a no admite IVA receptor "consumidor-final".', indice: 4 },
         ],
@@ -85,14 +85,14 @@ describe('prepareBatch', () => {
       inputs: ['a'],
       plan: oneItemBatch,
       resolve: async () => {
-        throw new Error('El padron no responde');
+        throw new Error('El padrón no responde');
       },
       validate: vi.fn(),
     });
 
     await expect(run).rejects.toThrow(BatchValidationError);
     await expect(run).rejects.toMatchObject({
-      details: { comprobantes: [{ error: 'El padron no responde', indice: 1 }] },
+      details: { comprobantes: [{ error: 'El padrón no responde', indice: 1 }] },
     });
   });
 });
@@ -123,7 +123,7 @@ describe('emitBatch', () => {
 
     await expect(run).rejects.toThrow(BatchEmissionError);
     await run.catch((error: BatchEmissionError) => {
-      expect(error.message).toContain('El lote se interrumpio en el comprobante #3: Transacción Activa');
+      expect(error.message).toContain('El lote se interrumpió en el comprobante #3: Transacción Activa');
       expect(error.message).toContain('Procesados: 2 de 4. Sin procesar: #3, #4.');
       expect(error.details).toEqual({ fallo: 3, procesados: 2, sinProcesar: [3, 4], total: 4 });
     });
@@ -168,7 +168,7 @@ describe('emitBatch', () => {
       plan: batch(2),
     });
 
-    await expect(run).rejects.toThrow('El lote se interrumpio en el comprobante #2: Transacción Activa');
+    await expect(run).rejects.toThrow('El lote se interrumpió en el comprobante #2: Transacción Activa');
   });
 
   it('si la emision quedo sin confirmar, pide verificar el que fallo', async () => {

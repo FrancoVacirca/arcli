@@ -21,7 +21,7 @@ export class ArcaBillingGateway implements BillingGateway {
     const nextNumber = (await getLastAuthorizedNumber(this.arca, pointOfSale, voucherType)) + 1;
 
     if (nextNumber > MAX_VOUCHER_NUMBER) {
-      throw new Error(`Numero de comprobante no puede ser mayor a ${MAX_VOUCHER_NUMBER}`);
+      throw new Error(`Número de comprobante no puede ser mayor a ${MAX_VOUCHER_NUMBER}`);
     }
 
     return nextNumber;
@@ -37,7 +37,7 @@ export class ArcaBillingGateway implements BillingGateway {
     const exchangeRate = result.resultGet?.monCotiz;
 
     if (typeof exchangeRate !== 'number' || exchangeRate <= 0) {
-      throw new AppError(`ARCA no devolvio una cotizacion valida para ${currencyCode}.`, {
+      throw new AppError(`ARCA no devolvió una cotización válida para ${currencyCode}.`, {
         code: 'ARCA_QUOTATION_ERROR',
         details: { errors: result.errors },
       });

@@ -79,11 +79,11 @@ describe('config-doctor', () => {
 
     expect(report.ok).toBe(true);
     expect(report.checks.find((item) => item.label === 'Credenciales testing')?.category).toBe('ok');
-    expect(report.checks.find((item) => item.label === 'Credenciales produccion')?.category).toBe('ok');
-    expect(report.checks.find((item) => item.label === 'Validacion testing')?.category).toBe('ok');
-    expect(report.checks.find((item) => item.label === 'Validacion produccion')?.category).toBe('ok');
+    expect(report.checks.find((item) => item.label === 'Credenciales producción')?.category).toBe('ok');
+    expect(report.checks.find((item) => item.label === 'Validación testing')?.category).toBe('ok');
+    expect(report.checks.find((item) => item.label === 'Validación producción')?.category).toBe('ok');
     expect(report.checks.find((item) => item.label === 'Vencimiento cert. testing')?.category).toBe('ok');
-    expect(report.checks.find((item) => item.label === 'Vencimiento cert. produccion')?.category).toBe('ok');
+    expect(report.checks.find((item) => item.label === 'Vencimiento cert. producción')?.category).toBe('ok');
   }, 10_000);
 
   it('warns when key defaults are still missing', () => {
@@ -124,7 +124,7 @@ describe('config-doctor', () => {
     const check = report.checks.find((item) => item.label === 'Vencimiento cert. testing');
 
     expect(check?.category).toBe('warning');
-    expect(check?.detail).toMatch(/vence en \d+ dias/);
+    expect(check?.detail).toMatch(/vence en \d+ días/);
   }, 10_000);
 
   it('reports an error when a certificate path cannot be read', () => {

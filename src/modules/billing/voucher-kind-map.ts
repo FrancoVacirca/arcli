@@ -30,7 +30,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   nca: {
     arcaType: 3,
-    displayName: 'Nota de credito A',
+    displayName: 'Nota de crédito A',
     family: 'nota-credito',
     isElectronicCredit: false,
     letter: 'a',
@@ -39,7 +39,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   ncb: {
     arcaType: 8,
-    displayName: 'Nota de credito B',
+    displayName: 'Nota de crédito B',
     family: 'nota-credito',
     isElectronicCredit: false,
     letter: 'b',
@@ -48,7 +48,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   ncc: {
     arcaType: 13,
-    displayName: 'Nota de credito C',
+    displayName: 'Nota de crédito C',
     family: 'nota-credito',
     isElectronicCredit: false,
     letter: 'c',
@@ -57,7 +57,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   nda: {
     arcaType: 2,
-    displayName: 'Nota de debito A',
+    displayName: 'Nota de débito A',
     family: 'nota-debito',
     isElectronicCredit: false,
     letter: 'a',
@@ -66,7 +66,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   ndb: {
     arcaType: 7,
-    displayName: 'Nota de debito B',
+    displayName: 'Nota de débito B',
     family: 'nota-debito',
     isElectronicCredit: false,
     letter: 'b',
@@ -75,7 +75,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   ndc: {
     arcaType: 12,
-    displayName: 'Nota de debito C',
+    displayName: 'Nota de débito C',
     family: 'nota-debito',
     isElectronicCredit: false,
     letter: 'c',
@@ -84,7 +84,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   fcea: {
     arcaType: 201,
-    displayName: 'Factura de credito electronica A',
+    displayName: 'Factura de crédito electrónica A',
     family: 'factura-credito-electronica',
     isElectronicCredit: true,
     letter: 'a',
@@ -93,7 +93,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   fceb: {
     arcaType: 206,
-    displayName: 'Factura de credito electronica B',
+    displayName: 'Factura de crédito electrónica B',
     family: 'factura-credito-electronica',
     isElectronicCredit: true,
     letter: 'b',
@@ -102,7 +102,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   fcec: {
     arcaType: 211,
-    displayName: 'Factura de credito electronica C',
+    displayName: 'Factura de crédito electrónica C',
     family: 'factura-credito-electronica',
     isElectronicCredit: true,
     letter: 'c',
@@ -111,7 +111,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   ncea: {
     arcaType: 203,
-    displayName: 'Nota de credito electronica A',
+    displayName: 'Nota de crédito electrónica A',
     family: 'nota-credito-electronica',
     isElectronicCredit: true,
     letter: 'a',
@@ -120,7 +120,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   nceb: {
     arcaType: 208,
-    displayName: 'Nota de credito electronica B',
+    displayName: 'Nota de crédito electrónica B',
     family: 'nota-credito-electronica',
     isElectronicCredit: true,
     letter: 'b',
@@ -129,7 +129,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   ncec: {
     arcaType: 213,
-    displayName: 'Nota de credito electronica C',
+    displayName: 'Nota de crédito electrónica C',
     family: 'nota-credito-electronica',
     isElectronicCredit: true,
     letter: 'c',
@@ -138,7 +138,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   ndea: {
     arcaType: 202,
-    displayName: 'Nota de debito electronica A',
+    displayName: 'Nota de débito electrónica A',
     family: 'nota-debito-electronica',
     isElectronicCredit: true,
     letter: 'a',
@@ -147,7 +147,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   ndeb: {
     arcaType: 207,
-    displayName: 'Nota de debito electronica B',
+    displayName: 'Nota de débito electrónica B',
     family: 'nota-debito-electronica',
     isElectronicCredit: true,
     letter: 'b',
@@ -156,7 +156,7 @@ export const VOUCHER_KIND_MAP: Record<VoucherShortcut, VoucherKindDefinition> = 
   },
   ndec: {
     arcaType: 212,
-    displayName: 'Nota de debito electronica C',
+    displayName: 'Nota de débito electrónica C',
     family: 'nota-debito-electronica',
     isElectronicCredit: true,
     letter: 'c',

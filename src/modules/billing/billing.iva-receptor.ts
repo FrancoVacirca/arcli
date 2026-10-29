@@ -59,7 +59,7 @@ export function validateIvaConditionForVoucher(
   }
 
   const suggestedLetter = (['a', 'b'] as const).find((letter) => isIvaConditionAllowed(letter, ivaCondition));
-  const suggestion = suggestedLetter ? ` Use un comprobante letra ${suggestedLetter.toUpperCase()}.` : '';
+  const suggestion = suggestedLetter ? ` Usá un comprobante letra ${suggestedLetter.toUpperCase()}.` : '';
 
   throw new InputValidationError(
     `La ${formatVoucherLabel(voucherKind)} no admite IVA receptor "${ivaCondition}".${suggestion}`,
@@ -77,7 +77,7 @@ export function validateConsumerIdentification(
 
   if (input.totalAmount * exchangeRate >= CONSUMER_IDENTIFICATION_THRESHOLD) {
     throw new InputValidationError(
-      `La ${formatVoucherLabel(voucherKind)} de $10.000.000 o mas requiere identificar al consumidor final. Use --dni, --cuit o --cuil.`,
+      `La ${formatVoucherLabel(voucherKind)} de $10.000.000 o más requiere identificar al consumidor final. Usá --dni, --cuit o --cuil.`,
     );
   }
 }

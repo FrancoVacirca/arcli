@@ -58,7 +58,7 @@ function resolveSession(options: GlobalCliOptions): InteractiveSession | undefin
     return createInteractiveSession(options);
   } catch (error) {
     writeTerminalError(formatCliError(error, false));
-    writeTerminalOutput(noticePanel('Revisala desde "Configuracion" en el menu.', 'warning'));
+    writeTerminalOutput(noticePanel('Revisala desde "Configuración" en el menú.', 'warning'));
 
     return undefined;
   }
@@ -100,7 +100,7 @@ const MAX_ISSUER_NAME_LENGTH = 32;
 
 function environmentSegment(environment: ArcliEnvironment): StatusBarSegment {
   return environment === 'produccion'
-    ? { color: 'production', text: 'PRODUCCION' }
+    ? { color: 'production', text: 'PRODUCCIÓN' }
     : { color: 'testing', text: 'TESTING' };
 }
 
@@ -156,7 +156,7 @@ async function buildHeader(options: GlobalCliOptions): Promise<string> {
       return withCertificateBox(bar, noticesWithExpired(error.notice));
     }
 
-    return statusBar([{ text: 'falta completar la configuracion' }], [{ color: 'muted', text: 'ARCA SIN VERIFICAR' }]);
+    return statusBar([{ text: 'falta completar la configuración' }], [{ color: 'muted', text: 'ARCA SIN VERIFICAR' }]);
   }
 
   const spinner = startSpinner('Consultando el estado de ARCA...');
@@ -189,7 +189,7 @@ function formatIssuer(businessName: string | undefined, cuit: number): string {
 }
 
 function updateChoice(update: UpdateCheckResult) {
-  const name = `Actualizar a la version ${update.latestVersion}`;
+  const name = `Actualizar a la versión ${update.latestVersion}`;
 
   return { name: colorize(name, 'highlight'), short: name, value: 'actualizar' as const };
 }
@@ -215,7 +215,7 @@ export async function runInteractiveMode(options: GlobalCliOptions = {}): Promis
 
     try {
       if (
-        await confirm('Falta completar la configuracion. ¿La hacemos ahora, paso a paso?', 'Si, configurar', 'Despues')
+        await confirm('Falta completar la configuración. ¿La hacemos ahora, paso a paso?', 'Sí, configurar', 'Después')
       ) {
         await runGuidedSetup();
         writeTerminalOutput(await buildHeader(options));
@@ -233,30 +233,30 @@ export async function runInteractiveMode(options: GlobalCliOptions = {}): Promis
 
     try {
       option = await chooseOne<MenuOption>(
-        '¿Que queres hacer?',
+        '¿Qué querés hacer?',
         [
           ...(update ? [updateChoice(update), new Separator(' ')] : []),
           { name: 'Emitir factura', value: 'factura' },
           {
-            description: 'Copia una de las ultimas, con fechas nuevas',
+            description: 'Copia una de las últimas, con fechas nuevas',
             name: 'Repetir una factura anterior',
             value: 'repetir',
           },
           {
-            description: 'Descuento, devolucion o anulacion de una factura',
-            name: 'Emitir nota de credito',
+            description: 'Descuento, devolución o anulación de una factura',
+            name: 'Emitir nota de crédito',
             value: 'nota-credito',
           },
-          { description: 'Cargo adicional sobre una factura', name: 'Emitir nota de debito', value: 'nota-debito' },
+          { description: 'Cargo adicional sobre una factura', name: 'Emitir nota de débito', value: 'nota-debito' },
           {
-            description: 'Los ultimos de cada tipo, o buscar uno por numero',
+            description: 'Los últimos de cada tipo, o buscar uno por número',
             name: 'Consultar comprobantes',
             value: 'historial',
           },
-          { description: 'Servidores, punto de venta y cotizacion del dolar', name: 'Estado de ARCA', value: 'estado' },
+          { description: 'Servidores, punto de venta y cotización del dólar', name: 'Estado de ARCA', value: 'estado' },
           {
-            description: 'Revisar, configuracion guiada, cambiar un dato y PDF',
-            name: 'Configuracion',
+            description: 'Revisar, configuración guiada, cambiar un dato y PDF',
+            name: 'Configuración',
             value: 'config',
           },
           new Separator(' '),
@@ -290,12 +290,12 @@ export async function runInteractiveMode(options: GlobalCliOptions = {}): Promis
       await runOption(option, options);
     } catch (error) {
       if (isPromptCancellation(error)) {
-        writeTerminalOutput(colorize('Cancelado. No se emitio nada.', 'muted'));
+        writeTerminalOutput(colorize('Cancelado. No se emitió nada.', 'muted'));
       } else {
         writeTerminalError(formatCliError(error, false));
       }
     }
   }
 
-  writeTerminalOutput(colorize('¡Hasta la proxima!', 'muted'));
+  writeTerminalOutput(colorize('¡Hasta la próxima!', 'muted'));
 }

@@ -21,13 +21,13 @@ export async function getLastAuthorizedNumber(arca: Arca, pointOfSale: number, v
     const pointOfSaleProblem = errors.some((error) => POINT_OF_SALE_ERROR_CODES.has(error.code));
 
     throw new AppError(
-      `ARCA devolvio un error al pedir el ultimo comprobante del punto de venta ${pointOfSale}: ${errors.map((error) => `${error.code} ${error.msg}`).join('; ')}`,
+      `ARCA devolvió un error al pedir el último comprobante del punto de venta ${pointOfSale}: ${errors.map((error) => `${error.code} ${error.msg}`).join('; ')}`,
       {
         code: 'ARCA_LAST_VOUCHER_ERROR',
         details: { errores: errors },
         suggestion: pointOfSaleProblem
-          ? `El punto de venta no esta habilitado para web service (los de "Factura en linea" no sirven). Revise los habilitados con arcli parametros puntos-venta o cree uno para web service: ${POINT_OF_SALE_GUIDE_URL}`
-          : 'No se emitio nada. Revise el mensaje de ARCA y reintente.',
+          ? `El punto de venta no está habilitado para web service (los de "Factura en línea" no sirven). Revisá los habilitados con arcli parametros puntos-venta o creá uno para web service: ${POINT_OF_SALE_GUIDE_URL}`
+          : 'No se emitió nada. Revisá el mensaje de ARCA y reintentá.',
       },
     );
   }

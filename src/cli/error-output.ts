@@ -34,10 +34,31 @@ export function isCommanderUsageError(error: unknown): error is CommanderError {
   return error instanceof CommanderError && !COMMANDER_NON_ERROR_CODES.has(error.code);
 }
 
+/** Los mensajes de error de uso de commander (15.x), que vienen en ingles. */
+const COMMANDER_MESSAGES: ReadonlyArray<readonly [RegExp, string]> = [
+  [/unknown option '([^']+)'/, "opción desconocida '$1'"],
+  [/unknown command '([^']+)'/, "comando desconocido '$1'"],
+  [/missing required argument '([^']+)'/, "falta el argumento obligatorio '$1'"],
+  [/option '([^']+)' argument missing/, "falta el valor de la opción '$1'"],
+  [/required option '([^']+)' not specified/, "falta la opción obligatoria '$1'"],
+  [/option '([^']+)' argument '([^']*)' is invalid\./, "el valor '$2' de la opción '$1' no es válido."],
+  [
+    /too many arguments(?: for '([^']+)')?\. Expected (\d+) arguments? but got (\d+): (.*)\./,
+    'sobran argumentos: espera $2 y recibió $3 ($4).',
+  ],
+  [/ cannot be used with /, ' no se puede usar junto con '],
+  [/\(Did you mean one of ([^?]+)\?\)/, '(¿quisiste decir alguno de $1?)'],
+  [/\(Did you mean ([^?]+)\?\)/, '(¿quisiste decir $1?)'],
+];
+
+export function translateCommanderMessage(message: string): string {
+  return COMMANDER_MESSAGES.reduce((result, [pattern, replacement]) => result.replace(pattern, replacement), message);
+}
+
 /** El error de uso de commander como `INPUT_VALIDATION_ERROR`, en el mismo formato que el resto. */
 export function toUsageError(error: CommanderError): AppError {
   // Commander arma el mensaje con "error: " adelante y, a veces, una segunda linea "(Did you mean --monto?)".
-  const message = error.message
+  const message = translateCommanderMessage(error.message)
     .replace(/^error:\s*/i, '')
     .replace(/\s*\n\s*/g, ' ')
     .trim();
@@ -61,7 +82,7 @@ export function configureUsageErrors(program: Command, errorsAsJson: () => boole
       failing = true;
 
       if (!errorsAsJson()) {
-        write(message);
+        write(translateCommanderMessage(message));
       }
     },
     writeErr: (text) => {

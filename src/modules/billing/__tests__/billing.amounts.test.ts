@@ -40,7 +40,7 @@ describe('resolveTaxAmounts', () => {
     ['5', 105, 8, 100, 5],
     ['10.5', 110.5, 4, 100, 10.5],
     ['27', 127, 6, 100, 27],
-  ] as const)('usa la alicuota %s%%', (ivaRate, totalAmount, id, netAmount, ivaAmount) => {
+  ] as const)('usa la alícuota %s%%', (ivaRate, totalAmount, id, netAmount, ivaAmount) => {
     const result = resolveTaxAmounts({ ivaRate, totalAmount }, VOUCHER_KIND_MAP.fa);
 
     expect(result.iva).toEqual([{ BaseImp: netAmount, Id: id, Importe: ivaAmount }]);
@@ -76,7 +76,7 @@ describe('resolveTaxAmounts', () => {
   it('rechaza alicuota, exento y no gravado en letra C', () => {
     expect(() =>
       resolveTaxAmounts({ exemptAmount: 10, ivaRate: '10.5', totalAmount: 100 }, VOUCHER_KIND_MAP.fc),
-    ).toThrow(/Quite --alicuota, --exento/);
+    ).toThrow(/Sacá --alicuota, --exento/);
   });
 });
 
@@ -129,13 +129,13 @@ describe('resolveTaxAmounts con varias alicuotas', () => {
   it('rechaza alicuotas que no suman lo gravado del total', () => {
     expect(() =>
       resolveTaxAmounts({ ivaRateAmounts: [{ amount: 1210, rate: '21' }], totalAmount: 2000 }, VOUCHER_KIND_MAP.fa),
-    ).toThrow(/La suma de las alicuotas \(1210.00\) no coincide con lo gravado del monto total \(2000.00\)/);
+    ).toThrow(/La suma de las alícuotas \(1210.00\) no coincide con lo gravado del monto total \(2000.00\)/);
   });
 
   it('rechaza varias alicuotas en letra C', () => {
     expect(() =>
       resolveTaxAmounts({ ivaRateAmounts: [{ amount: 100, rate: '21' }], totalAmount: 100 }, VOUCHER_KIND_MAP.fc),
-    ).toThrow(/Quite --alicuota/);
+    ).toThrow(/Sacá --alicuota/);
   });
 });
 
@@ -178,9 +178,9 @@ describe('ImpTotal exacto', () => {
   it('el schema rechaza importes con mas de 2 decimales, como los de un JSON', () => {
     const base = { concept: 'servicios', ivaCondition: 'consumidor-final', shortcut: 'fc' };
 
-    expect(() => billingCommandSchema.parse({ ...base, totalAmount: 100.555 })).toThrow(/Use hasta 2 decimales/);
+    expect(() => billingCommandSchema.parse({ ...base, totalAmount: 100.555 })).toThrow(/Usá hasta 2 decimales/);
     expect(() => billingCommandSchema.parse({ ...base, exemptAmount: 0.001, totalAmount: 100 })).toThrow(
-      /Use hasta 2 decimales/,
+      /Usá hasta 2 decimales/,
     );
     expect(billingCommandSchema.parse({ ...base, exchangeRate: 1452.123456, totalAmount: 100 }).exchangeRate).toBe(
       1452.123456,

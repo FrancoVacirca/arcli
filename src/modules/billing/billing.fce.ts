@@ -47,7 +47,7 @@ export function resolveElectronicCreditOptionals(
     const flags = input.cancellation ? [...invoiceOnlyFlags, '--anulacion'] : invoiceOnlyFlags;
 
     if (flags.length > 0) {
-      throw new InputValidationError(`${flags.join(', ')} solo aplica a comprobantes de credito electronica (FCE).`);
+      throw new InputValidationError(`${flags.join(', ')} solo aplica a comprobantes de crédito electrónica (FCE).`);
     }
 
     return undefined;
@@ -64,12 +64,12 @@ export function resolveElectronicCreditOptionals(
   }
 
   if (input.cancellation) {
-    throw new InputValidationError(`La ${label} no usa --anulacion: solo aplica a notas de credito o debito FCE.`);
+    throw new InputValidationError(`La ${label} no usa --anulacion: solo aplica a notas de crédito o débito FCE.`);
   }
 
   if (!input.cbu) {
     throw new InputValidationError(
-      `La ${label} requiere el CBU del emisor. Use --cbu o configurelo con "arcli config establecer cbu <22 digitos>".`,
+      `La ${label} requiere el CBU del emisor. Usá --cbu o configuralo con "arcli config establecer cbu <22 digitos>".`,
     );
   }
 

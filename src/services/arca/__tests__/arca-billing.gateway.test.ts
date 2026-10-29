@@ -57,7 +57,7 @@ describe('ArcaBillingGateway', () => {
 
     await expect(gateway.getNextVoucherNumber(3, 11)).rejects.toMatchObject({
       code: 'ARCA_LAST_VOUCHER_ERROR',
-      suggestion: expect.stringMatching(/No se emitio nada/),
+      suggestion: expect.stringMatching(/No se emitió nada/),
     });
   });
 

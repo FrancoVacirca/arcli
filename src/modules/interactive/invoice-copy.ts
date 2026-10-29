@@ -28,7 +28,7 @@ export function copyInvoiceAmounts(invoice: IssuedVoucher, letter: VoucherKindDe
     (invoice.taxesAmount ?? 0) > 0
       ? 'La factura tiene tributos o percepciones, que ARCLI no maneja.'
       : discriminatesIva && invoice.netAmount > 0 && !ivaRate
-        ? 'No se pudo deducir la alicuota de la factura: tiene varias o una que no es estandar.'
+        ? 'No se pudo deducir la alícuota de la factura: tiene varias o una que no es estandar.'
         : undefined;
 
   return {

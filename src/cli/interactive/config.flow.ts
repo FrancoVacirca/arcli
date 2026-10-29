@@ -167,7 +167,7 @@ function fieldSteps(keys: readonly ConfigPublicKey[], required: readonly ConfigP
     run: async () => {
       if (key === 'cert.testing' && !readConfig().cert.testing) {
         writeTerminalOutput(
-          noticePanel(`¿No tenes certificado todavia? Guia paso a paso: ${CERTIFICATE_GUIDE_URL}`, 'muted'),
+          noticePanel(`¿No tenés certificado todavía? Guía paso a paso: ${CERTIFICATE_GUIDE_URL}`, 'muted'),
         );
       }
 
@@ -182,7 +182,7 @@ function fieldSteps(keys: readonly ConfigPublicKey[], required: readonly ConfigP
 export async function runGuidedSetup(): Promise<void> {
   writeTerminalOutput(
     noticePanel(
-      `Vamos a dejar todo listo para emitir. Si todavia no tenes certificado, la guia esta en ${CERTIFICATE_GUIDE_URL}`,
+      `Vamos a dejar todo listo para emitir. Si todavía no tenés certificado, la guía esta en ${CERTIFICATE_GUIDE_URL}`,
       'info',
     ),
   );
@@ -190,16 +190,16 @@ export async function runGuidedSetup(): Promise<void> {
   const completed = await runWizard(fieldSteps(GUIDED_KEYS, ['cuit', 'cert.testing', 'key.testing', 'puntoVenta']), {});
 
   if (!completed) {
-    writeTerminalOutput(noticePanel('Configuracion guiada cancelada. Lo ya respondido quedo guardado.', 'muted'));
+    writeTerminalOutput(noticePanel('Configuración guiada cancelada. Lo ya respondido quedo guardado.', 'muted'));
 
     return;
   }
 
-  if (await confirm('¿Cargamos tambien los datos del emisor para el PDF?', 'Si', 'Ahora no')) {
+  if (await confirm('¿Cargamos también los datos del emisor para el PDF?', 'Si', 'Ahora no')) {
     await runWizard(fieldSteps(ISSUER_KEYS, []), {});
   }
 
-  writeTerminalOutput(noticePanel('Configuracion guardada. Ya podes emitir en testing.', 'success'));
+  writeTerminalOutput(noticePanel('Configuración guardada. Ya podés emitir en testing.', 'success'));
 }
 
 /** Los datos agrupados por seccion, en el mismo orden que `arcli config`, con un titulo arriba de cada una. */
@@ -230,7 +230,7 @@ async function runChangeField(): Promise<void> {
     const choices = fieldChoicesBySection(config);
     // +2: el separador y "Volver" que agrega chooseStep.
     const field = await chooseStep<ConfigField>(
-      '¿Que queres modificar?',
+      '¿Qué querés modificar?',
       choices,
       lastField,
       fitPageSize(choices.length + 2),
@@ -262,11 +262,11 @@ async function runPdfPluginMenu(): Promise<void> {
 
   writeTerminalOutput(formatPdfPluginStatusAsText(status));
 
-  const action = await chooseStep<'desinstalar' | 'instalar'>('¿Que hacemos con el plugin de PDF?', [
+  const action = await chooseStep<'desinstalar' | 'instalar'>('¿Qué hacemos con el plugin de PDF?', [
     status.installed
       ? { description: 'Borra el plugin y el navegador descargado', name: 'Desinstalar', value: 'desinstalar' }
       : {
-          description: '~160 MB, o ~360 MB si no tenes Chrome',
+          description: '~160 MB, o ~360 MB si no tenés Chrome',
           name: status.installedVersion ? 'Actualizar' : 'Instalar',
           value: 'instalar',
         },
@@ -348,22 +348,22 @@ function showConfig(): void {
 export async function runConfigMenu(): Promise<void> {
   for (;;) {
     const option = await chooseOne<ConfigOption>(
-      'Configuracion',
+      'Configuración',
       [
-        { description: 'Todos los datos guardados, como arcli config', name: 'Ver configuracion', value: 'ver' },
+        { description: 'Todos los datos guardados, como arcli config', name: 'Ver configuración', value: 'ver' },
         {
-          description: 'Credenciales, defaults y validacion contra ARCA',
-          name: 'Revisar configuracion',
+          description: 'Credenciales, defaults y validación contra ARCA',
+          name: 'Revisar configuración',
           value: 'revisar',
         },
         {
           description: 'CUIT, certificado, punto de venta y defaults, paso a paso',
-          name: 'Configuracion guiada',
+          name: 'Configuración guiada',
           value: 'guiada',
         },
         {
-          description: 'Elegis un dato, agrupado por seccion, y lo cambias',
-          name: 'Modificar configuracion',
+          description: 'Elegis un dato, agrupado por sección, y lo cambias',
+          name: 'Modificar configuración',
           value: 'cambiar',
         },
         { description: 'Estado, instalar o desinstalar', name: 'Plugin de PDF', value: 'pdf' },

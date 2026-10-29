@@ -32,7 +32,7 @@ function requireVoucherKind(shortcut: string): VoucherKindDefinition {
 
   if (!voucherKind) {
     throw new InputValidationError(
-      `El tipo "${shortcut}" no es valido. Use un atajo: ${VOUCHER_SHORTCUTS.join(', ')}.`,
+      `El tipo "${shortcut}" no es válido. Usá un atajo: ${VOUCHER_SHORTCUTS.join(', ')}.`,
     );
   }
 
@@ -44,7 +44,7 @@ function requirePointOfSale(options: PointOfSaleOptions, runtime: ResolvedArcaRu
 
   if (!pointOfSale || !Number.isInteger(pointOfSale) || pointOfSale <= 0) {
     throw new InputValidationError(
-      'Falta el punto de venta. Use --pv <numero> o configurelo con "arcli config establecer puntoVenta <numero>".',
+      'Falta el punto de venta. Usá --pv <numero> o configuralo con "arcli config establecer puntoVenta <numero>".',
     );
   }
 
@@ -81,7 +81,7 @@ export function registerVoucherQueryCommands(program: Command): void {
     program
       .command('ultimos')
       .argument('<tipo>', 'atajo del comprobante, por ejemplo fb, fc o nca')
-      .description('listar los ultimos comprobantes emitidos en ARCA')
+      .description('listar los últimos comprobantes emitidos en ARCA')
       .option(
         '--cantidad <numero>',
         `cuantos comprobantes mostrar (1 a ${MAX_RECENT_VOUCHERS}; por defecto config.comprobantesPorLista o ${RECENT_VOUCHERS_LIMIT})`,
@@ -97,7 +97,7 @@ export function registerVoucherQueryCommands(program: Command): void {
     const { cantidad } = options;
 
     if (cantidad !== undefined && (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > MAX_RECENT_VOUCHERS)) {
-      throw new InputValidationError(`--cantidad tiene que ser un numero entre 1 y ${MAX_RECENT_VOUCHERS}.`);
+      throw new InputValidationError(`--cantidad tiene que ser un número entre 1 y ${MAX_RECENT_VOUCHERS}.`);
     }
 
     const { gateway, runtime } = createContext(self);
@@ -121,7 +121,7 @@ export function registerVoucherQueryCommands(program: Command): void {
     program
       .command('consultar')
       .argument('<tipo>', 'atajo del comprobante, por ejemplo fb, fc o nca')
-      .argument('<numero>', 'numero del comprobante')
+      .argument('<numero>', 'número del comprobante')
       .description('ver el detalle de un comprobante emitido en ARCA'),
   ).addHelpText('after', createVoucherQueryHelp());
 
@@ -133,7 +133,7 @@ export function registerVoucherQueryCommands(program: Command): void {
     const number = parseStrictInteger(rawNumber);
 
     if (number === undefined || number <= 0) {
-      throw new InputValidationError(`El numero "${rawNumber}" no es valido: tiene que ser un entero positivo.`);
+      throw new InputValidationError(`El número "${rawNumber}" no es válido: tiene que ser un entero positivo.`);
     }
 
     const { gateway, runtime } = createContext(self);

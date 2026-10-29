@@ -9,7 +9,7 @@ export const EXCHANGE_RATE_DECIMALS = 6;
 export type ArgentineAmountResult =
   { readonly ok: true; readonly value: number } | { readonly ok: false; readonly reason: string };
 
-const FORMAT_HINT = 'use punto para miles y coma para decimales, por ejemplo 15000, 15.000 o 1.500,50';
+const FORMAT_HINT = 'usá punto para miles y coma para decimales, por ejemplo 15000, 15.000 o 1.500,50';
 
 /**
  * Interpreta un monto escrito como en Argentina: el punto separa miles y la coma separa decimales.
@@ -25,13 +25,13 @@ export function parseArgentineAmount(
   const match = /^(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d+))?$/.exec(value);
 
   if (!match) {
-    return { ok: false, reason: /^\d+\.\d{1,2}$/.test(value) ? 'use coma para los decimales' : FORMAT_HINT };
+    return { ok: false, reason: /^\d+\.\d{1,2}$/.test(value) ? 'usá coma para los decimales' : FORMAT_HINT };
   }
 
   const [, integerPart = '', decimalPart = ''] = match;
 
   if (decimalPart.length > maxDecimals) {
-    return { ok: false, reason: `use hasta ${maxDecimals} decimales` };
+    return { ok: false, reason: `usá hasta ${maxDecimals} decimales` };
   }
 
   const amount = Number(`${integerPart.replace(/\./g, '')}.${decimalPart || '0'}`);

@@ -52,7 +52,7 @@ describe('config-value-parser', () => {
   });
 
   it('rejects values that are not recognizable booleans', () => {
-    expect(() => parseConfigValue('output.emitirPorDefecto', 'tal-vez')).toThrow(/no es un booleano valido/);
+    expect(() => parseConfigValue('output.emitirPorDefecto', 'tal-vez')).toThrow(/no es un booleano válido/);
   });
 
   it('reports invalid values as input errors, not unexpected ones', () => {
@@ -88,11 +88,11 @@ describe('config-value-parser', () => {
 
   it('rejects non-positive numbers and integers', () => {
     expect(() => parseConfigValue('cotizacionPorDefecto', '0')).toThrow(/tiene que ser mayor a 0/);
-    expect(() => parseConfigValue('cotizacionPorDefecto', '1234.5')).toThrow(/use coma para los decimales/);
-    expect(() => parseConfigValue('puntoVentaPorDefecto', '0')).toThrow(/no es un entero positivo valido/);
-    expect(() => parseConfigValue('puntoVentaPorDefecto', 'abc')).toThrow(/no es un entero positivo valido/);
-    expect(() => parseConfigValue('puntoVentaPorDefecto', '3a')).toThrow(/no es un entero positivo valido/);
-    expect(() => parseConfigValue('puntoVentaPorDefecto', '3.5')).toThrow(/no es un entero positivo valido/);
+    expect(() => parseConfigValue('cotizacionPorDefecto', '1234.5')).toThrow(/usá coma para los decimales/);
+    expect(() => parseConfigValue('puntoVentaPorDefecto', '0')).toThrow(/no es un entero positivo válido/);
+    expect(() => parseConfigValue('puntoVentaPorDefecto', 'abc')).toThrow(/no es un entero positivo válido/);
+    expect(() => parseConfigValue('puntoVentaPorDefecto', '3a')).toThrow(/no es un entero positivo válido/);
+    expect(() => parseConfigValue('puntoVentaPorDefecto', '3.5')).toThrow(/no es un entero positivo válido/);
   });
 
   it('accepts the CUIT with or without dashes and checks its check digit', () => {
@@ -106,7 +106,7 @@ describe('config-value-parser', () => {
   });
 
   it('rejects empty free-form string keys', () => {
-    expect(() => parseConfigValue('ticketPath', '   ')).toThrow(/no puede estar vacio/);
+    expect(() => parseConfigValue('ticketPath', '   ')).toThrow(/no puede estar vacío/);
   });
 
   it('validates that cert and key paths exist and contain a valid PEM', () => {
@@ -143,8 +143,8 @@ describe('config-value-parser', () => {
   it('rejects cert and key paths with invalid PEM content', () => {
     const invalidPath = writePemFile('invalid.pem', 'NOT-A-PEM');
 
-    expect(() => parseConfigValue('cert.testing', invalidPath)).toThrow(/formato PEM invalido/);
-    expect(() => parseConfigValue('key.testing', invalidPath)).toThrow(/formato PEM invalido/);
+    expect(() => parseConfigValue('cert.testing', invalidPath)).toThrow(/formato PEM inválido/);
+    expect(() => parseConfigValue('key.testing', invalidPath)).toThrow(/formato PEM inválido/);
   });
 
   it('parses the PDF mode and folder', () => {
@@ -164,10 +164,10 @@ describe('config-value-parser', () => {
 
     expect(parseConfigValue('emisor.logo', logoPath)).toBe(logoPath);
     expect(() => parseConfigValue('emisor.logo', textPath)).toThrow(/PNG o JPG/);
-    expect(() => parseConfigValue('emisor.logo', '/no/existe.png')).toThrow(/No se encontro el logo/);
+    expect(() => parseConfigValue('emisor.logo', '/no/existe.png')).toThrow(/No se encontró el logo/);
   });
 
   it('rejects a browser path that does not exist', () => {
-    expect(() => parseConfigValue('pdfNavegador', '/no/existe/chrome')).toThrow(/No se encontro el navegador/);
+    expect(() => parseConfigValue('pdfNavegador', '/no/existe/chrome')).toThrow(/No se encontró el navegador/);
   });
 });

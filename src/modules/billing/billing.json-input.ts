@@ -10,7 +10,7 @@ import type { BillingCommandInput } from './billing.schemas';
  * Es `.strict()`: una clave que no esta aca es un error, para que un typo no se ignore en silencio.
  */
 const ivaRateJsonSchema = z.union([z.string(), z.number()], {
-  error: 'tiene que ser un texto ("general", "10.5") o un numero (10.5)',
+  error: 'tiene que ser un texto ("general", "10.5") o un número (10.5)',
 });
 
 const associatedVoucherJsonSchema = z
@@ -218,7 +218,7 @@ function formatPath(path: readonly PropertyKey[]): string {
 function describeExpected(expected: string): string {
   switch (expected) {
     case 'number':
-      return 'un numero';
+      return 'un número';
     case 'string':
       return 'un texto';
     case 'boolean':
@@ -284,7 +284,7 @@ function describeIssue(issue: z.core.$ZodIssue): JsonFieldIssue[] {
 
     if (path.length === 0) {
       return [
-        { mensaje: `Cada comprobante tiene que ser un objeto y llego ${describeReceived(issue.input)}.`, ruta: [] },
+        { mensaje: `Cada comprobante tiene que ser un objeto y llegó ${describeReceived(issue.input)}.`, ruta: [] },
       ];
     }
 
@@ -295,7 +295,7 @@ function describeIssue(issue: z.core.$ZodIssue): JsonFieldIssue[] {
 
     return [
       {
-        mensaje: `"${pathLabel}" tiene que ser ${describeExpected(issue.expected)} y llego ${describeReceived(issue.input)}.${unquote}`,
+        mensaje: `"${pathLabel}" tiene que ser ${describeExpected(issue.expected)} y llegó ${describeReceived(issue.input)}.${unquote}`,
         ruta: path.map(String),
       },
     ];
@@ -326,7 +326,7 @@ export function parseBillingJsonInput(value: unknown): BillingJsonInput {
 export function readBillingJsonItems(source: unknown): unknown[] {
   if (Array.isArray(source)) {
     if (source.length === 0) {
-      throw new InputValidationError('El JSON de --cargar es un lote vacio: no hay comprobantes para procesar.');
+      throw new InputValidationError('El JSON de --cargar es un lote vacío: no hay comprobantes para procesar.');
     }
 
     return source;

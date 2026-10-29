@@ -62,7 +62,7 @@ async function askNoteAmount(
   state: NoteState,
 ): Promise<Back | { readonly annulsTotal: boolean; readonly totalAmount: number | undefined }> {
   const invoice = state.invoice;
-  const label = state.kind === 'debito' ? 'Monto de la nota de debito:' : 'Monto de la nota de credito:';
+  const label = state.kind === 'debito' ? 'Monto de la nota de débito:' : 'Monto de la nota de crédito:';
   // Con varias alicuotas o tributos no se puede armar una nota igual a la factura: solo parcial.
   const canAnnulTotal = Boolean(invoice && !copyInvoiceAmounts(invoice, state.invoiceKind?.letter ?? 'c').limitation);
 
@@ -100,7 +100,7 @@ export function noteSteps(session: InteractiveSession, pointOfSale: number): Arr
     {
       name: 'tipo-factura',
       run: async () => {
-        const invoiceKind = await chooseStep('¿Sobre que tipo de factura?', invoiceKindChoices());
+        const invoiceKind = await chooseStep('¿Sobre qué tipo de factura?', invoiceKindChoices());
 
         return invoiceKind === BACK ? BACK : { invoiceKind, target: 'factura' };
       },
@@ -108,15 +108,15 @@ export function noteSteps(session: InteractiveSession, pointOfSale: number): Arr
     {
       name: 'asociacion',
       run: async () => {
-        const target = await chooseStep('¿A que la asociamos?', [
+        const target = await chooseStep('¿A qué la asociamos?', [
           {
-            description: 'Elegis una de las ultimas emitidas o la ingresas a mano',
+            description: 'Elegis una de las últimas emitidas o la ingresas a mano',
             name: 'A una factura',
             value: 'factura' as const,
           },
           {
             description: 'Por ejemplo, un descuento sobre todo el mes',
-            name: 'A un periodo',
+            name: 'A un período',
             value: 'periodo' as const,
           },
         ]);
@@ -131,7 +131,7 @@ export function noteSteps(session: InteractiveSession, pointOfSale: number): Arr
       run: async (state) => {
         const invoiceKind = state.invoiceKind as VoucherKindDefinition;
         const picked = await pickInvoice(session, {
-          message: `¿Sobre que ${invoiceKind.displayName}?`,
+          message: `¿Sobre qué ${invoiceKind.displayName}?`,
           pointOfSale,
           voucherKind: invoiceKind,
         });
@@ -158,7 +158,7 @@ export function noteSteps(session: InteractiveSession, pointOfSale: number): Arr
 
         if (copy.limitation) {
           writeTerminalOutput(
-            noticePanel(`${copy.limitation} La nota solo puede ser parcial; revisa la alicuota.`, 'warning'),
+            noticePanel(`${copy.limitation} La nota solo puede ser parcial; revisa la alícuota.`, 'warning'),
           );
         }
 
@@ -178,13 +178,13 @@ export function noteSteps(session: InteractiveSession, pointOfSale: number): Arr
     {
       name: 'periodo',
       run: async () => {
-        const periodFrom = await askTextStep('Periodo desde:', { validate: validateDate });
+        const periodFrom = await askTextStep('Período desde:', { validate: validateDate });
 
         if (periodFrom === BACK) {
           return BACK;
         }
 
-        const periodTo = await askTextStep('Periodo hasta:', { validate: validateDate });
+        const periodTo = await askTextStep('Período hasta:', { validate: validateDate });
 
         return periodTo === BACK ? BACK : { invoice: undefined, invoicePointOfSale: undefined, periodFrom, periodTo };
       },
@@ -223,7 +223,7 @@ export function noteSteps(session: InteractiveSession, pointOfSale: number): Arr
     {
       name: 'concepto',
       run: async () => {
-        const concept = await chooseStep('¿Que concepto ajusta la nota?', conceptChoices());
+        const concept = await chooseStep('¿Qué concepto ajusta la nota?', conceptChoices());
 
         return concept === BACK ? BACK : { concept };
       },
@@ -249,7 +249,7 @@ export function noteSteps(session: InteractiveSession, pointOfSale: number): Arr
       name: 'alicuota',
       run: async (state) => {
         const ivaRate = await chooseStep(
-          isPeriod(state) ? 'Alicuota de IVA:' : 'Alicuota de IVA de la factura:',
+          isPeriod(state) ? 'Alícuota de IVA:' : 'Alícuota de IVA de la factura:',
           ivaRateChoices(),
         );
 
@@ -262,7 +262,7 @@ export function noteSteps(session: InteractiveSession, pointOfSale: number): Arr
       name: 'anulacion',
       run: async () => {
         const cancellation = await chooseStep('¿El comprador rechazo la factura?', [
-          { name: 'Si, es una nota de anulacion', value: true },
+          { name: 'Sí, es una nota de anulación', value: true },
           { name: 'No', value: false },
         ]);
 

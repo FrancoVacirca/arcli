@@ -196,7 +196,6 @@ en uso), cada comando que va a ARCA avisa en stderr (nunca en stdout) y la factu
 - `arcli estado [--json]`: si ARCA responde y si el punto de venta configurado está habilitado: `{entorno, latenciaMs, listo, puntoVenta: {estado, numero, tipoEmision}, servidores: {aplicacion, baseDeDatos, autenticacion}}`. `listo: true` = se puede emitir; `listo: false` sale igual con exit code `0`, así que hay que leer `listo`. En testing ARCA no informa puntos de venta (`puntoVenta.estado: "sin-datos"`). Si ARCA no responde: error `ARCA_UNAVAILABLE`.
 - `arcli parametros [tabla] [--json]`: tablas de ARCA vigentes: `puntos-venta`, `comprobantes`, `documentos`, `alicuotas`, `iva-receptor`, `monedas`, `conceptos`, `opcionales`, `tributos`. Sin tabla: `{tablas: [{tabla, descripcion}]}`; con tabla: `{entorno, tabla, valores: [{id, descripcion, detalle, vigenteHasta}]}`. `arcli parametros cotizacion USD` da la cotización oficial (`{cotizacion, entorno, fecha, moneda}`, con `moneda` en código ARCA: `DOL`).
 - `arcli ejemplos`: comandos listos para copiar por cada tipo de comprobante.
-- `arcli storybook [escena]`: demos visuales de la UI (sin llamar a ARCA).
 - `arcli <cualquier comando> ayuda` o `--ayuda`: ayuda contextual con ejemplos (nota: el flag
   estándar `--help` de commander está deshabilitado, usar `--ayuda` o el subcomando `ayuda`).
 

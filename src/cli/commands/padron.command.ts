@@ -16,7 +16,7 @@ export function registerPadronCommand(program: Command): void {
   const command = program
     .command('padron')
     .argument('<cuit>', 'CUIT a consultar')
-    .description('consultar en el padron de ARCA el nombre, domicilio y condicion IVA de un CUIT')
+    .description('consultar en el padrón de ARCA el nombre, domicilio y condición IVA de un CUIT')
     .addHelpText('after', createPadronHelp());
 
   registerQueryOptions(command);
@@ -25,7 +25,7 @@ export function registerPadronCommand(program: Command): void {
   command.action(async (rawCuit: string, _options: unknown, self: Command) => {
     const cuit = parseCuitArgument(rawCuit);
     const runtime = resolveArcaRuntime(getGlobalOptions(self));
-    const spinner = runtime.outputJson ? null : startSpinner('Consultando el padron...');
+    const spinner = runtime.outputJson ? null : startSpinner('Consultando el padrón...');
 
     try {
       const taxpayer = await new ArcaPadronGateway(new ArcaClientFactory().create(runtime)).getTaxpayer(cuit);
@@ -33,12 +33,12 @@ export function registerPadronCommand(program: Command): void {
       spinner?.stop();
 
       if (!taxpayer) {
-        throw new AppError(`El CUIT ${cuit} no figura en el padron de ARCA (${runtime.environment}).`, {
+        throw new AppError(`El CUIT ${cuit} no figura en el padrón de ARCA (${runtime.environment}).`, {
           code: 'TAXPAYER_NOT_FOUND',
           suggestion:
             runtime.environment === 'testing'
-              ? 'El padron de testing tiene datos ficticios: pruebe con 20201797064.'
-              : 'Revise el numero.',
+              ? 'El padrón de testing tiene datos ficticios: probá con 20201797064.'
+              : 'Revisá el número.',
         });
       }
 

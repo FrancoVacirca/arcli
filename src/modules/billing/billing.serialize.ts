@@ -12,7 +12,7 @@ function formatRawResponse(
   }
 
   return {
-    mensaje: 'Sin emision real. Use --emitir para obtener una respuesta de ARCA.',
+    mensaje: 'Sin emisión real. Usá --emitir para obtener una respuesta de ARCA.',
   };
 }
 

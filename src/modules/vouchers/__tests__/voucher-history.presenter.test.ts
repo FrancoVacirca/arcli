@@ -75,7 +75,7 @@ describe('voucher-history.presenter', () => {
   it('lista los comprobantes en texto y avisa si no hay', () => {
     const text = stripAnsi(formatVoucherListAsText({ ...base, vouchers: [voucher] }));
 
-    expect(text).toContain('ULTIMAS FACTURA B · PV 3 · TESTING');
+    expect(text).toContain('ÚLTIMAS FACTURA B · PV 3 · TESTING');
     expect(text).toContain('00003-00000012  01/10/2026');
     expect(text).toContain('CAE 86400940834444');
     expect(stripAnsi(formatVoucherListAsText({ ...base, vouchers: [] }))).toContain('No hay Factura B emitidas');
@@ -107,10 +107,10 @@ describe('voucher-history.presenter', () => {
     expect(text).toContain('Importe no gravado');
     expect(text).toContain('Vencimiento CAE');
     expect(text).toContain('APROBADO');
-    expect(text).not.toContain('Cotizacion');
+    expect(text).not.toContain('Cotización');
     expect(
       stripAnsi(formatVoucherDetailAsText({ ...base, voucher: { ...voucher, currency: 'DOL', exchangeRate: 1200 } })),
-    ).toContain('Cotizacion');
+    ).toContain('Cotización');
   });
 
   it('serializa el detalle en JSON', () => {

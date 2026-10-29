@@ -19,7 +19,7 @@ export function resolveIvaShortcut(
   ].filter(Boolean) as BillingCommandInput['ivaCondition'][];
 
   if (shortcuts.length > 1) {
-    throw new InputValidationError('Use solo un flag de IVA receptor entre las opciones --ir-*.');
+    throw new InputValidationError('Usá solo un flag de IVA receptor entre las opciones --ir-*.');
   }
 
   return shortcuts[0];
@@ -49,7 +49,7 @@ export function resolveDocumentIdentity(commandOptions: Record<string, unknown>)
 
   if (candidates.length > 1) {
     throw new InputValidationError(
-      'Use solo una identidad de receptor: --cuit, --cuil, --dni, --consumidor-final o --cfinal.',
+      'Usá solo una identidad de receptor: --cuit, --cuil, --dni, --consumidor-final o --cfinal.',
     );
   }
 
@@ -66,7 +66,7 @@ export function resolveConceptShortcut(
   ].filter(Boolean) as BillingCommandInput['concept'][];
 
   if (shortcutConcepts.length > 1) {
-    throw new InputValidationError('Use solo un flag de concepto entre --cs, --cp o --csp.');
+    throw new InputValidationError('Usá solo un flag de concepto entre --cs, --cp o --csp.');
   }
 
   return shortcutConcepts[0];

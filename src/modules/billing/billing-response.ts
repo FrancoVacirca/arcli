@@ -6,7 +6,7 @@ import type { BillingResponseSummary } from './billing.types.internal';
 
 /**
  * WSFEv1 10005: "El punto de venta informado debe estar dado de alta y ser del tipo RECE".
- * Es el rechazo de un punto de venta de "Factura en linea" (Comprobantes en linea).
+ * Es el rechazo de un punto de venta de "Factura en línea" (Comprobantes en linea).
  */
 const POINT_OF_SALE_NOT_RECE_CODE = 10005;
 
@@ -78,25 +78,25 @@ function buildResponseSuggestions(options: {
   const suggestions = new Set<string>();
 
   if (/transacci[oó]n activa/i.test(messages) || /error interno de base de datos/i.test(messages)) {
-    suggestions.add('ARCA devolvio un error transitorio. Espere unos segundos y vuelva a intentar la emision.');
+    suggestions.add('ARCA devolvió un error transitorio. Esperá unos segundos y volvé a intentar la emisión.');
   }
 
   if (/cuit receptora.*no existe/i.test(messages)) {
-    suggestions.add('Revise el CUIT del receptor o emita con un receptor valido del padron para testing.');
+    suggestions.add('Revisá el CUIT del receptor o emití con un receptor válido del padrón para testing.');
   }
 
   if (/objeto IVA es obligatorio/i.test(messages)) {
-    suggestions.add('Revise IVA receptor y el calculo de IVA del comprobante antes de reintentar.');
+    suggestions.add('Revisá IVA receptor y el calculo de IVA del comprobante antes de reintentar.');
   }
 
   if (codes.includes(POINT_OF_SALE_NOT_RECE_CODE) || /punto de venta.*tipo RECE/i.test(messages)) {
     suggestions.add(
-      `El punto de venta no esta habilitado para web service (los de "Factura en linea" no sirven). Revise los habilitados con arcli parametros puntos-venta o cree uno para web service: ${POINT_OF_SALE_GUIDE_URL}`,
+      `El punto de venta no está habilitado para web service (los de "Factura en línea" no sirven). Revisá los habilitados con arcli parametros puntos-venta o creá uno para web service: ${POINT_OF_SALE_GUIDE_URL}`,
     );
   }
 
   if (options.resultado === 'R' && suggestions.size === 0) {
-    suggestions.add('Revise observaciones y errores de ARCA antes de volver a emitir.');
+    suggestions.add('Revisá observaciones y errores de ARCA antes de volver a emitir.');
   }
 
   return [...suggestions];

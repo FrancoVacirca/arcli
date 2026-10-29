@@ -77,7 +77,7 @@ describe('resolveIvaConditionFromPadron', () => {
 
     expect(result.input).toMatchObject({ ivaCondition: 'consumidor-final', receiverName: 'VICTORIA CAROLINA DARIO' });
     expect(result.warnings).toEqual([
-      'El padron de ARCA no informa la condicion IVA del CUIT 20201797064. Se usa el IVA receptor de la config: Consumidor Final.',
+      'El padrón de ARCA no informa la condición IVA del CUIT 20201797064. Se usa el IVA receptor de la config: Consumidor Final.',
     ]);
   });
 
@@ -89,7 +89,7 @@ describe('resolveIvaConditionFromPadron', () => {
       }),
     );
 
-    expect(result.warnings[0]).toMatch(/^No se pudo consultar el padron de ARCA \(El certificado no esta autorizado\)/);
+    expect(result.warnings[0]).toMatch(/^No se pudo consultar el padrón de ARCA \(El certificado no esta autorizado\)/);
     expect(result.warnings[0]).toContain('arcli config establecer consultarPadron false');
   });
 
@@ -99,6 +99,6 @@ describe('resolveIvaConditionFromPadron', () => {
         input({ ivaConditionSource: 'missing' }),
         gateway(async () => null),
       ),
-    ).rejects.toThrow(/Falta IVA receptor. El CUIT 20201797064 no figura en el padron de ARCA/);
+    ).rejects.toThrow(/Falta IVA receptor. El CUIT 20201797064 no figura en el padrón de ARCA/);
   });
 });

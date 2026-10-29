@@ -110,7 +110,7 @@ const FIELD_DEFINITIONS: ReadonlyArray<Omit<ConfigField, 'label'>> = [
     key: 'emisor.inicioActividades',
     read: (c) => date(c.emisor.inicioActividades),
   },
-  { hint: 'numero, o "Exento" si lo estas', key: 'emisor.iibb', read: (c) => c.emisor.iibb },
+  { hint: 'número, o "Exento" si lo estás', key: 'emisor.iibb', read: (c) => c.emisor.iibb },
   {
     choices: arcliDefaultIvaConditionSchema.options,
     key: 'emisor.condicionIva',
@@ -118,7 +118,7 @@ const FIELD_DEFINITIONS: ReadonlyArray<Omit<ConfigField, 'label'>> = [
   },
   { key: 'emisor.logo', path: true, read: (c) => c.emisor.logo },
   {
-    hint: 'codigo de moneda, por ejemplo PES o USD',
+    hint: 'código de moneda, por ejemplo PES o USD',
     key: 'moneda',
     read: (c) => c.monedaPorDefecto,
   },

@@ -15,12 +15,12 @@ describe('certificateBanner', () => {
       certificateBanner({
         expired: false,
         guideUrl: GUIDE,
-        summary: 'El certificado de produccion vence el 20/11/2026 (en 10 días).',
+        summary: 'El certificado de producción vence el 20/11/2026 (en 10 días).',
       }),
     );
     const lines = banner.split('\n');
 
-    expect(lines.some((line) => line.includes('El certificado de produccion vence el 20/11/2026 (en 10 días).'))).toBe(
+    expect(lines.some((line) => line.includes('El certificado de producción vence el 20/11/2026 (en 10 días).'))).toBe(
       true,
     );
     expect(lines.some((line) => line.includes(`Renovalo: ${GUIDE}`))).toBe(true);

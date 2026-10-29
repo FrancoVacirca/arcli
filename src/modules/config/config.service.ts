@@ -76,7 +76,7 @@ function resolveStorePath(options: ConfigServiceOptions): string {
 
 function invalidConfigFileError(path: string): ConfigurationError {
   return new ConfigurationError(
-    'El archivo de configuracion tiene JSON invalido y no se puede leer.',
+    'El archivo de configuración tiene JSON inválido y no se puede leer.',
     { path },
     'Corregilo a mano, o renombralo (por ejemplo, a config.json.bak) y volve a cargar los datos con `arcli config establecer` o desde "Configuracion" en `arcli`. ARCLI no lo borra ni lo pisa.',
   );

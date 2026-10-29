@@ -6,7 +6,7 @@ export function parseCuitArgument(value: string): number {
   const result = parseCuit(value);
 
   if (!result.ok) {
-    throw new InputValidationError(`El CUIT "${value}" no es valido: ${result.reason}.`);
+    throw new InputValidationError(`El CUIT "${value}" no es válido: ${result.reason}.`);
   }
 
   return Number(result.value);

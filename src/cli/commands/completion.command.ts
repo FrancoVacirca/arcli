@@ -67,13 +67,12 @@ export function describeCompletionTree(command: Command): CompletionCommand {
   return {
     argumentValues: command.registeredArguments.map((argument) => ARGUMENT_VALUES[argument.name()]),
     name: command.name(),
-    options: command.options
-      .filter((option) => !option.hidden)
-      .map((option) => ({
-        flags: [option.long, option.short].filter((flag): flag is string => Boolean(flag)),
-        takesValue: option.required || option.optional,
-        values: option.long ? OPTION_VALUES[option.long] : undefined,
-      })),
+    options: command.options.map((option) => ({
+      flags: [option.long, option.short].filter((flag): flag is string => Boolean(flag)),
+      hidden: option.hidden,
+      takesValue: option.required || option.optional,
+      values: option.long ? OPTION_VALUES[option.long] : undefined,
+    })),
     subcommands: command.commands
       .filter((subcommand) => !INTERNAL_COMMANDS.has(subcommand.name()))
       .map(describeCompletionTree),

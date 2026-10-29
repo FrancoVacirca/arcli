@@ -73,7 +73,7 @@ export function normalizeIvaRateInput(value: unknown): unknown {
 
 export const billingIvaRateSchema = z.preprocess(
   normalizeIvaRateInput,
-  z.enum(IVA_RATE_VALUES, { message: `La alicuota debe ser ${IVA_RATE_HINT}.` }),
+  z.enum(IVA_RATE_VALUES, { message: `La alícuota debe ser ${IVA_RATE_HINT}.` }),
 );
 
 /** Importe positivo con los decimales que acepta ARCA: 2 en importes y 6 en la cotizacion. */
@@ -81,7 +81,7 @@ function positiveAmountSchema(decimals = AMOUNT_DECIMALS) {
   return z
     .number()
     .positive()
-    .refine((value) => hasAtMostDecimals(value, decimals), { message: `Use hasta ${decimals} decimales.` });
+    .refine((value) => hasAtMostDecimals(value, decimals), { message: `Usá hasta ${decimals} decimales.` });
 }
 
 /** Una alicuota con el importe que le corresponde, IVA incluido (igual que --monto). */
@@ -134,7 +134,7 @@ export const billingCommandSchema = z.object({
   cbuAlias: z
     .string()
     .trim()
-    .regex(/^[A-Za-z0-9.-]{6,20}$/, 'El alias debe tener entre 6 y 20 caracteres (letras, numeros, punto o guion)')
+    .regex(/^[A-Za-z0-9.-]{6,20}$/, 'El alias debe tener entre 6 y 20 caracteres (letras, números, punto o guion)')
     .optional(),
   concept: billingConceptSchema,
   currencyCode: z.string().trim().length(3).default('ARS'),

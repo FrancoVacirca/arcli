@@ -41,7 +41,7 @@ export function resolveAssociatedVouchers(options: ResolveAssociatedVoucherOptio
 
   if (!associatedVoucher?.numero || !associatedVoucher.puntoVenta || !associatedVoucherType || !associatedCuit) {
     throw new InputValidationError(
-      `El comprobante ${formatVoucherLabel(voucherKind)} requiere comprobante asociado. Use --ac o --at, junto con --apv o --asociado-punto-venta, --ar y --acuit${voucherKind.isElectronicCredit ? '' : ', o un periodo con --periodo-desde y --periodo-hasta'}.`,
+      `El comprobante ${formatVoucherLabel(voucherKind)} requiere comprobante asociado. Usá --ac o --at, junto con --apv o --asociado-punto-venta, --ar y --acuit${voucherKind.isElectronicCredit ? '' : ', o un período con --periodo-desde y --periodo-hasta'}.`,
     );
   }
 
@@ -51,7 +51,7 @@ export function resolveAssociatedVouchers(options: ResolveAssociatedVoucherOptio
 
   if (voucherKind.isElectronicCredit && associatedCuit !== String(emitterCuit)) {
     throw new InputValidationError(
-      `En la ${formatVoucherLabel(voucherKind)} el comprobante asociado tiene que ser del CUIT emisor (${emitterCuit}). Quite --acuit o use ese CUIT.`,
+      `En la ${formatVoucherLabel(voucherKind)} el comprobante asociado tiene que ser del CUIT emisor (${emitterCuit}). Sacá --acuit o usá ese CUIT.`,
     );
   }
 
@@ -81,7 +81,7 @@ function resolveAssociatedVoucherKind(
 
   if (byShortcut && associatedVoucher?.tipo && byShortcut.arcaType !== associatedVoucher.tipo) {
     throw new InputValidationError(
-      `El atajo "${associatedVoucher.shortcut}" es el tipo ${byShortcut.arcaType}, no el ${associatedVoucher.tipo}. Use uno solo para el comprobante asociado.`,
+      `El atajo "${associatedVoucher.shortcut}" es el tipo ${byShortcut.arcaType}, no el ${associatedVoucher.tipo}. Usá uno solo para el comprobante asociado.`,
     );
   }
 
@@ -96,7 +96,7 @@ function resolveAssociatedVoucherDate(
   if (!rawDate) {
     if (voucherKind.isElectronicCredit) {
       throw new InputValidationError(
-        `La ${formatVoucherLabel(voucherKind)} requiere la fecha del comprobante asociado. Use --afecha <fecha>.`,
+        `La ${formatVoucherLabel(voucherKind)} requiere la fecha del comprobante asociado. Usá --afecha <fecha>.`,
       );
     }
 
@@ -143,7 +143,7 @@ function validateAssociatedVoucherKind(
 
   if (associatedVoucherKind.isElectronicCredit !== voucherKind.isElectronicCredit) {
     throw new InputValidationError(
-      `El comprobante asociado debe pertenecer a la misma categoria electronica que ${formatVoucherLabel(voucherKind)}.`,
+      `El comprobante asociado debe pertenecer a la misma categoría electrónica que ${formatVoucherLabel(voucherKind)}.`,
     );
   }
 }

@@ -13,7 +13,7 @@ describe('storybook.showcase', () => {
 
     expect(output).toContain('COMPROBANTES');
     expect(output).toContain('COLORES UI');
-    expect(output).toContain('CONFIGURACION');
+    expect(output).toContain('CONFIGURACIÓN');
     expect(output).toContain('ERRORES');
     expect(output).toContain('COMPONENTES');
     expect(output).toContain('JSON');
@@ -38,8 +38,8 @@ describe('storybook.showcase', () => {
   it('renders the certificate banners in the components scene', () => {
     const output = stripAnsi(renderStorybookShowcase('componentes'));
 
-    expect(output).toContain('El certificado de produccion vence el 20/11/2026 (en 10 días).');
-    expect(output).toContain('El certificado de produccion venció el 20/11/2026.');
+    expect(output).toContain('El certificado de producción vence el 20/11/2026 (en 10 días).');
+    expect(output).toContain('El certificado de producción venció el 20/11/2026.');
     expect(output).toContain('Renovalo: https://github.com/LcsGrz/arcli/blob/main/docs/obtencion-certificados.md');
   });
 

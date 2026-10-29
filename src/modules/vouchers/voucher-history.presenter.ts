@@ -41,7 +41,7 @@ export function formatReceiver(voucher: IssuedVoucher): string {
 
 /** Titulo del listado de ultimos comprobantes, tambien usado por el selector del modo interactivo. */
 export function formatVoucherListTitle(report: Omit<VoucherListReport, 'vouchers'>): string {
-  return `Ultimas ${report.voucherKind.displayName} · PV ${report.pointOfSale} · ${report.environment}`;
+  return `Últimas ${report.voucherKind.displayName} · PV ${report.pointOfSale} · ${report.environment}`;
 }
 
 /** Una fila del listado: numero, fecha, receptor, total y CAE, en columnas alineadas. */
@@ -181,7 +181,7 @@ export function formatVoucherDetailAsJson(report: VoucherDetailReport): string {
 export function formatVoucherDetailAsText(report: VoucherDetailReport): string {
   const { pointOfSale, voucher, voucherKind } = report;
   const rows: Array<readonly [string, string]> = [
-    ['Numero', formatVoucherNumber(pointOfSale, voucher.number)],
+    ['Número', formatVoucherNumber(pointOfSale, voucher.number)],
     ['Fecha', formatArcaDateAsArgentineDate(voucher.date)],
     ['Receptor', formatReceiver(voucher)],
     ['Concepto', formatConceptLabel(voucher.concept)],
@@ -189,7 +189,7 @@ export function formatVoucherDetailAsText(report: VoucherDetailReport): string {
   ];
 
   if (voucher.currency && voucher.currency !== 'PES') {
-    rows.push(['Cotizacion', String(voucher.exchangeRate ?? 1)]);
+    rows.push(['Cotización', String(voucher.exchangeRate ?? 1)]);
   }
 
   rows.push(

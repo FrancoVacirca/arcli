@@ -27,39 +27,39 @@ export function resolveAssociatedPeriod(
   const label = formatVoucherLabel(voucherKind);
 
   if (!voucherKind.requiresAssociatedVoucher) {
-    throw new InputValidationError(`La ${label} no usa periodo asociado: solo aplica a notas de credito o debito.`);
+    throw new InputValidationError(`La ${label} no usa período asociado: solo aplica a notas de crédito o débito.`);
   }
 
   if (voucherKind.isElectronicCredit) {
     throw new InputValidationError(
-      `La ${label} no admite periodo asociado: ARCA solo lo acepta en notas comunes. Use el comprobante asociado (--ac).`,
+      `La ${label} no admite período asociado: ARCA solo lo acepta en notas comunes. Usá el comprobante asociado (--ac).`,
     );
   }
 
   if (input.associatedVoucher) {
     throw new InputValidationError(
-      'Use un comprobante asociado (--ac/--at) o un periodo asociado (--periodo-desde/--periodo-hasta), pero no ambos.',
+      'Usá un comprobante asociado (--ac/--at) o un período asociado (--periodo-desde/--periodo-hasta), pero no ambos.',
     );
   }
 
   if (!period.desde || !period.hasta) {
-    throw new InputValidationError('El periodo asociado requiere ambas fechas: --periodo-desde y --periodo-hasta.');
+    throw new InputValidationError('El período asociado requiere ambas fechas: --periodo-desde y --periodo-hasta.');
   }
 
   const FchDesde = parseArgentineDateInputAsArcaDate(period.desde);
   const FchHasta = parseArgentineDateInputAsArcaDate(period.hasta);
 
   if (FchDesde < MINIMUM_PERIOD_DATE) {
-    throw new InputValidationError('El periodo asociado tiene que ser posterior al 01/01/2006.');
+    throw new InputValidationError('El período asociado tiene que ser posterior al 01/01/2006.');
   }
 
   if (FchDesde > FchHasta) {
-    throw new InputValidationError('En el periodo asociado, --periodo-desde no puede ser posterior a --periodo-hasta.');
+    throw new InputValidationError('En el período asociado, --periodo-desde no puede ser posterior a --periodo-hasta.');
   }
 
   if (FchHasta > billingDate) {
     throw new InputValidationError(
-      `El periodo asociado no puede terminar despues de la fecha de la ${label} (${formatArcaDateAsArgentineDate(billingDate)}).`,
+      `El período asociado no puede terminar después de la fecha de la ${label} (${formatArcaDateAsArgentineDate(billingDate)}).`,
     );
   }
 

@@ -130,7 +130,7 @@ describe('billing.json-input', () => {
     const error = errorOf(() => parseBillingJsonInput({ puntoVenta: '3' }));
 
     expect(error.message).toContain('"puntoVenta"');
-    expect(error.message).toMatch(/tiene que ser un numero/);
+    expect(error.message).toMatch(/tiene que ser un número/);
     expect(error.message).toContain('"3"');
   });
 
@@ -168,7 +168,7 @@ describe('billing.json-input', () => {
     });
 
     it('rejects an empty batch and anything that is not an object or an array', () => {
-      expect(errorOf(() => readBillingJsonItems([])).message).toMatch(/vacio/);
+      expect(errorOf(() => readBillingJsonItems([])).message).toMatch(/vacío/);
       expect(errorOf(() => readBillingJsonItems(null)).message).toMatch(/objeto o un array/);
       expect(errorOf(() => readBillingJsonItems(3)).message).toMatch(/objeto o un array/);
     });

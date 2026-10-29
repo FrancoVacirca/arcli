@@ -45,7 +45,12 @@ describe('arcli __completar', () => {
   it('completes the flags and values of a voucher', async () => {
     expect(await complete('fc', '--ir-r')).toEqual(['--ir-ri', '--ir-rm']);
     expect(await complete('fc', '--iva-receptor', 'responsable-m')).toEqual(['responsable-monotributo']);
-    expect(await complete('fc', '--transferencia', '')).toEqual(['sca', 'adc']);
+    expect(await complete('fcea', '--transferencia', '')).toEqual(['sca', 'adc']);
+  });
+
+  it('does not offer hidden aliases but still completes their values', async () => {
+    expect(await complete('fc', '--p')).not.toContain('--pv');
+    expect(await complete('fc', '--ir', 'responsable-m')).toEqual(['responsable-monotributo']);
   });
 
   it('completes shortcuts, config keys with their values, tables and letters', async () => {

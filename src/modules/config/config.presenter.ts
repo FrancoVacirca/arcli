@@ -110,7 +110,7 @@ const CONFIG_TEXT_VALUES: Record<ConfigPublicKey, PublicConfigValue> = {
   concepto: (c) => notSet(c.concepto),
   cotizacion: (c) => c.cotizacion ?? 1,
   cuit: (c) => notSet(c.cuit),
-  'emisor.condicionIva': (c) => c.emisor.condicionIva ?? 'segun la letra',
+  'emisor.condicionIva': (c) => c.emisor.condicionIva ?? 'según la letra',
   'emisor.domicilio': (c) => notSet(c.emisor.domicilio),
   'emisor.iibb': (c) => notSet(c.emisor.iibb),
   'emisor.inicioActividades': (c) =>
@@ -160,7 +160,7 @@ export function formatConfigAsText(config: ArcliConfig, paths: ConfigPathSnapsho
     ),
   ]);
 
-  return keyValuePanel('Configuracion', lines, undefined, 'standard', undefined, 'sheet');
+  return keyValuePanel('Configuración', lines, undefined, 'standard', undefined, 'sheet');
 }
 
 export function formatConfigDoctor(report: ConfigDoctorReport): string {
@@ -191,10 +191,10 @@ export function formatConfigDoctorAsText(report: ConfigDoctorReport): string {
   });
   const tone = report.ok ? 'success' : report.checks.some((check) => check.category === 'error') ? 'danger' : 'warning';
   const footer = report.ok
-    ? 'Configuracion lista para usar ARCLI'
+    ? 'Configuración lista para usar ARCLI'
     : report.checks.some((check) => check.category === 'error')
       ? 'Hay puntos criticos por corregir antes de emitir'
-      : 'Revise las recomendaciones antes de emitir en serio';
+      : 'Revisá las recomendaciones antes de emitir en serio';
 
-  return statusPanel('Revision de configuracion', lines, footer, 'wide', tone, 'checklist');
+  return statusPanel('Revisión de configuración', lines, footer, 'wide', tone, 'checklist');
 }

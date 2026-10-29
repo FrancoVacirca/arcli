@@ -134,7 +134,7 @@ describe('billing.command.parser', () => {
   it('rejects mixing emit and preview at the same time', () => {
     const command = createCommand(['--monto', '1000', '--emitir', '--previsualizar', '--cs', '--ir-cf']);
 
-    expect(() => parseBillingCommandInput(command, 'fa')).toThrow(/Use --emitir o --previsualizar/);
+    expect(() => parseBillingCommandInput(command, 'fa')).toThrow(/Usá --emitir o --previsualizar/);
   });
 
   describe('a written flag wins over the file and the config', () => {
@@ -247,7 +247,7 @@ describe('billing.command.parser', () => {
       '1200',
     ]);
 
-    expect(() => parseBillingCommandInput(command, 'fc')).toThrow(/la cotizacion se toma de ARCA/);
+    expect(() => parseBillingCommandInput(command, 'fc')).toThrow(/la cotización se toma de ARCA/);
   });
 
   it('applies the default exchange rate only to foreign currency', () => {
@@ -412,11 +412,11 @@ describe('billing.command.parser', () => {
   });
 
   it.each([
-    [['--monto', '1500.50'], /--monto "1500.50" no es valido: use coma para los decimales/],
-    [['--monto', '12abc'], /--monto "12abc" no es valido: use punto para miles y coma para decimales/],
-    [['--monto', '1500,555'], /--monto "1500,555" no es valido: use hasta 2 decimales/],
-    [['--monto', '100', '--exento', '10.5'], /--exento "10.5" no es valido/],
-    [['--monto', '100', '--cm', '1452.5'], /--cm "1452.5" no es valido/],
+    [['--monto', '1500.50'], /--monto "1500.50" no es válido: usá coma para los decimales/],
+    [['--monto', '12abc'], /--monto "12abc" no es válido: usá punto para miles y coma para decimales/],
+    [['--monto', '1500,555'], /--monto "1500,555" no es válido: usá hasta 2 decimales/],
+    [['--monto', '100', '--exento', '10.5'], /--exento "10.5" no es válido/],
+    [['--monto', '100', '--cm', '1452.5'], /--cm "1452.5" no es válido/],
   ])('rejects amounts that are not in the Argentine format: %j', (args, message) => {
     expect(() => createCommand(args)).toThrow(message);
   });
@@ -427,7 +427,7 @@ describe('billing.command.parser', () => {
         createCommand(['--cs', '--ir-ri', '--alicuota', 'general:1210', '--alicuota', 'reducida:552.50']),
         'fa',
       ),
-    ).toThrow(/--alicuota "reducida:552.50": el monto no es valido: use coma para los decimales/);
+    ).toThrow(/--alicuota "reducida:552.50": el monto no es válido: usá coma para los decimales/);
   });
 
   it('sums several alicuotas without floating point errors', () => {
@@ -454,13 +454,13 @@ describe('billing.command.parser', () => {
         createCommand(['--monto', '100', '--cs', '--ir-ri', '--alicuota', '21', '--alicuota', '10.5:50']),
         'fa',
       ),
-    ).toThrow(/No mezcle --alicuota TASA con --alicuota TASA:MONTO/);
+    ).toThrow(/No mezcles --alicuota TASA con --alicuota TASA:MONTO/);
     expect(() =>
       parseBillingCommandInput(
         createCommand(['--monto', '100', '--cs', '--ir-ri', '--alicuota', '21', '--alicuota', '27']),
         'fa',
       ),
-    ).toThrow(/Para varias alicuotas use --alicuota TASA:MONTO/);
+    ).toThrow(/Para varias alícuotas usá --alicuota TASA:MONTO/);
   });
 
   it('loads base data from a JSON file', () => {
@@ -662,7 +662,7 @@ describe('billing.command.parser', () => {
 
   it('rejects an --acuit with a wrong check digit', () => {
     expect(() => createCommand(['--monto', '5000', '--acuit', '20-40950976-4'])).toThrow(
-      /--acuit "20-40950976-4" no es valido: el digito verificador/,
+      /--acuit "20-40950976-4" no es válido: el digito verificador/,
     );
   });
 
@@ -758,7 +758,7 @@ describe('--cargar JSON validation', () => {
   it('rejects a point of sale written as text instead of using the one in the config', () => {
     expect(() =>
       parseBillingCommandInput(createCommand(['--cargar', writeJsonInput({ puntoVenta: '3' })]), 'fc'),
-    ).toThrow(/"puntoVenta" tiene que ser un numero/);
+    ).toThrow(/"puntoVenta" tiene que ser un número/);
   });
 
   it('rejects a misspelled key instead of ignoring it', () => {
@@ -824,6 +824,6 @@ describe('--cargar JSON validation', () => {
         createCommand(['--cargar', writeRawJson([]), '--monto', '100', '--cs', '--ir-cf']),
         'fc',
       ),
-    ).toThrow(/vacio/);
+    ).toThrow(/vacío/);
   });
 });

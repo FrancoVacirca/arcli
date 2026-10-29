@@ -180,9 +180,9 @@ describe('mapBillingResultToPdfData', () => {
     );
 
     expect(data.items).toEqual([
-      expect.objectContaining({ alicuotaIva: 21, descripcion: 'Segun detalle', subtotal: 1000 }),
+      expect.objectContaining({ alicuotaIva: 21, descripcion: 'Según detalle', subtotal: 1000 }),
       expect.objectContaining({ alicuotaIva: 10.5, subtotal: 500 }),
-      expect.objectContaining({ descripcion: 'Segun detalle (exento)', subtotal: 100 }),
+      expect.objectContaining({ descripcion: 'Según detalle (exento)', subtotal: 100 }),
     ]);
     expect(data.iva).toEqual([
       { baseImponible: 1000, descripcion: '21%', id: 5, importe: 210 },
@@ -218,7 +218,7 @@ describe('mapBillingResultToPdfData', () => {
       /no tiene CAE/,
     );
     expect(() => mapBillingResultToPdfData({ ...result, response: { ...result.response, raw: null } }, issuer)).toThrow(
-      /numero del comprobante/,
+      /número del comprobante/,
     );
   });
 
@@ -236,7 +236,7 @@ describe('mapBillingResultToPdfData', () => {
 
     expect(data.items).toEqual([
       expect.objectContaining({ alicuotaIva: undefined, subtotal: 151250 }),
-      expect.objectContaining({ descripcion: 'Segun detalle (exento)', subtotal: 100 }),
+      expect.objectContaining({ descripcion: 'Según detalle (exento)', subtotal: 100 }),
     ]);
     expect(data.importeNetoGravado).toBe(151350);
   });

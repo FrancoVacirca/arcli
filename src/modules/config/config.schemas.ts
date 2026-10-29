@@ -50,7 +50,7 @@ export const arcliConfigSchema = z.object({
   aliasCbu: z
     .string()
     .trim()
-    .regex(/^[A-Za-z0-9.-]{6,20}$/, 'El alias debe tener entre 6 y 20 caracteres (letras, numeros, punto o guion)')
+    .regex(/^[A-Za-z0-9.-]{6,20}$/, 'El alias debe tener entre 6 y 20 caracteres (letras, números, punto o guion)')
     .optional(),
   conceptoPorDefecto: arcliDefaultConceptSchema.optional(),
   ivaReceptorPorDefecto: arcliDefaultIvaConditionSchema.optional(),
@@ -99,6 +99,11 @@ export const arcliConfigSchema = z.object({
 
 export type ArcliConfig = z.infer<typeof arcliConfigSchema>;
 export type ArcliEnvironment = z.infer<typeof arcliEnvironmentSchema>;
+
+/** El entorno como se lee en un texto; el valor (`produccion`) sigue igual en flags, claves y JSON. */
+export function formatEnvironmentLabel(environment: ArcliEnvironment): string {
+  return environment === 'produccion' ? 'producción' : environment;
+}
 export type ArcliPdfMode = z.infer<typeof arcliPdfModeSchema>;
 
 export const CONFIG_DEFAULTS: ArcliConfig = {

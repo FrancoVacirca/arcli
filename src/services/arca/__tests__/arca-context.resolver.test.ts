@@ -183,7 +183,7 @@ describe('arca-context.resolver', () => {
             testing: true,
           },
         }).validate(),
-      ).toThrow(/Use --testing o --produccion/);
+      ).toThrow(/Usá --testing o --produccion/);
     } finally {
       configService.close();
     }
@@ -249,7 +249,7 @@ describe('arca-context.resolver', () => {
     const configService = createConfigService(cwd);
 
     try {
-      expect(() => new ArcaContextResolver({ configService }).resolve()).toThrow(/formato PEM invalido/);
+      expect(() => new ArcaContextResolver({ configService }).resolve()).toThrow(/formato PEM inválido/);
     } finally {
       configService.close();
     }

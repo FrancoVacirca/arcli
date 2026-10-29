@@ -60,8 +60,8 @@ const chooseOneMock = vi.mocked(chooseOne);
 
 function certificateNotice(expired: boolean): CertificateExpiryNotice {
   const summary = expired
-    ? 'El certificado de produccion venció el 20/11/2026.'
-    : 'El certificado de produccion vence el 20/11/2026 (en 10 días).';
+    ? 'El certificado de producción venció el 20/11/2026.'
+    : 'El certificado de producción vence el 20/11/2026 (en 10 días).';
 
   return {
     daysRemaining: expired ? -1 : 10,
@@ -102,7 +102,7 @@ describe('runInteractiveMode', () => {
     expect(output).toContain('ARCA FUNCIONANDO');
     expect(stripAnsi(output)).toMatch(/━━ 20-40950976-3 · PV 3 ━+ ARCA FUNCIONANDO ━ TESTING ━━/);
     expect(stripAnsi(output)).toContain(`v${CLI_VERSION}`);
-    expect(output).toContain('¡Hasta la proxima!');
+    expect(output).toContain('¡Hasta la próxima!');
   });
 
   it('con razon social configurada, la barra la muestra en lugar del CUIT', async () => {
@@ -130,8 +130,8 @@ describe('runInteractiveMode', () => {
     await runInteractiveMode();
 
     const plain = stripAnsi(output);
-    const barIndex = plain.search(/━━ 20-40950976-3 · PV 3 ━+ ARCA FUNCIONANDO ━ PRODUCCION ━━/);
-    const boxIndex = plain.indexOf('El certificado de produccion vence el 20/11/2026 (en 10 días).');
+    const barIndex = plain.search(/━━ 20-40950976-3 · PV 3 ━+ ARCA FUNCIONANDO ━ PRODUCCIÓN ━━/);
+    const boxIndex = plain.indexOf('El certificado de producción vence el 20/11/2026 (en 10 días).');
 
     expect(barIndex).toBeGreaterThanOrEqual(0);
     expect(boxIndex).toBeGreaterThan(barIndex);
@@ -150,7 +150,7 @@ describe('runInteractiveMode', () => {
     const plain = stripAnsi(output);
 
     expect(plain).toMatch(/━━ 20-40950976-3 · PV 3 ━+ ARCA FUNCIONANDO ━ TESTING ━━/);
-    expect(plain).toContain('El certificado de produccion vence el 20/11/2026 (en 10 días).');
+    expect(plain).toContain('El certificado de producción vence el 20/11/2026 (en 10 días).');
   });
 
   it('shows no certificate box when the certificate is fine', async () => {
@@ -172,8 +172,8 @@ describe('runInteractiveMode', () => {
     const plain = stripAnsi(output);
 
     expect(checkArcaHealth).not.toHaveBeenCalled();
-    expect(plain).toMatch(/━━ certificado vencido ━+ ARCA SIN VERIFICAR ━ PRODUCCION ━━/);
-    expect(plain).toContain('El certificado de produccion venció el 20/11/2026.');
+    expect(plain).toMatch(/━━ certificado vencido ━+ ARCA SIN VERIFICAR ━ PRODUCCIÓN ━━/);
+    expect(plain).toContain('El certificado de producción venció el 20/11/2026.');
     expect(plain).toContain(`Renovalo: ${CERTIFICATE_GUIDE_URL}`);
   });
 
@@ -202,12 +202,12 @@ describe('runInteractiveMode', () => {
     await runInteractiveMode();
 
     expect(chooseOneMock.mock.calls[0][1][0]).toMatchObject({
-      short: 'Actualizar a la version 1.9.0',
+      short: 'Actualizar a la versión 1.9.0',
       value: 'actualizar',
     });
     expect(runUpdateFlow).toHaveBeenCalledWith({ currentVersion: '1.8.0', latestVersion: '1.9.0' });
     expect(chooseOneMock).toHaveBeenCalledTimes(1);
-    expect(output).not.toContain('¡Hasta la proxima!');
+    expect(output).not.toContain('¡Hasta la próxima!');
   });
 
   it('"Volver" en actualizar vuelve al menu', async () => {
@@ -235,7 +235,7 @@ describe('runInteractiveMode', () => {
 
     await runInteractiveMode();
 
-    expect(output).toContain('Cancelado. No se emitio nada.');
+    expect(output).toContain('Cancelado. No se emitió nada.');
   });
 
   it('un error en un flujo se muestra y el menu sigue', async () => {
@@ -253,7 +253,7 @@ describe('runInteractiveMode', () => {
 
     await runInteractiveMode();
 
-    expect(output).toContain('¡Hasta la proxima!');
+    expect(output).toContain('¡Hasta la próxima!');
   });
 
   it('ofrece la configuracion guiada si falta algo obligatorio', async () => {

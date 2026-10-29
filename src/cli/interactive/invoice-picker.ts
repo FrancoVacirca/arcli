@@ -58,7 +58,7 @@ function validatePositiveInteger(label: string): (value: string) => string | tru
   return (value) => {
     const number = parseStrictInteger(value);
 
-    return number !== undefined && number > 0 ? true : `${label} tiene que ser un numero entero mayor a 0.`;
+    return number !== undefined && number > 0 ? true : `${label} tiene que ser un número entero mayor a 0.`;
   };
 }
 
@@ -77,7 +77,7 @@ async function askVoucherByNumber(
     return BACK;
   }
 
-  const numberAnswer = await askTextStep('Numero:', { validate: validatePositiveInteger('El numero') });
+  const numberAnswer = await askTextStep('Número:', { validate: validatePositiveInteger('El número') });
 
   if (numberAnswer === BACK) {
     return BACK;
@@ -154,15 +154,15 @@ export async function pickInvoice(
       if (loading) {
         choices.push(new Separator(' '), new Separator(colorize(' Cargando…', 'muted')));
       } else if (nextNumber > 0) {
-        choices.push(new Separator(' '), { name: '+ Cargar mas…', value: LOAD_MORE });
+        choices.push(new Separator(' '), { name: '+ Cargar más…', value: LOAD_MORE });
       }
 
       choices.push(listRule(), new Separator(' '));
     }
 
     choices.push({
-      description: 'Uno mas viejo o de otro punto de venta',
-      name: '# Ingresar el numero a mano…',
+      description: 'Uno más viejo o de otro punto de venta',
+      name: '# Ingresar el número a mano…',
       value: BY_NUMBER,
     });
 

@@ -32,7 +32,7 @@ export function invoiceSteps(session: InteractiveSession): Array<WizardStep<Invo
     {
       name: 'comprobante',
       run: async () => {
-        const voucherKind = await chooseStep('¿Que comprobante queres emitir?', invoiceKindChoices());
+        const voucherKind = await chooseStep('¿Qué comprobante querés emitir?', invoiceKindChoices());
 
         return voucherKind === BACK ? BACK : { voucherKind };
       },
@@ -76,7 +76,7 @@ export function invoiceSteps(session: InteractiveSession): Array<WizardStep<Invo
     {
       name: 'concepto',
       run: async () => {
-        const concept = await chooseStep('¿Que estas facturando?', conceptChoices(), config.conceptoPorDefecto);
+        const concept = await chooseStep('¿Qué estás facturando?', conceptChoices(), config.conceptoPorDefecto);
 
         return concept === BACK ? BACK : { concept };
       },

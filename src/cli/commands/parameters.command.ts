@@ -56,8 +56,8 @@ export function registerParametersCommands(program: Command): void {
   const parameters = program
     .command('parametros')
     .argument('[tabla]', 'tabla a consultar; sin tabla lista las disponibles')
-    .argument('[moneda]', 'solo para "cotizacion": codigo de moneda, por ejemplo USD')
-    .description('consultar tablas de ARCA: puntos de venta, tipos, alicuotas, monedas y cotizacion');
+    .argument('[moneda]', 'solo para "cotizacion": código de moneda, por ejemplo USD')
+    .description('consultar tablas de ARCA: puntos de venta, tipos, alícuotas, monedas y cotización');
 
   registerQueryOptions(parameters);
   configureSpanishHelp(parameters);
@@ -78,7 +78,7 @@ export function registerParametersCommands(program: Command): void {
 
       if (rawTable.trim().toLowerCase() === 'cotizacion') {
         if (!currency) {
-          throw new InputValidationError('Indique la moneda, por ejemplo: arcli parametros cotizacion USD.');
+          throw new InputValidationError('Indicá la moneda, por ejemplo: arcli parametros cotizacion USD.');
         }
 
         const { gateway, runtime } = createContext(self);
@@ -111,7 +111,7 @@ export function registerParametersCommands(program: Command): void {
 
   const status = program
     .command('estado')
-    .description('ver si ARCA responde y si el punto de venta configurado esta habilitado');
+    .description('ver si ARCA responde y si el punto de venta configurado está habilitado');
 
   registerQueryOptions(status);
   configureSpanishHelp(status);
@@ -122,7 +122,7 @@ export function registerParametersCommands(program: Command): void {
       try {
         return await buildStatusReport({ environment: runtime.environment, gateway, pointOfSale: runtime.pointOfSale });
       } catch (error) {
-        throw new AppError(`ARCA no respondio: ${error instanceof Error ? error.message : String(error)}`, {
+        throw new AppError(`ARCA no respondió: ${error instanceof Error ? error.message : String(error)}`, {
           code: 'ARCA_UNAVAILABLE',
         });
       }

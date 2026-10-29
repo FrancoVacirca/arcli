@@ -47,7 +47,7 @@ function validateLetterCAmounts(input: TaxAmountsInput, voucherKind: VoucherKind
 
   if (flags.length > 0) {
     throw new InputValidationError(
-      `La ${formatVoucherLabel(voucherKind)} no discrimina IVA ni importes exentos o no gravados. Quite ${flags.join(', ')}.`,
+      `La ${formatVoucherLabel(voucherKind)} no discrimina IVA ni importes exentos o no gravados. Sacá ${flags.join(', ')}.`,
     );
   }
 }
@@ -73,7 +73,7 @@ export function resolveTaxAmounts(input: TaxAmountsInput, voucherKind: VoucherKi
   const taxedTotal = new Big(input.totalAmount).minus(exemptAmount).minus(untaxedAmount);
 
   if (taxedTotal.lt(0)) {
-    throw new InputValidationError('El importe exento mas el no gravado no puede superar el monto total.');
+    throw new InputValidationError('El importe exento más el no gravado no puede superar el monto total.');
   }
 
   if (taxedTotal.eq(0)) {
@@ -122,7 +122,7 @@ function resolveTaxedParts(
   // Los importes tienen 2 decimales como maximo, asi que la suma tiene que dar exacta.
   if (!sum.eq(taxedTotal)) {
     throw new InputValidationError(
-      `La suma de las alicuotas (${formatPlain(sum)}) no coincide con lo gravado del monto total (${formatPlain(taxedTotal)}). Revise --monto, --alicuota, --exento y --nogravado.`,
+      `La suma de las alícuotas (${formatPlain(sum)}) no coincide con lo gravado del monto total (${formatPlain(taxedTotal)}). Revisá --monto, --alicuota, --exento y --nogravado.`,
     );
   }
 

@@ -25,10 +25,10 @@ describe('parseArgentineAmount', () => {
   });
 
   it.each([
-    ['1500.50', 'use coma para los decimales'],
-    ['1500.5', 'use coma para los decimales'],
-    ['15.00', 'use coma para los decimales'],
-    ['1500,555', 'use hasta 2 decimales'],
+    ['1500.50', 'usá coma para los decimales'],
+    ['1500.5', 'usá coma para los decimales'],
+    ['15.00', 'usá coma para los decimales'],
+    ['1500,555', 'usá hasta 2 decimales'],
     ['0', 'tiene que ser mayor a 0'],
     ['0,00', 'tiene que ser mayor a 0'],
   ])('rechaza %s: %s', (raw, reason) => {
@@ -49,7 +49,7 @@ describe('parseArgentineAmount', () => {
     });
     expect(parseArgentineAmount('1,1234567', { maxDecimals: EXCHANGE_RATE_DECIMALS })).toEqual({
       ok: false,
-      reason: 'use hasta 6 decimales',
+      reason: 'usá hasta 6 decimales',
     });
   });
 });

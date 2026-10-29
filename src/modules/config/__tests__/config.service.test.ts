@@ -244,7 +244,7 @@ describe('config.service', () => {
       expect(() => service.setValue('emitir', 'tal-vez')).toThrow();
       expect(() => service.setValue('json', 'tal-vez')).toThrow();
       expect(() => service.setValue('cuit', '123')).toThrow();
-      expect(() => service.setValue('key.testing', invalidPemPath)).toThrow(/formato PEM invalido/);
+      expect(() => service.setValue('key.testing', invalidPemPath)).toThrow(/formato PEM inválido/);
     } finally {
       service.close();
     }
@@ -267,7 +267,7 @@ describe('config.service', () => {
     }
 
     expect(thrown).toBeInstanceOf(ConfigurationError);
-    expect((thrown as ConfigurationError).message).toMatch(/JSON invalido/);
+    expect((thrown as ConfigurationError).message).toMatch(/JSON inválido/);
     expect((thrown as ConfigurationError).details).toEqual({ path: configPath });
     expect((thrown as ConfigurationError).suggestion).toMatch(/arcli config/);
     expect(readFileSync(configPath, 'utf8')).toBe(corruptContent);

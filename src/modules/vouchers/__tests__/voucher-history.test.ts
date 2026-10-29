@@ -74,7 +74,7 @@ describe('inferIvaRate', () => {
     [100, 10.5, '10.5'],
     [826.45, 173.55, '21'],
     [100, 0, '0'],
-  ] as const)('deduce la alicuota de neto %s e IVA %s', (net, iva, expected) => {
+  ] as const)('deduce la alícuota de neto %s e IVA %s', (net, iva, expected) => {
     expect(inferIvaRate(net, iva)).toBe(expected);
   });
 

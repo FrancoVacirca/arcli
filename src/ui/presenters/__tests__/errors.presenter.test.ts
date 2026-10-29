@@ -7,22 +7,22 @@ import { formatCliError } from '../errors.presenter';
 describe('errors.presenter', () => {
   it('formats configuration errors in a friendly text panel', () => {
     const output = formatCliError(
-      new ConfigurationError('La ruta de la clave privada apunta a un archivo con formato PEM invalido.', {
+      new ConfigurationError('La ruta de la clave privada apunta a un archivo con formato PEM inválido.', {
         path: '.../testing/ARCATestingKey.key',
       }),
       false,
     );
 
-    expect(output).toContain('ERROR DE CONFIGURACION');
+    expect(output).toContain('ERROR DE CONFIGURACIÓN');
     expect(output).toContain('La ruta de la clave privada apunta a un archivo con formato PEM');
-    expect(output).toContain('invalido.');
+    expect(output).toContain('inválido.');
     expect(output).toContain('Ruta:');
     expect(output).toContain('ARCATestingKey.key');
     expect(output).toContain('Sugerencia');
   });
 
   it('titles an expired certificate and keeps its code and details in JSON', () => {
-    const error = new AppError('El certificado de produccion venció el 20/11/2026: ARCA no lo acepta.', {
+    const error = new AppError('El certificado de producción venció el 20/11/2026: ARCA no lo acepta.', {
       code: 'CERTIFICATE_EXPIRED',
       details: { entorno: 'produccion', vencimiento: '20/11/2026' },
       suggestion: 'Renovalo.',
@@ -32,7 +32,7 @@ describe('errors.presenter', () => {
     expect(JSON.parse(formatCliError(error, true))).toEqual({
       codigo: 'CERTIFICATE_EXPIRED',
       detalles: { entorno: 'produccion', vencimiento: '20/11/2026' },
-      error: 'El certificado de produccion venció el 20/11/2026: ARCA no lo acepta.',
+      error: 'El certificado de producción venció el 20/11/2026: ARCA no lo acepta.',
       sugerencia: 'Renovalo.',
     });
   });
@@ -46,15 +46,15 @@ describe('errors.presenter', () => {
   });
 
   it('shows the suggestion of any app error, in text and JSON', () => {
-    const error = new AppError('No se pudo confirmar la emision: timeout', {
+    const error = new AppError('No se pudo confirmar la emisión: timeout', {
       code: 'EMISSION_UNCERTAIN',
-      suggestion: 'Verifique con arcli ultimos fc --pv 3.',
+      suggestion: 'Verificá con arcli ultimos fc --pv 3.',
     });
 
-    expect(formatCliError(error, false)).toContain('Verifique con arcli ultimos fc --pv 3.');
+    expect(formatCliError(error, false)).toContain('Verificá con arcli ultimos fc --pv 3.');
     expect(JSON.parse(formatCliError(error, true))).toMatchObject({
       codigo: 'EMISSION_UNCERTAIN',
-      sugerencia: 'Verifique con arcli ultimos fc --pv 3.',
+      sugerencia: 'Verificá con arcli ultimos fc --pv 3.',
     });
   });
 

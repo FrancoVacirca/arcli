@@ -30,7 +30,7 @@ function readRows<T>(result: ArcaListResult, key: string, operation: string): T[
   const errors = result.errors?.err ?? [];
 
   if (errors.some((error) => error.code !== NO_RESULTS_CODE)) {
-    throw new AppError(`ARCA devolvio un error al consultar ${operation}: ${errors.map((e) => e.msg).join('; ')}`, {
+    throw new AppError(`ARCA devolvió un error al consultar ${operation}: ${errors.map((e) => e.msg).join('; ')}`, {
       code: 'ARCA_PARAMETERS_ERROR',
       details: { errores: errors },
     });
@@ -80,7 +80,7 @@ export class ArcaParametersGateway implements ParametersGateway {
     const rate = result.resultGet?.monCotiz;
 
     if (typeof rate !== 'number' || rate <= 0) {
-      throw new AppError(`ARCA no devolvio una cotizacion para ${currency}.`, {
+      throw new AppError(`ARCA no devolvió una cotización para ${currency}.`, {
         code: 'ARCA_QUOTATION_ERROR',
         details: { errors: result.errors },
       });

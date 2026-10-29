@@ -19,7 +19,7 @@ export function validateConceptDateInputs(input: BillingCommandInput, voucherKin
   if (input.paymentDueDate) {
     if (voucherKind.isElectronicCredit && voucherKind.family !== 'factura-credito-electronica') {
       throw new InputValidationError(
-        `La ${formatVoucherLabel(voucherKind)} no lleva vencimiento de pago. Quite --vencimiento.`,
+        `La ${formatVoucherLabel(voucherKind)} no lleva vencimiento de pago. Sacá --vencimiento.`,
       );
     }
 
@@ -31,12 +31,12 @@ export function validateConceptDateInputs(input: BillingCommandInput, voucherKin
   if (input.concept === 'productos') {
     if (hasAnyServiceDate) {
       throw new InputValidationError(
-        'El concepto "productos" no usa fechas de servicio. Quite --servicio-desde y --servicio-hasta.',
+        'El concepto "productos" no usa fechas de servicio. Sacá --servicio-desde y --servicio-hasta.',
       );
     }
 
     if (input.dueDay) {
-      throw new InputValidationError('El concepto "productos" no usa --dia. Use solo fecha o monto.');
+      throw new InputValidationError('El concepto "productos" no usa --dia. Usá solo fecha o monto.');
     }
 
     return;
@@ -51,7 +51,7 @@ export function validateConceptDateInputs(input: BillingCommandInput, voucherKin
   // --dia arma el fin del servicio desde hoy; con una fecha explicita no se usaria y nadie se enteraria.
   if (input.dueDay && (input.billingDate || input.serviceEndDate)) {
     throw new InputValidationError(
-      '--dia no se combina con --fecha ni con --servicio-hasta: con esas fechas no se usa. Quite --dia o esas fechas.',
+      '--dia no se combina con --fecha ni con --servicio-hasta: con esas fechas no se usa. Sacá --dia o esas fechas.',
     );
   }
 }
@@ -66,7 +66,7 @@ export function validateDocumentIdentity(input: BillingCommandInput, voucherKind
 
     if (typeof input.documentNumber === 'number' && input.documentNumber !== 0) {
       throw new InputValidationError(
-        `La ${formatVoucherLabel(voucherKind)} usa consumidor final solo con documento 0. Use --consumidor-final.`,
+        `La ${formatVoucherLabel(voucherKind)} usa consumidor final solo con documento 0. Usá --consumidor-final.`,
       );
     }
 
@@ -75,7 +75,7 @@ export function validateDocumentIdentity(input: BillingCommandInput, voucherKind
 
   if (typeof input.documentNumber !== 'number') {
     throw new InputValidationError(
-      `La ${formatVoucherLabel(voucherKind)} requiere documento del receptor. Use ${formatDocumentFlag(input.documentType)}.`,
+      `La ${formatVoucherLabel(voucherKind)} requiere documento del receptor. Usá ${formatDocumentFlag(input.documentType)}.`,
     );
   }
 
@@ -84,7 +84,7 @@ export function validateDocumentIdentity(input: BillingCommandInput, voucherKind
 
     if (!result.ok) {
       throw new InputValidationError(
-        `${formatDocumentFlag(input.documentType)} ${input.documentNumber} no es valido en ${formatVoucherLabel(voucherKind)}: ${result.reason}.`,
+        `${formatDocumentFlag(input.documentType)} ${input.documentNumber} no es válido en ${formatVoucherLabel(voucherKind)}: ${result.reason}.`,
       );
     }
   }
@@ -125,7 +125,7 @@ export function validateBillingDateWindow(
 
   if (offset < -window.maxDaysBefore || offset > window.maxDaysAfter) {
     throw new InputValidationError(
-      `La fecha ${label} esta fuera de rango para la ${formatVoucherLabel(voucherKind)}: ARCA acepta hasta ${window.maxDaysBefore} dias antes y ${window.maxDaysAfter} despues de hoy.`,
+      `La fecha ${label} esta fuera de rango para la ${formatVoucherLabel(voucherKind)}: ARCA acepta hasta ${window.maxDaysBefore} días antes y ${window.maxDaysAfter} después de hoy.`,
     );
   }
 

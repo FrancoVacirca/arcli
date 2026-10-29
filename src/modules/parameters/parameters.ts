@@ -2,7 +2,7 @@ import { InputValidationError } from '../../lib/errors/app-error';
 
 /** Tablas de referencia de ARCA (wsfe) que se pueden consultar con `arcli parametros <tabla>`. */
 export const PARAMETER_TABLES = {
-  alicuotas: 'Alicuotas de IVA',
+  alicuotas: 'Alícuotas de IVA',
   comprobantes: 'Tipos de comprobante',
   conceptos: 'Conceptos',
   documentos: 'Tipos de documento',
@@ -62,7 +62,7 @@ export function resolveParameterTable(value: string): ParameterTable {
   }
 
   throw new InputValidationError(
-    `La tabla "${value}" no existe. Use una de estas: ${PARAMETER_TABLE_NAMES.join(', ')}, o "cotizacion <moneda>".`,
+    `La tabla "${value}" no existe. Usá una de estas: ${PARAMETER_TABLE_NAMES.join(', ')}, o "cotizacion <moneda>".`,
   );
 }
 

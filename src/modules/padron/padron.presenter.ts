@@ -10,13 +10,13 @@ export interface PadronReport {
 
 const PERSON_TYPE_LABELS: Record<NonNullable<Taxpayer['personType']>, string> = {
   fisica: 'Persona fisica',
-  juridica: 'Persona juridica',
+  juridica: 'Persona jurídica',
 };
 
 /** La primera es la principal (`orden` 1 en ARCA); el resto va en el JSON. */
 function formatMainActivity(taxpayer: Taxpayer): string {
   const [main, ...others] = taxpayer.activities;
-  const more = others.length === 0 ? '' : ` (y ${others.length} mas)`;
+  const more = others.length === 0 ? '' : ` (y ${others.length} más)`;
 
   return `${main?.description ?? '-'}${more}`;
 }
@@ -52,18 +52,18 @@ export function formatPadronAsText(report: PadronReport): string {
     ['Tipo', taxpayer.personType ? PERSON_TYPE_LABELS[taxpayer.personType] : '-'],
     ['Estado', taxpayer.keyStatus ?? '-'],
     ['Domicilio fiscal', taxpayer.address ?? '-'],
-    ['Condicion IVA', taxpayer.ivaCondition ? formatIvaConditionName(taxpayer.ivaCondition) : 'sin informar'],
-    ...(taxpayer.monotributoCategory ? [['Categoria monotributo', taxpayer.monotributoCategory] as const] : []),
+    ['Condición IVA', taxpayer.ivaCondition ? formatIvaConditionName(taxpayer.ivaCondition) : 'sin informar'],
+    ...(taxpayer.monotributoCategory ? [['Categoría monotributo', taxpayer.monotributoCategory] as const] : []),
     ...(activeTaxes.length > 0 ? [['Impuestos', activeTaxes.join(', ')] as const] : []),
     ...(taxpayer.activities.length > 0 ? [['Actividad principal', formatMainActivity(taxpayer)] as const] : []),
     ...taxpayer.notices.map((notice) => ['Aviso de ARCA', notice] as const),
   ];
   const footer = taxpayer.ivaCondition
     ? `Con --cuit ${taxpayer.cuit}, arcli completa solo el IVA receptor.`
-    : 'El padron no informa la condicion IVA: indiquela con --ir al facturar.';
+    : 'El padrón no informa la condición IVA: indicala con --ir al facturar.';
 
   return keyValuePanel(
-    'Padron de ARCA',
+    'Padrón de ARCA',
     renderKeyValueRows(rows, { labelWidth: resolveKeyValueLabelWidth('standard', rows, [25, 75]) }),
     footer,
     'standard',

@@ -6,7 +6,7 @@ import { renderJson } from '../primitives/renderJson';
 import { bold } from '../primitives/text';
 
 const ZOD_PATH_LABELS: Record<string, string> = {
-  associatedPeriod: 'periodo asociado',
+  associatedPeriod: 'período asociado',
   associatedVoucher: 'comprobante asociado',
   billingDate: 'fecha del comprobante',
   cancellation: 'anulacion',
@@ -14,12 +14,12 @@ const ZOD_PATH_LABELS: Record<string, string> = {
   cbuAlias: 'alias del CBU',
   concept: 'concepto',
   currencyCode: 'moneda',
-  documentNumber: 'numero de documento',
+  documentNumber: 'número de documento',
   documentType: 'tipo de documento',
-  dueDay: 'dia de vencimiento',
+  dueDay: 'día de vencimiento',
   exchangeRate: 'cotizacion',
   exemptAmount: 'importe exento',
-  ivaRate: 'alicuota de IVA',
+  ivaRate: 'alícuota de IVA',
   ivaCondition: 'IVA receptor',
   paymentDueDate: 'vencimiento de pago',
   pointOfSale: 'punto de venta',
@@ -58,11 +58,11 @@ function humanizeZodIssue(issue: ZodError['issues'][number]): string {
   if (issue.code === 'invalid_value') {
     const allowedValues = issue.values.map((value) => String(value)).join(', ');
 
-    return `${label[0]?.toUpperCase() ?? ''}${label.slice(1)} tiene un valor no soportado. Valores validos: ${allowedValues}.`;
+    return `${label[0]?.toUpperCase() ?? ''}${label.slice(1)} tiene un valor no soportado. Valores válidos: ${allowedValues}.`;
   }
 
   if (issue.code === 'invalid_type') {
-    return `${label[0]?.toUpperCase() ?? ''}${label.slice(1)} tiene un formato invalido.`;
+    return `${label[0]?.toUpperCase() ?? ''}${label.slice(1)} tiene un formato inválido.`;
   }
 
   return issue.message;
@@ -90,7 +90,7 @@ export function formatZodError(error: ZodError, useJson: boolean): string {
         mensaje: humanizeZodIssue(issue),
         ruta: formatPublicIssuePath(issue.path),
       })),
-      error: 'Hay parametros invalidos o incompletos en la entrada.',
+      error: 'Hay parámetros inválidos o incompletos en la entrada.',
       sugerencia: null,
     });
   }
@@ -104,8 +104,8 @@ export function formatZodError(error: ZodError, useJson: boolean): string {
 
   return errorPanel(
     'Error de entrada',
-    'Hay parametros invalidos o incompletos en la entrada.',
+    'Hay parámetros inválidos o incompletos en la entrada.',
     detailLines,
-    'Revise los parametros del comando con `ayuda` e intente nuevamente.',
+    'Revisá los parámetros del comando con `ayuda` e intentá nuevamente.',
   );
 }

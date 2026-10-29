@@ -92,9 +92,10 @@ describe('JSON output resolved the same way in every command', () => {
 
 describe('commander usage errors', () => {
   it.each([
-    [['fc', '--montoo', '1', '--json'], "unknown option '--montoo' (Did you mean --monto?)"],
-    [['fc', '--json', '--monto'], "option '-m, --monto <number>' argument missing"],
-    [['comando-que-no-existe', '--json'], "unknown command 'comando-que-no-existe'"],
+    [['fc', '--montoo', '1', '--json'], "opción desconocida '--montoo' (¿quisiste decir --monto?)"],
+    [['fc', '--json', '--monto'], "falta el valor de la opción '-m, --monto <numero>'"],
+    [['comando-que-no-existe', '--json'], "comando desconocido 'comando-que-no-existe'"],
+    [['padron', '1', '2', '--json'], 'sobran argumentos: espera 1 y recibió 2 (1, 2).'],
   ])('%j prints a parseable INPUT_VALIDATION_ERROR with --json', async (argv, message) => {
     const { exitCode, stderr, stdout } = await runReportingErrors(argv);
 
@@ -115,7 +116,8 @@ describe('commander usage errors', () => {
   it('keeps the readable text error without JSON', async () => {
     const { exitCode, stderr } = await runReportingErrors(['fc', '--montoo', '1']);
 
-    expect(stderr).toContain("error: unknown option '--montoo'");
+    expect(stderr).toContain("error: opción desconocida '--montoo'");
+    expect(stderr).toContain('(¿quisiste decir --monto?)');
     expect(stderr).toContain('(usa "ayuda" para ver ejemplos y opciones)');
     expect(exitCode).toBe(1);
   });
@@ -163,7 +165,7 @@ describe('strict numbers and CUITs in query arguments', () => {
   it.each([['1e3'], ['0x10'], ['3a']])('consultar rejects the number %s before contacting ARCA', async (number) => {
     expect((await run(['consultar', 'fc', number])).error).toMatchObject({
       code: 'INPUT_VALIDATION_ERROR',
-      message: expect.stringContaining(`El numero "${number}" no es valido`),
+      message: expect.stringContaining(`El número "${number}" no es válido`),
     });
   });
 

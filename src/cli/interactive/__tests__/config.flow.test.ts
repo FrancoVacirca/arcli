@@ -154,7 +154,7 @@ describe('runConfigMenu', () => {
       'Cuenta',
       'Certificados',
       'Al facturar',
-      'Factura de credito electronica (FCE)',
+      'Factura de crédito electrónica (FCE)',
       'Datos del emisor (PDF)',
       'PDF',
       'Salida y listados',
@@ -183,7 +183,7 @@ describe('runConfigMenu', () => {
     vi.mocked(chooseOne).mockResolvedValueOnce('cambiar').mockResolvedValueOnce('volver');
     chooseStepMock
       .mockImplementationOnce(
-        async (_message, choices) => onlyChoices(choices).find((choice) => choice.name === 'Razon social')?.value,
+        async (_message, choices) => onlyChoices(choices).find((choice) => choice.name === 'Razón social')?.value,
       )
       .mockResolvedValueOnce(BACK);
     askTextMock.mockImplementationOnce(async (message, options) => {

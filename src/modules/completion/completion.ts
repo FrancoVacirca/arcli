@@ -4,6 +4,8 @@ export type CompletionValues = readonly string[] | ((previousArguments: readonly
 export interface CompletionOption {
   /** `--monto` y `-m`, si tiene corta. */
   readonly flags: readonly string[];
+  /** Oculta en la ayuda (alias o no aplica): no se ofrece, pero si se escribe se completan sus valores. */
+  readonly hidden?: boolean;
   readonly takesValue: boolean;
   readonly values?: CompletionValues;
 }
@@ -72,7 +74,11 @@ export function completeWords(root: CompletionCommand, words: readonly string[])
   }
 
   if (current.startsWith('-')) {
-    return matches(command.options.flatMap((option) => option.flags.filter((flag) => flag.startsWith('--'))));
+    return matches(
+      command.options
+        .filter((option) => !option.hidden)
+        .flatMap((option) => option.flags.filter((flag) => flag.startsWith('--'))),
+    );
   }
 
   return matches([

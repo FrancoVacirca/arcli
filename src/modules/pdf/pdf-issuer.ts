@@ -41,7 +41,7 @@ export function resolvePdfIssuer(
 
     throw new PdfError('PDF_ISSUER_INCOMPLETE', `Faltan datos del emisor para el PDF: ${missing.join(', ')}.`, {
       details: { faltan: missing },
-      suggestion: `Configurelos una vez con:\n${commands.join('\n')}`,
+      suggestion: `Configuralos una vez con:\n${commands.join('\n')}`,
     });
   }
 

@@ -54,7 +54,7 @@ export function formatPdfPluginStatusAsJson(status: PdfPluginStatusView): string
 export function formatPdfPluginStatusAsText(status: PdfPluginStatusView, title = 'Plugin de PDF'): string {
   const rows: Array<readonly [string, string]> = [
     ['Estado', status.installed ? 'instalado' : 'no instalado'],
-    ['Version', status.installedVersion ?? `no instalada (arcli usa la ${status.version})`],
+    ['Versión', status.installedVersion ?? `no instalada (arcli usa la ${status.version})`],
     [
       'Navegador',
       status.browser ? `${status.browser} (${BROWSER_SOURCE_LABELS[status.browserSource ?? 'sistema']})` : 'ninguno',

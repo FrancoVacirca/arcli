@@ -59,13 +59,13 @@ describe('arca-date', () => {
   it('rejects ISO dates', () => {
     expect(() => parseArgentineDateInputAsArcaDate('2026-08-09', referenceDate)).toThrow(InputValidationError);
     expect(() => parseArgentineDateInputAsArcaDate('2026-08-09', referenceDate)).toThrow(
-      /Use D, DD, D-MM, D\/MM, D-MM-YY, D\/MM\/YY, D-MM-YYYY o D\/MM\/YYYY/,
+      /Usá D, DD, D-MM, D\/MM, D-MM-YY, D\/MM\/YY, D-MM-YYYY o D\/MM\/YYYY/,
     );
   });
 
   it('rejects impossible dates', () => {
     expect(() => parseArgentineDateInputAsArcaDate('31/02/2026', referenceDate)).toThrow(
-      /La fecha "31\/02\/2026" no es valida/,
+      /La fecha "31\/02\/2026" no es válida/,
     );
   });
 });

@@ -16,8 +16,8 @@ export function registerFceObligationCommand(program: Command): void {
   const command = program
     .command('fce-obligado')
     .argument('<cuit>', 'CUIT del receptor a consultar')
-    .description('consultar si un receptor esta obligado a recibir Factura de Credito Electronica (FCE)')
-    .option('-f, --fecha <fecha>', 'fecha de emision a consultar; por defecto hoy')
+    .description('consultar si un receptor está obligado a recibir Factura de Crédito Electrónica (FCE)')
+    .option('-f, --fecha <fecha>', 'fecha de emisión a consultar; por defecto hoy')
     .addHelpText('after', createFceObligationHelp());
 
   registerQueryOptions(command);

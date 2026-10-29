@@ -50,8 +50,8 @@ describe('runUpdateFlow', () => {
 
     const text = stripAnsi(output);
 
-    expect(text).toMatch(/Tu version\s+1\.8\.0/);
-    expect(text).toMatch(/Nueva version\s+1\.9\.0/);
+    expect(text).toMatch(/Tu versión\s+1\.8\.0/);
+    expect(text).toMatch(/Nueva versión\s+1\.9\.0/);
     expect(text).toMatch(/nuevo\s+Barra con el estado de ARCA/);
     expect(text).toContain('12/10/2026');
     expect(copyToClipboard).not.toHaveBeenCalled();
