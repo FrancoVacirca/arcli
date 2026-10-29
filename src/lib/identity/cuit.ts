@@ -16,7 +16,7 @@ function computeCheckDigit(firstTen: string): number | undefined {
 }
 
 /**
- * CUIT o CUIL con o sin guiones, puntos o espacios (`20-40950976-3`, `20409509763`).
+ * CUIT o CUIL con o sin guiones, puntos o espacios (`20-33333333-4`, `20333333334`).
  * Devuelve los 11 digitos si el formato y el digito verificador son validos, o el motivo si no.
  */
 export function parseCuit(raw: number | string): CuitParseResult {

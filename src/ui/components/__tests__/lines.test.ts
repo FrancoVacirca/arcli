@@ -15,9 +15,9 @@ describe('lineas de encabezado', () => {
   it('la barra de estado lleva titulo y estado y ocupa el ancho disponible', () => {
     Object.defineProperty(process.stdout, 'columns', { configurable: true, value: 60, writable: true });
 
-    const bar = stripAnsi(statusBar([{ text: '20-40950976-3' }, { text: 'PV 3' }], [{ text: 'ARCA' }]));
+    const bar = stripAnsi(statusBar([{ text: '20-33333333-4' }, { text: 'PV 3' }], [{ text: 'ARCA' }]));
 
-    expect(bar).toMatch(/^━━ 20-40950976-3 · PV 3 ━+ ARCA ━━$/);
+    expect(bar).toMatch(/^━━ 20-33333333-4 · PV 3 ━+ ARCA ━━$/);
     expect(bar).toHaveLength(60);
   });
 

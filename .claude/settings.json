@@ -1,6 +1,5 @@
 {
   "permissions": {
-    "allow": ["Bash(gh pr merge:*)", "Bash(gh workflow run:*)", "Bash(gh release create:*)"],
     "deny": [
       "Read(*.key)",
       "Read(*.pem)",

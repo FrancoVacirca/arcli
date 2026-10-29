@@ -58,7 +58,7 @@ describe('config-doctor', () => {
           produccion: produccionCert,
           testing: testingCert,
         },
-        cuit: '20409509763',
+        cuit: '20333333334',
         conceptoPorDefecto: 'servicios',
         emisor: {},
         entornoPorDefecto: 'testing',

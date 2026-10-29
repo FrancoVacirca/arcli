@@ -1,4 +1,4 @@
-/** CUIT o CUIL con guiones, como lo muestra ARCA: `20409509763` → `20-40950976-3`. Si no tiene 11 digitos, sin cambios. */
+/** CUIT o CUIL con guiones, como lo muestra ARCA: `20333333334` → `20-33333333-4`. Si no tiene 11 digitos, sin cambios. */
 export function formatCuit(value: number | string): string {
   const digits = String(value);
 

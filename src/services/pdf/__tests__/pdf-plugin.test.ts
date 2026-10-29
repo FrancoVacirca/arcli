@@ -237,7 +237,7 @@ describe('exportBillingPdf', () => {
 
   const config = {
     cuit: '20123456786',
-    emisor: { domicilio: 'Calle 123', inicioActividades: '20200301', razonSocial: 'Lucas Gerez' },
+    emisor: { domicilio: 'Calle 123', inicioActividades: '20200301', razonSocial: 'Ana Gomez' },
   };
 
   it('writes testing PDFs to a subfolder with the testing footer', async () => {
@@ -277,7 +277,7 @@ describe('exportBillingPdf', () => {
     const render = vi.fn(async () => new Uint8Array([1]));
 
     await exportBillingPdf({
-      config: { ...config, emisor: { ...config.emisor, razonSocial: 'Gerez & Hijos' } },
+      config: { ...config, emisor: { ...config.emisor, razonSocial: 'Gomez & Hijos' } },
       extras: { descripcion: '<img src=x onerror=alert(1)>', receptorNombre: 'Cliente "SA"' },
       folder: createTempDir(),
       renderer: { render },
@@ -288,7 +288,7 @@ describe('exportBillingPdf', () => {
       { emisor: { razonSocial: string }; items: Array<{ descripcion: string }>; receptor: { razonSocial: string } },
     ];
 
-    expect(data.emisor.razonSocial).toBe('Gerez &amp; Hijos');
+    expect(data.emisor.razonSocial).toBe('Gomez &amp; Hijos');
     expect(data.items[0]?.descripcion).toBe('&lt;img src=x onerror=alert(1)&gt;');
     expect(data.receptor.razonSocial).toBe('Cliente &quot;SA&quot;');
     expect(JSON.stringify(data)).not.toMatch(/[<>]/);

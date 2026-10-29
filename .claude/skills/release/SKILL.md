@@ -7,13 +7,15 @@ argument-hint: "[patch|minor|major]"
 
 # Release de arcli
 
+Solo para quien mantiene arcli: publicar necesita permisos de escritura en el repo, el workflow Release y npm. Un colaborador no la necesita.
+
 El procedimiento base está en [docs/development.md](../../../docs/development.md#sacar-una-versión). Esta skill lo ejecuta con los formatos y gates que se usan en el repo. Antes de seguir, leé esa sección y la regla de versionado que trae.
 
 Hay tres **gates**: puntos donde mostrás lo que vas a hacer y esperás un "dale" explícito del usuario. Lo que pasa después de un gate es público o irreversible, así que un gate aprobado habilita solo esa acción.
 
 ## 1. Estado de partida
 
-- Rama `main` al día con `origin/main` (`git fetch` y comparar) y sin cambios en archivos versionados. Los no versionados (`.claude/`, `.vscode/`) no importan.
+- Rama `main` al día con `origin/main` (`git fetch` y comparar) y sin cambios en archivos versionados. Lo que no se versiona (por ejemplo `.claude/settings.local.json`) no importa.
 - `## [Sin publicar]` en [CHANGELOG.md](../../../CHANGELOG.md) tiene entradas. Si está vacío, revisá `git log vANTERIOR..main`: si hay cambios que afectan a quien usa el CLI y les falta entrada, avisá y frená. Si no hay nada que publicar, frená.
 
 **Listo cuando:** sabés qué PRs entran (los `#N` de `git log --oneline vANTERIOR..main`) y tenés las entradas de "Sin publicar".

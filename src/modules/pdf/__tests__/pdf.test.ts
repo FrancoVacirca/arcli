@@ -11,7 +11,7 @@ import { listMissingIssuerKeys, resolvePdfIssuer } from '../pdf-issuer';
 
 const ISSUER_CONFIG = {
   cuit: '20123456786',
-  emisor: { domicilio: 'Calle 123, CABA', inicioActividades: '20200301', razonSocial: 'Lucas Gerez' },
+  emisor: { domicilio: 'Calle 123, CABA', inicioActividades: '20200301', razonSocial: 'Ana Gomez' },
 };
 
 function createResult(

@@ -109,7 +109,7 @@ function createSampleConfig(): ArcliConfig {
       produccion: '/Users/demo/.arcli/produccion/certificado.crt',
       testing: '/Users/demo/.arcli/testing/certificado.crt',
     },
-    cuit: '20409509763',
+    cuit: '20333333334',
     conceptoPorDefecto: 'servicios',
     cotizacionPorDefecto: 1,
     emisor: {},
@@ -139,7 +139,7 @@ function createSampleUpdateCheckResult(): UpdateCheckResult {
 function createSampleValidation(): ArcaRuntimeValidation {
   return {
     certPath: '/Users/demo/.arcli/testing/certificado.crt',
-    cuit: 20409509763,
+    cuit: 20333333334,
     environment: 'testing',
     keyPath: '/Users/demo/.arcli/testing/clave.key',
     outputJson: false,
@@ -234,7 +234,7 @@ function buildBordersScene(): string {
     sceneTitle('Bordes', 'Un estilo por tipo de panel; ARCLI_ASCII=1 los cambia por ASCII'),
     ...boxes,
     `${colorize('Barra de estado (modo interactivo):', 'muted')}\n${statusBar(
-      [{ text: '20-40950976-3' }, { text: 'PV 3' }],
+      [{ text: '20-33333333-4' }, { text: 'PV 3' }],
       [
         { color: 'success', text: 'ARCA FUNCIONANDO' },
         { color: 'testing', text: 'TESTING' },
@@ -382,7 +382,7 @@ function buildComponentsScene(): string {
   });
   const updateNotice = renderUpdateNoticePanel(createSampleUpdateCheckResult());
   const keyValueRows: Array<readonly [string, string | number]> = [
-    ['CUIT', '20-40950976-3'],
+    ['CUIT', '20-33333333-4'],
     ['Punto de venta', 3],
     ['Entorno', 'testing'],
   ];

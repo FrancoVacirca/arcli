@@ -47,7 +47,7 @@ vi.mock('../../../modules/update-check/update-check.service', () => ({ checkForU
 const runtime = {
   certificateNotices: [],
   config: {},
-  context: { cuit: 20409509763 },
+  context: { cuit: 20333333334 },
   environment: 'testing',
   pointOfSale: 3,
 };
@@ -100,7 +100,7 @@ describe('runInteractiveMode', () => {
     await runInteractiveMode();
 
     expect(output).toContain('ARCA FUNCIONANDO');
-    expect(stripAnsi(output)).toMatch(/━━ 20-40950976-3 · PV 3 ━+ ARCA FUNCIONANDO ━ TESTING ━━/);
+    expect(stripAnsi(output)).toMatch(/━━ 20-33333333-4 · PV 3 ━+ ARCA FUNCIONANDO ━ TESTING ━━/);
     expect(stripAnsi(output)).toContain(`v${CLI_VERSION}`);
     expect(output).toContain('¡Hasta la próxima!');
   });
@@ -130,7 +130,7 @@ describe('runInteractiveMode', () => {
     await runInteractiveMode();
 
     const plain = stripAnsi(output);
-    const barIndex = plain.search(/━━ 20-40950976-3 · PV 3 ━+ ARCA FUNCIONANDO ━ PRODUCCIÓN ━━/);
+    const barIndex = plain.search(/━━ 20-33333333-4 · PV 3 ━+ ARCA FUNCIONANDO ━ PRODUCCIÓN ━━/);
     const boxIndex = plain.indexOf('El certificado de producción vence el 20/11/2026 (en 10 días).');
 
     expect(barIndex).toBeGreaterThanOrEqual(0);
@@ -149,7 +149,7 @@ describe('runInteractiveMode', () => {
 
     const plain = stripAnsi(output);
 
-    expect(plain).toMatch(/━━ 20-40950976-3 · PV 3 ━+ ARCA FUNCIONANDO ━ TESTING ━━/);
+    expect(plain).toMatch(/━━ 20-33333333-4 · PV 3 ━+ ARCA FUNCIONANDO ━ TESTING ━━/);
     expect(plain).toContain('El certificado de producción vence el 20/11/2026 (en 10 días).');
   });
 

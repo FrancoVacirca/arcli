@@ -115,7 +115,7 @@ arcli nca -m 5000 --cs --cuit 20168598204 --ir-ri \
   --ac fa \
   --apv 3 \
   --ar 120 \
-  --acuit 20409509763
+  --acuit 20333333334
 ```
 
 ### Resultado esperado

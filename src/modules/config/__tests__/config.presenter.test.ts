@@ -9,12 +9,12 @@ describe('config.presenter', () => {
     const text = formatConfigAsText(
       {
         cert: {
-          testing: '/Users/lucas/secretos/cert.pem',
+          testing: '/Users/ana/secretos/cert.pem',
         },
         emisor: {},
         entornoPorDefecto: 'testing',
         key: {
-          testing: '/Users/lucas/secretos/key.pem',
+          testing: '/Users/ana/secretos/key.pem',
         },
         output: {
           emitirPorDefecto: false,
@@ -22,18 +22,18 @@ describe('config.presenter', () => {
           jsonPorDefecto: false,
         },
       },
-      { pdfFolder: '/Users/lucas/arcli/comprobantes', ticketPath: '/Users/lucas/secretos/tickets' },
+      { pdfFolder: '/Users/ana/arcli/comprobantes', ticketPath: '/Users/ana/secretos/tickets' },
     );
 
     const json = formatConfig(
       {
         cert: {
-          testing: '/Users/lucas/secretos/cert.pem',
+          testing: '/Users/ana/secretos/cert.pem',
         },
         emisor: {},
         entornoPorDefecto: 'testing',
         key: {
-          testing: '/Users/lucas/secretos/key.pem',
+          testing: '/Users/ana/secretos/key.pem',
         },
         output: {
           emitirPorDefecto: false,
@@ -41,16 +41,16 @@ describe('config.presenter', () => {
           jsonPorDefecto: false,
         },
       },
-      { pdfFolder: '/Users/lucas/arcli/comprobantes', ticketPath: '/Users/lucas/secretos/tickets' },
+      { pdfFolder: '/Users/ana/arcli/comprobantes', ticketPath: '/Users/ana/secretos/tickets' },
     );
 
     expect(text).toContain('.../secretos/cert.pem');
     expect(text).toContain('.../secretos/key.pem');
     expect(text).toContain('.../secretos/tickets');
-    expect(text).not.toContain('/Users/lucas/secretos/cert.pem');
+    expect(text).not.toContain('/Users/ana/secretos/cert.pem');
     expect(json).toContain('.../secretos/cert.pem');
-    expect(json).not.toContain('/Users/lucas/secretos/key.pem"');
-    expect(json).not.toContain('/Users/lucas/secretos/tickets"');
+    expect(json).not.toContain('/Users/ana/secretos/key.pem"');
+    expect(json).not.toContain('/Users/ana/secretos/tickets"');
 
     // Por secciones, en el orden del modo interactivo; los certificados van juntos con los tickets.
     const plain = stripAnsi(text);
@@ -67,13 +67,13 @@ describe('config.presenter', () => {
     const report = buildConfigDoctorReport(
       {
         cert: {
-          testing: '/Users/lucas/secretos/cert.pem',
+          testing: '/Users/ana/secretos/cert.pem',
         },
         cuit: '20123456786',
         emisor: {},
         entornoPorDefecto: 'testing',
         key: {
-          testing: '/Users/lucas/secretos/key.pem',
+          testing: '/Users/ana/secretos/key.pem',
         },
         output: {
           emitirPorDefecto: false,

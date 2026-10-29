@@ -4,10 +4,10 @@ import { parseCuit } from '../cuit';
 
 describe('parseCuit', () => {
   it('accepts a CUIT with or without separators and returns the 11 digits', () => {
-    expect(parseCuit('20409509763')).toEqual({ ok: true, value: '20409509763' });
-    expect(parseCuit('20-40950976-3')).toEqual({ ok: true, value: '20409509763' });
+    expect(parseCuit('20333333334')).toEqual({ ok: true, value: '20333333334' });
+    expect(parseCuit('20-33333333-4')).toEqual({ ok: true, value: '20333333334' });
     expect(parseCuit(' 30 70996581 2 ')).toEqual({ ok: true, value: '30709965812' });
-    expect(parseCuit('20.40950976.3')).toEqual({ ok: true, value: '20409509763' });
+    expect(parseCuit('20.33333333.4')).toEqual({ ok: true, value: '20333333334' });
     expect(parseCuit(30546689979)).toEqual({ ok: true, value: '30546689979' });
   });
 
@@ -18,13 +18,13 @@ describe('parseCuit', () => {
   });
 
   it('rejects the wrong number of digits or other characters', () => {
-    expect(parseCuit('2040950976')).toEqual({ ok: false, reason: expect.stringMatching(/11 digitos/) });
-    expect(parseCuit('204095097634')).toMatchObject({ ok: false });
-    expect(parseCuit('20-4095O976-3')).toMatchObject({ ok: false });
+    expect(parseCuit('2033333333')).toEqual({ ok: false, reason: expect.stringMatching(/11 digitos/) });
+    expect(parseCuit('203333333344')).toMatchObject({ ok: false });
+    expect(parseCuit('20-3333O333-4')).toMatchObject({ ok: false });
     expect(parseCuit('')).toMatchObject({ ok: false });
   });
 
   it('rejects a wrong check digit', () => {
-    expect(parseCuit('20-40950976-4')).toEqual({ ok: false, reason: expect.stringMatching(/digito verificador/) });
+    expect(parseCuit('20-33333333-5')).toEqual({ ok: false, reason: expect.stringMatching(/digito verificador/) });
   });
 });

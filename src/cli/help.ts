@@ -268,7 +268,7 @@ export function createConfigHelp(): string {
     section(
       'Ejemplos',
       [
-        '  - arcli config establecer cuit 20409509763',
+        '  - arcli config establecer cuit 20333333334',
         '  - arcli config establecer entorno produccion',
         '  - arcli config establecer ivaReceptor consumidor-final',
         '  - arcli config establecer key.produccion /ruta/clave.key',

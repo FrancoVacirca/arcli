@@ -647,12 +647,12 @@ describe('billing.command.parser', () => {
       '--ar',
       '120',
       '--acuit',
-      '20-40950976-3',
+      '20-33333333-4',
     ]);
     const input = parseBillingCommandInput(command, 'ncc');
 
     expect(input.associatedVoucher).toEqual({
-      cuit: '20409509763',
+      cuit: '20333333334',
       numero: 120,
       puntoVenta: 3,
       shortcut: 'fc',
@@ -661,8 +661,8 @@ describe('billing.command.parser', () => {
   });
 
   it('rejects an --acuit with a wrong check digit', () => {
-    expect(() => createCommand(['--monto', '5000', '--acuit', '20-40950976-4'])).toThrow(
-      /--acuit "20-40950976-4" no es válido: el digito verificador/,
+    expect(() => createCommand(['--monto', '5000', '--acuit', '20-33333333-5'])).toThrow(
+      /--acuit "20-33333333-5" no es válido: el digito verificador/,
     );
   });
 

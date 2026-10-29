@@ -408,7 +408,7 @@ Las notas heredan todo lo de una factura, pero suman una regla importante: **sie
 #### Ejemplo mínimo funcional
 
 ```bash
-arcli nca -m 1 --cs --cuit 20168598204 --ir-ri --ac fa --apv 3 --ar 6 --acuit 20409509763
+arcli nca -m 1 --cs --cuit 20168598204 --ir-ri --ac fa --apv 3 --ar 6 --acuit 20333333334
 ```
 
 #### Nota por período

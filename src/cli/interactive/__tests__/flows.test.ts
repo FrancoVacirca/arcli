@@ -38,7 +38,7 @@ function createSession(vouchers: IssuedVoucher[] = [], arca: unknown = {}): Inte
     historyGateway,
     runtime: {
       config: { cert: {}, entornoPorDefecto: 'testing', key: {}, output: {} },
-      context: { cuit: 20409509763 },
+      context: { cuit: 20333333334 },
       environment: 'testing',
       outputJson: false,
       outputRaw: false,
@@ -421,7 +421,7 @@ describe('flujos del modo interactivo', () => {
       const state = await runWizard(noteSteps(session, 3), { kind: 'credito' });
 
       expect(buildNoteInput(state as NonNullable<typeof state>, session, 3)).toMatchObject({
-        associatedVoucher: { cuit: '20409509763', fecha: '01/10/2026', numero: 14, puntoVenta: 3, shortcut: 'fb' },
+        associatedVoucher: { cuit: '20333333334', fecha: '01/10/2026', numero: 14, puntoVenta: 3, shortcut: 'fb' },
         documentType: 'consumidor-final',
         ivaRate: undefined,
         shortcut: 'ncb',

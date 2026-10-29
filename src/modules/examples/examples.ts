@@ -51,7 +51,7 @@ function resolveAssociatedFlags(definition: VoucherKindDefinition, form: 'long' 
     `--ac ${resolveAssociatedShortcut(definition)}`,
     form === 'long' ? '--asociado-punto-venta 3' : '--apv 3',
     '--ar 120',
-    ...(definition.isElectronicCredit ? [] : ['--acuit 20409509763']),
+    ...(definition.isElectronicCredit ? [] : ['--acuit 20333333334']),
   ];
 }
 

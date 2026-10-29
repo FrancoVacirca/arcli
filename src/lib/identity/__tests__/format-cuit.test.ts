@@ -4,7 +4,7 @@ import { formatCuit } from '../format-cuit';
 
 describe('formatCuit', () => {
   it('agrega los guiones', () => {
-    expect(formatCuit(20409509763)).toBe('20-40950976-3');
+    expect(formatCuit(20333333334)).toBe('20-33333333-4');
   });
 
   it('deja igual lo que no tiene 11 digitos', () => {

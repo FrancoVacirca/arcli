@@ -4,7 +4,7 @@ import { maskPath } from '../mask-path';
 
 describe('mask-path', () => {
   it('keeps the filename and last directory only', () => {
-    expect(maskPath('/Users/lucas/secretos/cert.pem')).toBe('.../secretos/cert.pem');
+    expect(maskPath('/Users/ana/secretos/cert.pem')).toBe('.../secretos/cert.pem');
   });
 
   it('handles plain filenames', () => {

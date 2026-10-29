@@ -18,7 +18,7 @@ vi.mock('node:fs', async (importOriginal) => ({
 const CONFIG = {
   cert: {},
   cuit: '20123456786',
-  emisor: { domicilio: 'Calle 123', inicioActividades: '20200301', razonSocial: 'Lucas Gerez' },
+  emisor: { domicilio: 'Calle 123', inicioActividades: '20200301', razonSocial: 'Ana Gomez' },
   entornoPorDefecto: 'testing',
   key: {},
   output: { brutoPorDefecto: false, emitirPorDefecto: false, jsonPorDefecto: false },

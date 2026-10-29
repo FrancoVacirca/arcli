@@ -74,7 +74,7 @@ describe('buildEquivalentCommand', () => {
 
   it('genera un comando que el parser vuelve a leer igual', () => {
     const original = input({
-      associatedVoucher: { cuit: '20409509763', fecha: '01/10/2026', numero: 14, puntoVenta: 3, shortcut: 'fb' },
+      associatedVoucher: { cuit: '20333333334', fecha: '01/10/2026', numero: 14, puntoVenta: 3, shortcut: 'fb' },
       cancellation: false,
       concept: 'productos',
       documentNumber: 12345678,

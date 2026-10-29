@@ -153,7 +153,7 @@ Los nombres de las claves no siempre coinciden con los flags. Si pasás las dos 
 {
   "comprobanteAsociado": {
     "atajo": "fa",
-    "cuit": "20409509763",
+    "cuit": "20333333334",
     "numero": 120,
     "puntoVenta": 3
   },
@@ -538,7 +538,7 @@ En testing, `puntos-venta` sale con `valores: []`: ARCA no informa puntos de ven
   "concepto": "servicios",
   "consultarPadron": true,
   "cotizacion": 1,
-  "cuit": "20409509763",
+  "cuit": "20333333334",
   "emisor": { "razonSocial": "Ana Gomez", "domicilio": "Calle 1, CABA" },
   "emitir": false,
   "entorno": "testing",

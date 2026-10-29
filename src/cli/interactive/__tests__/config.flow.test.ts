@@ -93,7 +93,7 @@ describe('runGuidedSetup', () => {
       .mockResolvedValueOnce('/certs/testing.crt')
       .mockResolvedValueOnce('/certs/testing.key')
       .mockResolvedValueOnce('3')
-      .mockResolvedValueOnce('Lucas Gerez')
+      .mockResolvedValueOnce('Ana Gomez')
       .mockResolvedValueOnce('Calle 123')
       .mockResolvedValueOnce('1/03/2020')
       .mockResolvedValueOnce('Exento');
@@ -109,7 +109,7 @@ describe('runGuidedSetup', () => {
       'emisor.domicilio': 'Calle 123',
       'emisor.iibb': 'Exento',
       'emisor.inicioActividades': '1/03/2020',
-      'emisor.razonSocial': 'Lucas Gerez',
+      'emisor.razonSocial': 'Ana Gomez',
       ivaReceptor: 'consumidor-final',
       'key.testing': '/certs/testing.key',
       puntoVenta: '3',
@@ -162,7 +162,7 @@ describe('runConfigMenu', () => {
   });
 
   it('muestra toda la configuracion', async () => {
-    store.cuit = '20409509763';
+    store.cuit = '20333333334';
     vi.mocked(chooseOne).mockResolvedValueOnce('ver').mockResolvedValueOnce('volver');
 
     let printed = '';
@@ -174,7 +174,7 @@ describe('runConfigMenu', () => {
 
     await runConfigMenu();
 
-    expect(stripAnsi(printed)).toContain('20409509763');
+    expect(stripAnsi(printed)).toContain('20333333334');
     expect(stripAnsi(printed)).toContain('Comprobantes por lista');
   });
 

@@ -29,7 +29,7 @@ export function integerOption(flag: string): (value: string) => number {
   };
 }
 
-/** CUIT o CUIL: acepta guiones y puntos (`20-40950976-3`) y chequea el digito verificador. */
+/** CUIT o CUIL: acepta guiones y puntos (`20-33333333-4`) y chequea el digito verificador. */
 export function cuitOption(flag: string): (value: string) => string {
   return (value) => {
     const result = parseCuit(value);

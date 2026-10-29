@@ -16,7 +16,7 @@ function createSession(environment: 'produccion' | 'testing'): InteractiveSessio
   const createVoucher = vi.fn(async () => ({ response: {} }) as never);
   const runtime = {
     config: { cert: {}, entornoPorDefecto: environment, key: {}, output: {} },
-    context: { cuit: 20409509763 },
+    context: { cuit: 20333333334 },
     environment,
     outputJson: false,
     outputRaw: false,

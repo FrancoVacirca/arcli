@@ -38,7 +38,7 @@ const attachPdfsMock = vi.mocked(attachPdfs);
 const CONFIG = {
   cert: {},
   cuit: '20123456786',
-  emisor: { domicilio: 'Calle 123', inicioActividades: '20200301', razonSocial: 'Lucas Gerez' },
+  emisor: { domicilio: 'Calle 123', inicioActividades: '20200301', razonSocial: 'Ana Gomez' },
   entornoPorDefecto: 'testing',
   key: {},
   output: { brutoPorDefecto: false, emitirPorDefecto: false, jsonPorDefecto: false },
@@ -140,14 +140,14 @@ describe('offerPdf', () => {
       .mockResolvedValueOnce('Calle 9')
       .mockResolvedValueOnce('1/03/2020');
 
-    await offerPdf({ ...CONFIG, emisor: { razonSocial: 'Lucas Gerez' }, pdf: 'siempre' }, input, result);
+    await offerPdf({ ...CONFIG, emisor: { razonSocial: 'Ana Gomez' }, pdf: 'siempre' }, input, result);
 
     expect(setValue).toHaveBeenCalledWith('emisor.domicilio', 'Calle 9');
     expect(setValue).toHaveBeenCalledWith('emisor.inicioActividades', '1/03/2020');
     expect(attachPdfsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         config: expect.objectContaining({
-          emisor: { domicilio: 'Calle 9', inicioActividades: '20200301', razonSocial: 'Lucas Gerez' },
+          emisor: { domicilio: 'Calle 9', inicioActividades: '20200301', razonSocial: 'Ana Gomez' },
         }),
       }),
     );
