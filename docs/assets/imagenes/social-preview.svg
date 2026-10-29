@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+<defs><radialGradient id="g" cx="50%" cy="35%" r="70%"><stop offset="0" stop-color="#262637"/><stop offset="1" stop-color="#181825"/></radialGradient></defs>
+<rect width="1280" height="640" fill="url(#g)"/>
+<g font-family="Fira Code" font-weight="500" font-size="30"><text x="190" y="112" xml:space="preserve"><tspan fill="#74c7ec">       d8888 8888888b. </tspan><tspan fill="#b4befe">  .d8888b.  888      8888888 </tspan></text>
+<text x="190" y="148" xml:space="preserve"><tspan fill="#74c7ec">      d88888 888   Y88b</tspan><tspan fill="#b4befe"> d88P  Y88b 888        888   </tspan></text>
+<text x="190" y="184" xml:space="preserve"><tspan fill="#74c7ec">     d88P888 888    888</tspan><tspan fill="#b4befe"> 888    888 888        888   </tspan></text>
+<text x="190" y="220" xml:space="preserve"><tspan fill="#74c7ec">    d88P 888 888   d88P</tspan><tspan fill="#b4befe"> 888        888        888   </tspan></text>
+<text x="190" y="256" xml:space="preserve"><tspan fill="#74c7ec">   d88P  888 8888888P&quot; </tspan><tspan fill="#b4befe"> 888        888        888   </tspan></text>
+<text x="190" y="292" xml:space="preserve"><tspan fill="#74c7ec">  d88P   888 888 T88b  </tspan><tspan fill="#b4befe"> 888    888 888        888   </tspan></text>
+<text x="190" y="328" xml:space="preserve"><tspan fill="#74c7ec"> d8888888888 888  T88b </tspan><tspan fill="#b4befe"> Y88b  d88P 888        888   </tspan></text>
+<text x="190" y="364" xml:space="preserve"><tspan fill="#74c7ec">d88P     888 888   T88b</tspan><tspan fill="#b4befe">  &quot;Y8888P&quot;  88888888 8888888 </tspan></text></g>
+<text x="1072" y="398" font-family="Fira Code" font-size="20" fill="#6c7086" text-anchor="end">-LcsGrz</text>
+<text x="640" y="470" font-family="Fira Code" font-size="28" fill="#cdd6f4" text-anchor="middle">Facturación electrónica de ARCA desde la terminal</text>
+<rect x="420" y="500" width="440" height="50" rx="10" fill="#11111b" stroke="#313244"/>
+<text x="640" y="534" font-family="Fira Code" font-size="22" text-anchor="middle" xml:space="preserve"><tspan fill="#a6e3a1">$</tspan><tspan fill="#cdd6f4"> npm install -g </tspan><tspan fill="#74c7ec">arcli</tspan></text>
+</svg>
