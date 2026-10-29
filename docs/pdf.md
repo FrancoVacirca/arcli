@@ -92,6 +92,15 @@ Estos datos **solo van en el PDF**: ARCA no los recibe. Si los pasás y al final
 
 El detalle del PDF tiene un renglón por alícuota de IVA con la descripción y su importe neto, o un solo renglón en las facturas `C`. Exento y no gravado van en renglones aparte.
 
+## Leyendas obligatorias
+
+ARCLI agrega al PDF las leyendas que pide la normativa y que la plantilla de `@arcasdk/pdf` no trae. Salen debajo del CAE, en la línea de "Observaciones":
+
+- **Comprobantes B (RG 5614, Ley 27.743):** "Régimen de Transparencia Fiscal al Consumidor (Ley 27.743)", con el **IVA Contenido** del comprobante y **Otros Impuestos Nacionales Indirectos** en `$ 0,00` (ARCLI no informa tributos).
+- **Comprobantes A a un monotributista (RG 5003):** "El crédito fiscal discriminado en el presente comprobante, sólo podrá ser computado a efectos del Régimen de Sostenimiento e Inclusión Fiscal para Pequeños Contribuyentes de la Ley Nº 27.618". Aplica si la condición IVA del receptor es responsable monotributo, monotributista social o monotributo trabajador independiente promovido.
+
+Las facturas C no llevan ninguna de las dos.
+
 ## Carpeta y nombre del archivo
 
 - **Carpeta:** la config `pdfCarpeta`. Por defecto es `~/arcli/comprobantes`, una ruta fija para que los PDFs no queden repartidos según desde dónde corriste el comando.

@@ -6,6 +6,7 @@ import type { BillingExecutionResult } from '../billing/billing.types.internal';
 
 import { PdfError } from './pdf.errors';
 import type { InvoicePdfData, InvoicePdfIssuer, InvoicePdfItem, InvoicePdfIva, PdfVoucherExtras } from './pdf.types';
+import { buildPdfLegends } from './pdf-legends';
 
 export const DEFAULT_ITEM_DESCRIPTION = 'Segun detalle';
 
@@ -144,6 +145,7 @@ export function mapBillingResultToPdfData(
     iva: iva.length > 0 ? iva : undefined,
     // La plantilla del SDK solo conoce pesos y dolares; el resto se muestra con su codigo ARCA.
     moneda: CURRENCY_CODES[payload.MonId] ?? payload.MonId,
+    observaciones: buildPdfLegends(result),
     puntoVenta: payload.PtoVta,
     receptor: {
       condicionIva: capitalizeWords(formatIvaConditionLabel(payload.CondicionIVAReceptorId)),

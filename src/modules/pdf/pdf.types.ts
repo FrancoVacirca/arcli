@@ -70,6 +70,8 @@ export interface InvoicePdfData {
   readonly items: readonly InvoicePdfItem[];
   readonly iva?: readonly InvoicePdfIva[];
   readonly moneda?: string;
+  /** La plantilla lo muestra debajo del CAE, como "Observaciones". */
+  readonly observaciones?: string;
   readonly puntoVenta: number;
   readonly receptor: InvoicePdfReceiver;
 }
