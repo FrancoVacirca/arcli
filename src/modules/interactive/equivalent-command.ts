@@ -1,5 +1,6 @@
 import { formatArgentineAmountInput } from '../../lib/numbers/argentine-amount';
 import { isForeignCurrency } from '../billing/billing.currency';
+import { resolveBillingCurrencyCode } from '../billing/billing.mappers';
 import type { BillingCommandInput } from '../billing/billing.schemas';
 
 const CONCEPT_FLAGS: Record<BillingCommandInput['concept'], string> = {
@@ -45,7 +46,11 @@ function associatedFlags(input: BillingCommandInput): string[] {
  */
 export function buildEquivalentCommand(
   input: BillingCommandInput,
-  options: { readonly environment: 'produccion' | 'testing' },
+  options: {
+    /** `moneda` de la config: si es extranjera, el comando en pesos lo tiene que decir o tomaria esa. */
+    readonly defaultCurrency?: string;
+    readonly environment: 'produccion' | 'testing';
+  },
 ): string {
   const parts = [
     'arcli',
@@ -68,6 +73,8 @@ export function buildEquivalentCommand(
     } else if (input.exchangeRate) {
       parts.push('--cm', formatArgentineAmountInput(input.exchangeRate));
     }
+  } else if (options.defaultCurrency && resolveBillingCurrencyCode(options.defaultCurrency) !== 'PES') {
+    parts.push('--moneda', 'ARS');
   }
   if (input.ivaRate) parts.push('--alicuota', input.ivaRate);
 

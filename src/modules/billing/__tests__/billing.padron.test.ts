@@ -45,6 +45,7 @@ describe('resolveIvaConditionFromPadron', () => {
       ivaCondition: 'responsable-inscripto',
       ivaConditionSource: 'padron',
       receiverAddress: 'LARREA 1, CP 1030',
+      receiverFromPadron: ['address', 'name'],
       receiverName: 'VICTORIA CAROLINA DARIO',
     });
   });
@@ -56,6 +57,7 @@ describe('resolveIvaConditionFromPadron', () => {
     );
 
     expect(result.input.receiverName).toBe('Mi cliente');
+    expect(result.input.receiverFromPadron).toEqual(['address']);
   });
 
   it('no consulta con IVA explicito ni sin CUIT', async () => {

@@ -38,6 +38,8 @@ export interface BillingExecutionResult {
     readonly name?: string;
   };
   readonly response: BillingResponseSummary;
+  /** El numero con que se envio a ARCA; no esta en `payload` porque el SDK lo asigna al emitir. Solo si se emitio. */
+  readonly voucherNumber?: number;
   readonly voucherKind: VoucherKindDefinition;
   readonly warnings?: readonly string[];
 }

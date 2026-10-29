@@ -220,4 +220,26 @@ describe('attachPdfs', () => {
 
     expect(result.warnings).toEqual(['otro aviso', PDF_ONLY_FLAGS_WARNING]);
   });
+
+  it('does not warn about the receiver the padron filled in', async () => {
+    const { deps } = createDeps();
+    const [result] = await attachPdfs(
+      {
+        config: CONFIG,
+        inputs: [
+          input({
+            pdf: false,
+            receiverAddress: 'Calle 1',
+            receiverFromPadron: ['address', 'name'],
+            receiverName: 'DARIO SA',
+          }),
+        ],
+        interactive: false,
+        results: [createResult({ warnings: [] })],
+      },
+      deps,
+    );
+
+    expect(result.warnings).toEqual([]);
+  });
 });

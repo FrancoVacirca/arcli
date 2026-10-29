@@ -255,12 +255,13 @@ ARCLI serializa un resumen del resultado. Con `--bruto` se agrega además el cam
 | `errores`          | `unknown[]`                                | Array de errores crudos                                                                                                |
 | `estado`           | `"aprobado" \| "observado" \| "rechazado"` | Estado normalizado que arma ARCLI                                                                                      |
 | `eventos`          | `unknown[]`                                | Array de eventos crudos                                                                                                |
+| `numero`           | `number \| null`                           | Número del comprobante emitido; `null` en una previsualización                                                         |
 | `observaciones`    | `string[]`                                 | Observaciones amigables                                                                                                |
 | `observacion`      | `string \| null`                           | Observaciones unidas en una sola cadena                                                                                |
 | `pdf`              | `object`, opcional                         | Solo si se intentó generar el PDF: `{ ruta }` o `{ error: { codigo, mensaje, sugerencia } }`. Ver [PDF](pdf.md#salida) |
 | `previsualizacion` | `boolean`                                  | `true` si no hubo emisión real                                                                                         |
 | `resultado`        | `string \| null`                           | Resultado original de ARCA, por ejemplo `A` o `R`                                                                      |
-| `solicitud`        | `object`                                   | Solicitud enviada o previsualizada                                                                                     |
+| `solicitud`        | `object`                                   | Solicitud enviada o previsualizada; si se emitió, con el número en `CbteDesde` y `CbteHasta`                           |
 | `sugerencias`      | `string[]`                                 | Sugerencias generadas por ARCLI                                                                                        |
 | `tipoArca`         | `number`                                   | Tipo ARCA del comprobante                                                                                              |
 
@@ -302,6 +303,7 @@ Ejemplo:
   "errores": [],
   "estado": "aprobado",
   "eventos": [],
+  "numero": 125,
   "observaciones": [],
   "observacion": null,
   "previsualizacion": false,

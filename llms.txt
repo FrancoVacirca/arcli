@@ -122,7 +122,8 @@ Una clave desconocida (`montototal`, `vencimiento`, `moneda`) o un tipo incorrec
   "eventos": [],
   "observaciones": ["..."],
   "observacion": "string | null",
-  "solicitud": { "...": "payload enviado a ARCA" },
+  "numero": "number (número emitido) | null (previsualización)",
+  "solicitud": { "...": "payload enviado a ARCA; si se emitió, con CbteDesde/CbteHasta" },
   "previsualizacion": true,
   "sugerencias": ["texto en español sugiriendo como resolver errores comunes de ARCA"],
   "pdf": { "ruta": "/ruta/al/archivo.pdf" }

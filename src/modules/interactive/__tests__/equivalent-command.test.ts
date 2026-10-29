@@ -53,6 +53,15 @@ describe('buildEquivalentCommand', () => {
     );
   });
 
+  it('con moneda extranjera en la config, un comprobante en pesos lleva --moneda ARS', () => {
+    expect(buildEquivalentCommand(input({}), { defaultCurrency: 'USD', environment: 'testing' })).toContain(
+      '--moneda ARS',
+    );
+    expect(buildEquivalentCommand(input({}), { defaultCurrency: 'ARS', environment: 'testing' })).not.toContain(
+      '--moneda',
+    );
+  });
+
   it('incluye la moneda extranjera', () => {
     expect(
       buildEquivalentCommand(input({ currencyCode: 'USD', exchangeRate: 1200 }), { environment: 'testing' }),

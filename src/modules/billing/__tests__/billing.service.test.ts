@@ -1303,6 +1303,18 @@ describe('billing.service', () => {
     ).toThrow(/debe ser una factura, no otra nota/);
   });
 
+  it('returns the number it sent to ARCA with the emitted voucher', async () => {
+    const createVoucher = vi.fn(async () => ({ cae: '76123456789012', caeFchVto: '20261103', response: {} }));
+    const result = await new BillingService().execute({
+      gateway: { createVoucher, getNextVoucherNumber: async () => 125, getQuotation: async () => 1 },
+      input: createBillingInput({ documentNumber: 0, dryRun: false, emit: true }),
+      runtime: createRuntime(),
+    });
+
+    expect(result.voucherNumber).toBe(125);
+    expect(createVoucher).toHaveBeenCalledWith(expect.objectContaining({ CbteDesde: 125, CbteHasta: 125 }));
+  });
+
   it('returns a mapped dry-run response without calling the gateway', async () => {
     const service = new BillingService();
 

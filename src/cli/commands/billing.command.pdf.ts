@@ -53,8 +53,15 @@ export interface PdfStepOptions {
   readonly results: readonly BillingExecutionResult[];
 }
 
+/** Datos que solo van en el PDF y pasó quien factura; lo que completó el padrón no cuenta. */
 function hasPdfOnlyData(input: BillingCommandInput | undefined): boolean {
-  return Boolean(input?.pdfDescription || input?.receiverName || input?.receiverAddress);
+  const fromPadron = input?.receiverFromPadron ?? [];
+
+  return Boolean(
+    input?.pdfDescription ||
+    (input?.receiverName && !fromPadron.includes('name')) ||
+    (input?.receiverAddress && !fromPadron.includes('address')),
+  );
 }
 
 async function resolveDecisions(options: PdfStepOptions, deps: PdfStepDependencies): Promise<PdfDecision[]> {

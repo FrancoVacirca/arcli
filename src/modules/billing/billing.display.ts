@@ -9,6 +9,7 @@ import {
   testingBanner,
   toneText,
 } from '../../ui';
+import { formatVoucherNumber } from '../vouchers/voucher-history.presenter';
 
 import { resolveIvaRateLabel } from './billing.amounts';
 import {
@@ -187,7 +188,9 @@ export function formatResultPanel(
   const summaryRows: Array<readonly [string, string | number]> = [
     ['CAE', result.response.cae ?? 'N/D'],
     ['Vencimiento CAE', formatDateLabel(result.response.caeVencimiento ?? undefined)],
-    ['Punto de venta', result.payload.PtoVta],
+    result.voucherNumber === undefined
+      ? ['Punto de venta', result.payload.PtoVta]
+      : ['Número', formatVoucherNumber(result.payload.PtoVta, result.voucherNumber)],
     ['Importe total', formatMoneyLabel(result.payload.ImpTotal)],
   ];
   const countRows: Array<readonly [string, string | number]> = [

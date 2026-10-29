@@ -43,8 +43,13 @@ function formatVoucherSummary(result: BillingExecutionResult): Record<string, un
     eventos: result.response.events,
     observaciones: result.response.observaciones,
     observacion: result.response.observacion,
+    numero: result.voucherNumber ?? null,
     ...formatPdfOutcome(result),
-    solicitud: result.payload,
+    // Lo que se envio a ARCA, con el numero que le toco.
+    solicitud:
+      result.voucherNumber === undefined
+        ? result.payload
+        : { ...result.payload, CbteDesde: result.voucherNumber, CbteHasta: result.voucherNumber },
     previsualizacion: result.dryRun,
     resultado: result.response.resultado,
     sugerencias: result.response.suggestions,

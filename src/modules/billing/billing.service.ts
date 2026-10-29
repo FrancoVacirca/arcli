@@ -105,6 +105,7 @@ export class BillingService {
       payload,
       receiver,
       response: mapBillingResponse(response),
+      voucherNumber,
       voucherKind,
       warnings: options.warnings ?? [],
     };

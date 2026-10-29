@@ -231,12 +231,14 @@ function parseBillingCommandInputFromSource(
   const willLookupPadron =
     !explicitIvaCondition && defaults.lookupIvaConditionInPadron === true && documentType === 'cuit';
   const resolvedIvaCondition = explicitIvaCondition ?? defaults.defaultIvaCondition;
-  // Sin definir es explicito: asi la entrada que arma el parser es igual a la del modo interactivo.
-  const ivaConditionSource: BillingCommandInput['ivaConditionSource'] = explicitIvaCondition
-    ? undefined
-    : resolvedIvaCondition
-      ? 'default'
-      : 'missing';
+  // Sin definir es explicito: asi la entrada que arma el parser es igual a la del modo interactivo. Con
+  // consultarPadron=false el IVA de la config tambien es definitivo: 'default' haria consultar el padron igual.
+  const ivaConditionSource: BillingCommandInput['ivaConditionSource'] =
+    explicitIvaCondition || (resolvedIvaCondition && defaults.lookupIvaConditionInPadron !== true)
+      ? undefined
+      : resolvedIvaCondition
+        ? 'default'
+        : 'missing';
 
   if (typeof commandOptions.concepto === 'string' && conceptShortcut) {
     throw new InputValidationError('Use --concepto o un flag corto de concepto (--cs, --cp, --csp), pero no ambos.');

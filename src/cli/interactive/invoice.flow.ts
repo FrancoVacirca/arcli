@@ -123,6 +123,8 @@ export function buildInvoiceInput(state: InvoiceState, session: InteractiveSessi
   return billingCommandSchema.parse({
     ...state.advanced,
     cbu: isFceInvoice(state) ? (state.cbu ?? config.cbu) : undefined,
+    // Como en el CLI: en una FCE el alias de la config se informa junto con el CBU.
+    cbuAlias: isFceInvoice(state) ? config.aliasCbu : undefined,
     concept: state.concept,
     documentNumber: state.documentNumber,
     documentType: state.documentType,

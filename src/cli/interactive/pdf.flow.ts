@@ -101,8 +101,17 @@ export async function offerPdf(
     }
 
     const description = await askText('Descripcion del comprobante (Enter para "Segun detalle")');
-    const receiverName = await askText('Nombre o razon social del receptor (Enter para omitir)');
-    const receiverAddress = await askText('Domicilio del receptor (Enter para omitir)');
+    // Lo que trajo el padron se propone: Enter lo deja, en lugar de borrarlo.
+    const receiverName = await askText(
+      input.receiverName
+        ? 'Nombre o razón social del receptor:'
+        : 'Nombre o razon social del receptor (Enter para omitir)',
+      { defaultValue: input.receiverName },
+    );
+    const receiverAddress = await askText(
+      input.receiverAddress ? 'Domicilio del receptor:' : 'Domicilio del receptor (Enter para omitir)',
+      { defaultValue: input.receiverAddress },
+    );
     const completedConfig = await completeIssuer(config);
     const withPdf = await attachPdfs({
       config: completedConfig,

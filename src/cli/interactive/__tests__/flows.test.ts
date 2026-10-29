@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { BillingService } from '../../../modules/billing/billing.service';
+import { getVoucherKindByShortcut } from '../../../modules/billing/voucher-kind-map';
 import { BACK, runWizard } from '../../../modules/interactive/wizard';
 import type { IssuedVoucher, VoucherHistoryGateway } from '../../../modules/vouchers/voucher-history';
 import type { ResolvedArcaRuntime } from '../../../services/arca/arca-context.resolver';
@@ -123,6 +124,29 @@ describe('flujos del modo interactivo', () => {
         shortcut: 'fcea',
         transferMode: 'adc',
       });
+    });
+
+    it('en una FCE informa el alias del CBU de la config, como el CLI', () => {
+      const session = createSession();
+      const withAlias = {
+        ...session,
+        runtime: { ...session.runtime, config: { ...session.runtime.config, aliasCbu: 'mi.alias.cbu' } },
+      } as InteractiveSession;
+      const state = {
+        advanced: { currencyCode: 'ARS', sameCurrency: false },
+        cbu: '0110599520000012345678',
+        concept: 'servicios',
+        documentNumber: 30709965812,
+        documentType: 'cuit',
+        ivaCondition: 'responsable-inscripto',
+        totalAmount: 1000,
+        voucherKind: getVoucherKindByShortcut('fcea'),
+      } as const;
+
+      expect(buildInvoiceInput(state as never, withAlias)).toMatchObject({ cbuAlias: 'mi.alias.cbu' });
+      expect(
+        buildInvoiceInput({ ...state, voucherKind: getVoucherKindByShortcut('fa') } as never, withAlias).cbuAlias,
+      ).toBeUndefined();
     });
 
     it('con un CUIT propone la condicion IVA del padron y guarda el nombre del receptor', async () => {

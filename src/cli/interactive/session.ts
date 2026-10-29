@@ -86,7 +86,14 @@ export async function previewAndEmit(session: InteractiveSession, rawInput: Bill
   const preview = await service.execute({ gateway: PREVIEW_GATEWAY, input, runtime, warnings });
 
   writeTerminalOutput(formatBillingOutputs([preview], { environment: runtime.environment, raw: false }));
-  writeTerminalOutput(formatEquivalentCommand(buildEquivalentCommand(input, { environment: runtime.environment })));
+  writeTerminalOutput(
+    formatEquivalentCommand(
+      buildEquivalentCommand(input, {
+        defaultCurrency: runtime.config.monedaPorDefecto,
+        environment: runtime.environment,
+      }),
+    ),
+  );
 
   const label = preview.voucherKind.displayName;
   const environmentLabel = runtime.environment === 'produccion' ? 'PRODUCCION' : 'testing';

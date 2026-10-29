@@ -65,9 +65,14 @@ export async function resolveIvaConditionFromPadron(
     return fallBack(input, `El CUIT ${cuit} no figura en el padron de ARCA`);
   }
 
+  const fromPadron = [
+    ...(!input.receiverAddress && taxpayer.address ? (['address'] as const) : []),
+    ...(!input.receiverName && taxpayer.name ? (['name'] as const) : []),
+  ];
   const withReceiver: BillingCommandInput = {
     ...input,
     receiverAddress: input.receiverAddress ?? taxpayer.address ?? undefined,
+    receiverFromPadron: fromPadron.length > 0 ? fromPadron : undefined,
     receiverName: input.receiverName ?? taxpayer.name ?? undefined,
   };
 

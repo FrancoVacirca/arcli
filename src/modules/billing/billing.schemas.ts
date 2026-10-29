@@ -161,6 +161,8 @@ export const billingCommandSchema = z.object({
   pdfDescription: z.string().trim().min(1).max(200).optional(),
   pointOfSale: z.number().int().positive().optional(),
   receiverAddress: z.string().trim().min(1).max(200).optional(),
+  /** Que datos del receptor completo el padron (no los paso quien factura). */
+  receiverFromPadron: z.array(z.enum(['address', 'name'])).optional(),
   receiverName: z.string().trim().min(1).max(200).optional(),
   sameCurrency: z.boolean().default(false),
   serviceEndDate: z.string().trim().optional(),

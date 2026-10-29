@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { needsPadronLookup } from '../../../modules/billing/billing.padron';
 import {
   parseBillingCommandInput,
   parseBillingCommandInputs,
@@ -719,6 +720,16 @@ describe('IVA receptor y padron', () => {
     expect(
       parse(['--cuit', '20201797064'], { defaultIvaCondition: 'consumidor-final', lookupIvaConditionInPadron: true }),
     ).toMatchObject({ ivaCondition: 'consumidor-final', ivaConditionSource: 'default' });
+  });
+
+  it('con consultarPadron=false el IVA de la config es definitivo y no se consulta', () => {
+    const input = parse(['--cuit', '20201797064'], {
+      defaultIvaCondition: 'responsable-inscripto',
+      lookupIvaConditionInPadron: false,
+    });
+
+    expect(input).toMatchObject({ ivaCondition: 'responsable-inscripto' });
+    expect(input && needsPadronLookup(input)).toBe(false);
   });
 
   it('un --ir explicito no se marca y no se consulta', () => {
