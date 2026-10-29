@@ -72,11 +72,11 @@ describe('config.service', () => {
     const service = createService();
 
     try {
-      service.setValue('cuit', '20123456789');
+      service.setValue('cuit', '20123456786');
 
       expect(() => service.setValue('cuit', 'abc')).toThrow();
-      expect(service.getConfig().cuit).toBe('20123456789');
-      expect(JSON.parse(readFileSync(service.getPath(), 'utf8')).cuit).toBe('20123456789');
+      expect(service.getConfig().cuit).toBe('20123456786');
+      expect(JSON.parse(readFileSync(service.getPath(), 'utf8')).cuit).toBe('20123456786');
     } finally {
       service.close();
     }
@@ -93,7 +93,7 @@ describe('config.service', () => {
 
       writeFileSync(service.getPath(), JSON.stringify({ cuit: 'abc' }));
 
-      expect(service.setValue('cuit', '20123456789').cuit).toBe('20123456789');
+      expect(service.setValue('cuit', '20123456786').cuit).toBe('20123456786');
     } finally {
       service.close();
     }
@@ -118,7 +118,7 @@ describe('config.service', () => {
     try {
       service.setValue('entorno', 'produccion');
       service.setValue('puntoVenta', '3');
-      service.setValue('cuit', '20123456789');
+      service.setValue('cuit', '20123456786');
       service.setValue('concepto', 'servicios');
       service.setValue('moneda', 'usd');
       service.setValue('cotizacion', '1.234,5');
@@ -131,7 +131,7 @@ describe('config.service', () => {
         cert: {},
         conceptoPorDefecto: 'servicios',
         cotizacionPorDefecto: 1234.5,
-        cuit: '20123456789',
+        cuit: '20123456786',
         emisor: {},
         entornoPorDefecto: 'produccion',
         ivaReceptorPorDefecto: 'consumidor-final',
@@ -253,7 +253,7 @@ describe('config.service', () => {
   it('reports a corrupt config file as a configuration error with its path, without touching it', () => {
     const cwd = mkdtempSync(join(tmpdir(), 'arcli-config-test-'));
     const configPath = join(cwd, 'config.json');
-    const corruptContent = '{ "cuit": "20123456789", ';
+    const corruptContent = '{ "cuit": "20123456786", ';
 
     temporaryDirectories.push(cwd);
     writeFileSync(configPath, corruptContent, 'utf8');

@@ -302,7 +302,7 @@ arcli fc ayuda
 - **Severidad:** crítico
 - **Síntoma:** se ven los resultados de algunos comprobantes (con su PDF, si corresponde) y después `BATCH_EMISSION_ERROR` ("El lote se interrumpio en el comprobante #3…").
 - **Causa:** la emisión falló a mitad del lote (red, ARCA, transacción activa).
-- **Solución:** **no vuelvas a cargar los comprobantes que ya se procesaron**, porque se duplicarían. El que falló puede haberse emitido igual (`sinConfirmar` en el JSON): verificalo con `arcli ultimos` y sumalo solo si no figura. Armá un lote con ese y los que figuran en "Sin procesar" (`sinProcesar`) y reintentá. Si el que falló fue por "Transacción Activa", esperá unos segundos.
+- **Solución:** **no vuelvas a cargar los comprobantes que ya se procesaron**, porque se duplicarían. Si el JSON trae `sinConfirmar`, el que falló puede haberse emitido igual: verificalo con `arcli ultimos` y sumalo solo si no figura. Si no lo trae, falló antes de emitir (login, último número) y ya está en "Sin procesar" (`sinProcesar`). Armá un lote con los de `sinProcesar` (y el sin confirmar, si no figura) y reintentá. Si el que falló fue por "Transacción Activa", esperá unos segundos.
 - **Documentación relacionada:** [Entrada y salida](input-output.md#validación-y-errores-del-lote)
 
 ## Terminal
@@ -332,8 +332,8 @@ Un error del PDF no deshace la emisión: el comprobante ya tiene CAE. **No lo vu
 
 ### `PDF_PLUGIN_INSTALL_ERROR`
 
-- **Síntoma:** `arcli pdf instalar` falla y muestra las últimas líneas de npm.
-- **Causa:** sin internet, un proxy corporativo o un registro de npm privado.
+- **Síntoma:** `arcli pdf instalar` falla y muestra las últimas líneas de npm, o se corta con "no termino en 5 minutos" (15 para el navegador).
+- **Causa:** sin internet, un proxy corporativo o un registro de npm privado. Si el proxy no responde, la instalación se corta por tiempo en lugar de quedar colgada.
 - **Solución:** revisá `npm config get proxy` y `npm config get registry` y volvé a correr `arcli pdf instalar`. Si lo que falla es la descarga del navegador y ya tenés Chrome, Chromium o Edge, indicá su ruta:
 
 ```bash

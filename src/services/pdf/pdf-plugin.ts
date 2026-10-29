@@ -27,13 +27,19 @@ export interface PdfPluginStatus {
 export interface ProcessResult {
   readonly code: number | null;
   readonly output: string;
+  /** Se corto por `timeoutMs`. */
+  readonly timedOut?: boolean;
 }
 
 export type ProcessRunner = (
   command: string,
   args: readonly string[],
-  options: { readonly cwd: string; readonly env: NodeJS.ProcessEnv },
+  options: { readonly cwd: string; readonly env: NodeJS.ProcessEnv; readonly timeoutMs: number },
 ) => Promise<ProcessResult>;
+
+/** Limites de la instalacion: con un proxy colgado, npm o la descarga no terminan nunca. */
+export const NPM_INSTALL_TIMEOUT_MS = 5 * 60_000;
+export const BROWSER_DOWNLOAD_TIMEOUT_MS = 15 * 60_000;
 
 export interface PdfRenderer {
   render(data: InvoicePdfData, options: InvoicePdfOptions): Promise<Uint8Array>;
@@ -55,17 +61,33 @@ export interface PdfPluginOptions {
   readonly runProcess?: ProcessRunner;
 }
 
-const runProcessWithSpawn: ProcessRunner = (command, args, options) =>
+export const runProcessWithSpawn: ProcessRunner = (command, args, options) =>
   new Promise((resolve) => {
     // En Windows npm es un .cmd y necesita shell.
     const child = spawn(command, args, { cwd: options.cwd, env: options.env, shell: process.platform === 'win32' });
     let output = '';
+    const timer = setTimeout(() => {
+      child.kill();
+      // Con shell, el kill no llega a los nietos y sus pipes mantendrian vivo el proceso: se sueltan.
+      child.stdout.destroy();
+      child.stderr.destroy();
+      child.unref();
+      resolve({ code: null, output, timedOut: true });
+    }, options.timeoutMs);
+    const finish = (result: ProcessResult) => {
+      clearTimeout(timer);
+      resolve(result);
+    };
 
     child.stdout.on('data', (chunk: Buffer) => (output += chunk.toString()));
     child.stderr.on('data', (chunk: Buffer) => (output += chunk.toString()));
-    child.on('error', (error) => resolve({ code: 1, output: `${output}${error.message}` }));
-    child.on('close', (code) => resolve({ code, output }));
+    child.on('error', (error) => finish({ code: 1, output: `${output}${error.message}` }));
+    child.on('close', (code) => finish({ code, output }));
   });
+
+function describeTimeout(timeoutMs: number): string {
+  return `no termino en ${timeoutMs / 60_000} minutos y se corto`;
+}
 
 function lastLines(output: string, count = 5): string {
   return output.trim().split('\n').slice(-count).join('\n');
@@ -157,11 +179,15 @@ export class PdfPlugin {
           '--no-fund',
           '--save-exact',
         ],
-        { cwd: this.options.path, env: this.env },
+        { cwd: this.options.path, env: this.env, timeoutMs: NPM_INSTALL_TIMEOUT_MS },
       );
 
       if (result.code !== 0) {
-        throw new PdfError('PDF_PLUGIN_INSTALL_ERROR', `npm no pudo instalar ${PDF_PLUGIN_PACKAGE}.`, {
+        const message = result.timedOut
+          ? `La instalacion de ${PDF_PLUGIN_PACKAGE} ${describeTimeout(NPM_INSTALL_TIMEOUT_MS)}.`
+          : `npm no pudo instalar ${PDF_PLUGIN_PACKAGE}.`;
+
+        throw new PdfError('PDF_PLUGIN_INSTALL_ERROR', message, {
           details: { salida: lastLines(result.output) },
           suggestion: 'Revise la conexion a internet o el proxy de npm y vuelva a correr `arcli pdf instalar`.',
         });
@@ -176,11 +202,19 @@ export class PdfPlugin {
       const result = await this.runProcess(
         process.execPath,
         [puppeteerCli, 'browsers', 'install', 'chrome-headless-shell'],
-        { cwd: this.options.path, env: { ...this.env, PUPPETEER_CACHE_DIR: this.browsersPath } },
+        {
+          cwd: this.options.path,
+          env: { ...this.env, PUPPETEER_CACHE_DIR: this.browsersPath },
+          timeoutMs: BROWSER_DOWNLOAD_TIMEOUT_MS,
+        },
       );
 
       if (result.code !== 0 || !findDownloadedBrowser(this.browsersPath)) {
-        throw new PdfError('PDF_PLUGIN_INSTALL_ERROR', 'No se pudo descargar el navegador para generar PDFs.', {
+        const message = result.timedOut
+          ? `La descarga del navegador para generar PDFs ${describeTimeout(BROWSER_DOWNLOAD_TIMEOUT_MS)}.`
+          : 'No se pudo descargar el navegador para generar PDFs.';
+
+        throw new PdfError('PDF_PLUGIN_INSTALL_ERROR', message, {
           details: { salida: lastLines(result.output) },
           suggestion:
             'Si ya tiene Chrome, Chromium o Edge, indique su ruta con `arcli config establecer pdfNavegador <ruta>`.',

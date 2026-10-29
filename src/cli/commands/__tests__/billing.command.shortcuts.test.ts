@@ -26,12 +26,12 @@ describe('billing.command.shortcuts', () => {
     });
 
     it('resolves cuit, cuil and dni to their document type', () => {
-      expect(resolveDocumentIdentity({ cuit: 20123456789 })).toEqual({
-        documentNumber: 20123456789,
+      expect(resolveDocumentIdentity({ cuit: 20123456786 })).toEqual({
+        documentNumber: 20123456786,
         documentType: 'cuit',
       });
-      expect(resolveDocumentIdentity({ cuil: 20123456789 })).toEqual({
-        documentNumber: 20123456789,
+      expect(resolveDocumentIdentity({ cuil: 20123456786 })).toEqual({
+        documentNumber: 20123456786,
         documentType: 'cuil',
       });
       expect(resolveDocumentIdentity({ dni: 12345678 })).toEqual({
@@ -52,10 +52,10 @@ describe('billing.command.shortcuts', () => {
     });
 
     it('rejects mixing more than one receiver identity flag', () => {
-      expect(() => resolveDocumentIdentity({ cuit: 20123456789, dni: 12345678 })).toThrow(
+      expect(() => resolveDocumentIdentity({ cuit: 20123456786, dni: 12345678 })).toThrow(
         /Use solo una identidad de receptor/,
       );
-      expect(() => resolveDocumentIdentity({ cfinal: true, cuil: 20123456789 })).toThrow(
+      expect(() => resolveDocumentIdentity({ cfinal: true, cuil: 20123456786 })).toThrow(
         /Use solo una identidad de receptor/,
       );
     });

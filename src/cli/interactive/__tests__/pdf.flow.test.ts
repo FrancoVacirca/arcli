@@ -37,7 +37,7 @@ const attachPdfsMock = vi.mocked(attachPdfs);
 
 const CONFIG = {
   cert: {},
-  cuit: '20123456789',
+  cuit: '20123456786',
   emisor: { domicilio: 'Calle 123', inicioActividades: '20200301', razonSocial: 'Lucas Gerez' },
   entornoPorDefecto: 'testing',
   key: {},

@@ -91,10 +91,17 @@ describe('config-value-parser', () => {
     expect(() => parseConfigValue('cotizacionPorDefecto', '1234.5')).toThrow(/use coma para los decimales/);
     expect(() => parseConfigValue('puntoVentaPorDefecto', '0')).toThrow(/no es un entero positivo valido/);
     expect(() => parseConfigValue('puntoVentaPorDefecto', 'abc')).toThrow(/no es un entero positivo valido/);
+    expect(() => parseConfigValue('puntoVentaPorDefecto', '3a')).toThrow(/no es un entero positivo valido/);
+    expect(() => parseConfigValue('puntoVentaPorDefecto', '3.5')).toThrow(/no es un entero positivo valido/);
+  });
+
+  it('accepts the CUIT with or without dashes and checks its check digit', () => {
+    expect(parseConfigValue('cuit', '  20123456786  ')).toBe('20123456786');
+    expect(parseConfigValue('cuit', '20-12345678-6')).toBe('20123456786');
+    expect(() => parseConfigValue('cuit', '20-12345678-9')).toThrow(/digito verificador/);
   });
 
   it('trims free-form string keys without transforming them', () => {
-    expect(parseConfigValue('cuit', '  20123456789  ')).toBe('20123456789');
     expect(parseConfigValue('ticketPath', '  /ruta/a/tickets  ')).toBe('/ruta/a/tickets');
   });
 

@@ -282,7 +282,7 @@ function buildBillingScene(): string {
         ...createBillingResult().payload,
         CbteTipo: 1,
         DocTipo: 80,
-        DocNro: 20123456789,
+        DocNro: 20123456786,
         CondicionIVAReceptorId: 1,
         ImpNeto: 0.83,
         ImpIVA: 0.17,

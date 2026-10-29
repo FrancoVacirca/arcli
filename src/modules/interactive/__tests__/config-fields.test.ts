@@ -19,7 +19,7 @@ describe('config-fields', () => {
       listMissingSetupKeys({
         ...BASE,
         cert: { testing: '/a.crt' },
-        cuit: '20123456789',
+        cuit: '20123456786',
         key: { testing: '/a.key' },
         puntoVentaPorDefecto: 3,
       }),

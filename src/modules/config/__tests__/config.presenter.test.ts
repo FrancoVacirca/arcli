@@ -69,7 +69,7 @@ describe('config.presenter', () => {
         cert: {
           testing: '/Users/lucas/secretos/cert.pem',
         },
-        cuit: '20123456789',
+        cuit: '20123456786',
         emisor: {},
         entornoPorDefecto: 'testing',
         key: {

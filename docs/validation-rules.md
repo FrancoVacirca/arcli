@@ -33,10 +33,10 @@ La idea de esta guía es separar esas tres capas para que sea más fácil entend
 - `--dia` debe ser un entero entre `1` y `31`, y no se combina con `--fecha` ni con `--servicio-hasta` (con esas fechas no se usaría)
 - `--dia` cae en este mes si todavía no pasó y si no, en el siguiente; si ese mes no tiene ese día (`--dia 31` en abril), da error: usá `--servicio-hasta` con la fecha exacta
 - `--punto-venta`, `--pv`, `--at`, `--apv`, `--ar` deben ser enteros positivos, escritos solo con dígitos (`3a` da error)
-- `--cuit`, `--cuil` y `--dni` aceptan guiones y puntos (`20-11111111-2`), pero nada más
+- `--cuit`, `--cuil`, `--acuit` y `--dni` aceptan guiones y puntos (`20-40950976-3`), pero nada más. Lo mismo el CUIT de `arcli padron`, `arcli fce-obligado`, `config establecer cuit` y `comprobanteAsociado.cuit` en el JSON
 - `--at` se valida igual que `--ac`: una NC A no puede asociar una factura B. Si en el JSON vienen `tipo` y `atajo`, tienen que coincidir
 - `--cotizacion-moneda` y `--cm` deben ser números positivos
-- `--cuit` y `--cuil` deben tener 11 dígitos
+- Todo CUIT o CUIL debe tener 11 dígitos y un dígito verificador válido: un número mal tipeado da error antes de llegar a ARCA
 - `--dni` debe tener 7 u 8 dígitos
 - En el JSON de `--cargar`, una clave desconocida o un tipo incorrecto (`"puntoVenta": "3"`) es error: ver [claves desconocidas y tipos](input-output.md#claves-desconocidas-y-tipos)
 

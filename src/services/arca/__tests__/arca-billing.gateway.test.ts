@@ -31,6 +31,36 @@ describe('ArcaBillingGateway', () => {
     await expect(gateway.getNextVoucherNumber(3, 11)).rejects.toThrow(/no puede ser mayor a 99999999/);
   });
 
+  it('fails before emitting when ARCA returns errors for the last number', async () => {
+    const gateway = createGateway({
+      getLastVoucher: vi.fn(async () => ({
+        errors: {
+          err: [{ code: 11002, msg: 'El punto de venta no se encuentra habilitado a usar en el presente WS' }],
+        },
+      })),
+    });
+
+    const error = await gateway.getNextVoucherNumber(9, 11).catch((caught: unknown) => caught);
+
+    expect(error).toMatchObject({
+      code: 'ARCA_LAST_VOUCHER_ERROR',
+      details: { errores: [{ code: 11002 }] },
+      suggestion: expect.stringMatching(/parametros puntos-venta/),
+    });
+    expect((error as Error).message).toMatch(/punto de venta 9: 11002/);
+  });
+
+  it('suggests retrying when the last-number error is not about the sales point', async () => {
+    const gateway = createGateway({
+      getLastVoucher: vi.fn(async () => ({ errors: { err: [{ code: 600, msg: 'ValidacionDeToken' }] } })),
+    });
+
+    await expect(gateway.getNextVoucherNumber(3, 11)).rejects.toMatchObject({
+      code: 'ARCA_LAST_VOUCHER_ERROR',
+      suggestion: expect.stringMatching(/No se emitio nada/),
+    });
+  });
+
   it('propagates authentication and last-number failures as they are', async () => {
     const wsaaError = new Error('Certificado expirado');
     const gateway = createGateway({

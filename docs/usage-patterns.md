@@ -229,7 +229,7 @@ arcli config establecer pdf siempre
 ### Resultado esperado
 
 - el comprobante emitido, con su CAE
-- debajo, `PDF guardado en ~/arcli/comprobantes/20123456789/factura-c_0003-00000125.pdf` (una subcarpeta por CUIT; en testing, dentro de `testing/`)
+- debajo, `PDF guardado en ~/arcli/comprobantes/20123456786/factura-c_0003-00000125.pdf` (una subcarpeta por CUIT; en testing, dentro de `testing/`)
 - con `--json`, la clave `pdf` con la `ruta`
 
 ### Errores comunes

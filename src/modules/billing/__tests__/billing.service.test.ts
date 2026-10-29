@@ -23,7 +23,7 @@ function createRuntime(): ResolvedArcaRuntime {
     },
     context: {
       cert: 'CERT',
-      cuit: 20123456789,
+      cuit: 20123456786,
       key: 'KEY',
       production: false,
     },
@@ -318,7 +318,7 @@ describe('billing.service', () => {
     const payload = service.buildVoucherPayload(
       createBillingInput({
         associatedVoucher: {
-          cuit: '20123456789',
+          cuit: '20123456786',
           numero: 123,
           puntoVenta: 3,
           tipo: 11,
@@ -331,7 +331,7 @@ describe('billing.service', () => {
 
     expect(payload.CbtesAsoc).toEqual([
       {
-        Cuit: '20123456789',
+        Cuit: '20123456786',
         Nro: 123,
         PtoVta: 3,
         Tipo: 11,
@@ -345,12 +345,12 @@ describe('billing.service', () => {
     const payload = service.buildVoucherPayload(
       createBillingInput({
         associatedVoucher: {
-          cuit: '20123456789',
+          cuit: '20123456786',
           numero: 123,
           puntoVenta: 3,
           shortcut: 'fa',
         },
-        documentNumber: 20123456789,
+        documentNumber: 20123456786,
         documentType: 'cuit',
         ivaCondition: 'responsable-inscripto',
         shortcut: 'nca',
@@ -490,7 +490,7 @@ describe('billing.service', () => {
 
     const payload = service.buildVoucherPayload(
       createBillingInput({
-        documentNumber: 20123456789,
+        documentNumber: 20123456786,
         documentType: 'cuit',
         ivaCondition: 'responsable-monotributo',
         shortcut: 'fa',
@@ -513,7 +513,7 @@ describe('billing.service', () => {
     expect(() =>
       service.buildVoucherPayload(
         createBillingInput({
-          documentNumber: 20123456789,
+          documentNumber: 20123456786,
           documentType: 'cuit',
           ivaCondition: 'responsable-inscripto',
           shortcut: 'fb',
@@ -529,7 +529,7 @@ describe('billing.service', () => {
     expect(() =>
       service.buildVoucherPayload(
         createBillingInput({
-          documentNumber: 20123456789,
+          documentNumber: 20123456786,
           documentType: 'cuit',
           ivaCondition: 'responsable-inscripto',
           shortcut: 'fc',
@@ -575,7 +575,7 @@ describe('billing.service', () => {
 
     const payload = service.buildVoucherPayload(
       createBillingInput({
-        documentNumber: 20123456789,
+        documentNumber: 20123456786,
         documentType: 'cuit',
         ivaCondition: 'responsable-inscripto',
         shortcut: 'fa',
@@ -672,7 +672,22 @@ describe('billing.service', () => {
         }),
         createRuntime(),
       ),
-    ).toThrow(/--cuit debe tener 11 digitos/);
+    ).toThrow(/--cuit 2012345678 no es valido .*: debe tener 11 digitos/);
+  });
+
+  it('rejects a cuit or cuil with a wrong check digit', () => {
+    const service = new BillingService();
+
+    expect(() =>
+      service.buildVoucherPayload(
+        createBillingInput({
+          documentNumber: 20409509764,
+          documentType: 'cuil',
+          ivaCondition: 'responsable-inscripto',
+        }),
+        createRuntime(),
+      ),
+    ).toThrow(/--cuil 20409509764 no es valido .*digito verificador/);
   });
 
   it('rejects dni with invalid length', () => {
@@ -760,7 +775,7 @@ describe('billing.service', () => {
       service.buildVoucherPayload(
         createBillingInput({
           billingDate,
-          documentNumber: 20123456789,
+          documentNumber: 20123456786,
           documentType: 'cuit',
           cbu: '0110599520000012345678',
           ivaCondition: 'responsable-inscripto',
@@ -784,7 +799,7 @@ describe('billing.service', () => {
       createBillingInput({
         billingDate: '16/03/2026',
         concept: 'productos',
-        documentNumber: 20123456789,
+        documentNumber: 20123456786,
         documentType: 'cuit',
         cbu: '0110599520000012345678',
         ivaCondition: 'responsable-inscripto',
@@ -807,7 +822,7 @@ describe('billing.service', () => {
       service.buildVoucherPayload(
         createBillingInput({
           billingDate: '16/03/2026',
-          documentNumber: 20123456789,
+          documentNumber: 20123456786,
           documentType: 'cuit',
           ivaCondition: 'responsable-inscripto',
           cbu: '0110599520000012345678',
@@ -825,8 +840,8 @@ describe('billing.service', () => {
 
     const service = new BillingService();
     const input = createBillingInput({
-      associatedVoucher: { cuit: '20123456789', fecha: '10/03/2026', numero: 1, puntoVenta: 3, shortcut: 'fcea' },
-      documentNumber: 20123456789,
+      associatedVoucher: { cuit: '20123456786', fecha: '10/03/2026', numero: 1, puntoVenta: 3, shortcut: 'fcea' },
+      documentNumber: 20123456786,
       documentType: 'cuit',
       ivaCondition: 'responsable-inscripto',
       shortcut: 'ncea',
@@ -937,7 +952,7 @@ describe('billing.service', () => {
     it('rejects a period together with an associated voucher', () => {
       expect(() =>
         new BillingService().buildVoucherPayload(
-          periodNote({ associatedVoucher: { cuit: '20123456789', numero: 1, puntoVenta: 3, shortcut: 'fb' } }),
+          periodNote({ associatedVoucher: { cuit: '20123456786', numero: 1, puntoVenta: 3, shortcut: 'fb' } }),
           createRuntime(),
         ),
       ).toThrow(/pero no ambos/);
@@ -1117,7 +1132,7 @@ describe('billing.service', () => {
 
       expect(regular.Opcionales).toEqual([{ Id: '22', Valor: 'N' }]);
       expect(cancellation.Opcionales).toEqual([{ Id: '22', Valor: 'S' }]);
-      expect(regular.CbtesAsoc).toEqual([{ CbteFch: '20260310', Cuit: '20123456789', Nro: 7, PtoVta: 3, Tipo: 201 }]);
+      expect(regular.CbtesAsoc).toEqual([{ CbteFch: '20260310', Cuit: '20123456786', Nro: 7, PtoVta: 3, Tipo: 201 }]);
     });
 
     it('rejects invoice-only optionals on FCE notes', () => {
@@ -1167,7 +1182,7 @@ describe('billing.service', () => {
     it('keeps the associated date optional on regular credit notes', () => {
       const payload = new BillingService().buildVoucherPayload(
         createBillingInput({
-          associatedVoucher: { cuit: '20123456789', fecha: '10/03/2026', numero: 7, puntoVenta: 3, shortcut: 'fb' },
+          associatedVoucher: { cuit: '20123456786', fecha: '10/03/2026', numero: 7, puntoVenta: 3, shortcut: 'fb' },
           billingDate: '18/03/2026',
           documentNumber: 0,
           shortcut: 'ncb',
@@ -1206,7 +1221,7 @@ describe('billing.service', () => {
       service.buildVoucherPayload(
         createBillingInput({
           associatedVoucher: {
-            cuit: '20123456789',
+            cuit: '20123456786',
             numero: 99,
             puntoVenta: 3,
             tipo: 11,
@@ -1225,7 +1240,7 @@ describe('billing.service', () => {
       service.buildVoucherPayload(
         createBillingInput({
           associatedVoucher: {
-            cuit: '20123456789',
+            cuit: '20123456786',
             numero: 99,
             puntoVenta: 3,
             shortcut: 'fc',
@@ -1242,8 +1257,8 @@ describe('billing.service', () => {
     expect(() =>
       new BillingService().buildVoucherPayload(
         createBillingInput({
-          associatedVoucher: { cuit: '20123456789', numero: 99, puntoVenta: 3, tipo: 6 },
-          documentNumber: 20123456789,
+          associatedVoucher: { cuit: '20123456786', numero: 99, puntoVenta: 3, tipo: 6 },
+          documentNumber: 20123456786,
           documentType: 'cuit',
           ivaCondition: 'responsable-inscripto',
           shortcut: 'nca',
@@ -1257,8 +1272,8 @@ describe('billing.service', () => {
     expect(() =>
       new BillingService().buildVoucherPayload(
         createBillingInput({
-          associatedVoucher: { cuit: '20123456789', numero: 99, puntoVenta: 3, shortcut: 'fa', tipo: 6 },
-          documentNumber: 20123456789,
+          associatedVoucher: { cuit: '20123456786', numero: 99, puntoVenta: 3, shortcut: 'fa', tipo: 6 },
+          documentNumber: 20123456786,
           documentType: 'cuit',
           ivaCondition: 'responsable-inscripto',
           shortcut: 'nca',
@@ -1275,7 +1290,7 @@ describe('billing.service', () => {
       service.buildVoucherPayload(
         createBillingInput({
           associatedVoucher: {
-            cuit: '20123456789',
+            cuit: '20123456786',
             numero: 99,
             puntoVenta: 3,
             shortcut: 'nda',

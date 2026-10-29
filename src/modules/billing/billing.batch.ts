@@ -52,11 +52,10 @@ export class BatchEmissionError extends AppError {
     readonly failedIndex: number;
     readonly total: number;
   }) {
-    const pending = Array.from(
-      { length: options.total - options.failedIndex },
-      (_, offset) => options.failedIndex + 1 + offset,
-    );
     const uncertain = options.cause instanceof EmissionUncertainError;
+    // Si el fallo fue antes de la llamada que emite (login, ultimo numero), ese comprobante tampoco se proceso.
+    const firstPending = uncertain ? options.failedIndex + 1 : options.failedIndex;
+    const pending = Array.from({ length: options.total - firstPending + 1 }, (_, offset) => firstPending + offset);
 
     super(
       [

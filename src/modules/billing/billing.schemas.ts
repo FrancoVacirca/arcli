@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { parseCuit } from '../../lib/identity/cuit';
 import { AMOUNT_DECIMALS, EXCHANGE_RATE_DECIMALS, hasAtMostDecimals } from '../../lib/numbers/argentine-amount';
 
 import type { VoucherShortcut } from './billing.types';
@@ -93,8 +94,17 @@ const billingAssociatedVoucherSchema = z
   .object({
     cuit: z
       .string()
-      .trim()
-      .regex(/^\d{11}$/)
+      .transform((value, context) => {
+        const result = parseCuit(value);
+
+        if (!result.ok) {
+          context.addIssue({ code: 'custom', message: `El CUIT del comprobante asociado ${result.reason}.` });
+
+          return z.NEVER;
+        }
+
+        return result.value;
+      })
       .optional(),
     fecha: z.string().trim().optional(),
     numero: z.number().int().positive().optional(),

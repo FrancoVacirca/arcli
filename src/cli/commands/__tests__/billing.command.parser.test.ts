@@ -465,7 +465,7 @@ describe('billing.command.parser', () => {
         codigoMoneda: 'USD',
         comprobanteAsociado: {
           atajo: 'fc',
-          cuit: '20123456789',
+          cuit: '20123456786',
           numero: 10,
           puntoVenta: 3,
         },
@@ -636,7 +636,7 @@ describe('billing.command.parser', () => {
       '--ar',
       '120',
       '--acuit',
-      '20409509763',
+      '20-40950976-3',
     ]);
     const input = parseBillingCommandInput(command, 'ncc');
 
@@ -647,6 +647,12 @@ describe('billing.command.parser', () => {
       shortcut: 'fc',
       tipo: undefined,
     });
+  });
+
+  it('rejects an --acuit with a wrong check digit', () => {
+    expect(() => createCommand(['--monto', '5000', '--acuit', '20-40950976-4'])).toThrow(
+      /--acuit "20-40950976-4" no es valido: el digito verificador/,
+    );
   });
 
   describe('PDF flags', () => {

@@ -1,6 +1,7 @@
 import type { Command } from 'commander';
 
 import { AppError, InputValidationError } from '../../lib/errors/app-error';
+import { parseStrictInteger } from '../../lib/numbers/strict-integer';
 import type { VoucherKindDefinition } from '../../modules/billing/billing.types';
 import { getVoucherKindByShortcut, VOUCHER_SHORTCUTS } from '../../modules/billing/voucher-kind-map';
 import { listRecentVouchers, MAX_RECENT_VOUCHERS, RECENT_VOUCHERS_LIMIT } from '../../modules/vouchers/voucher-history';
@@ -129,9 +130,9 @@ export function registerVoucherQueryCommands(program: Command): void {
 
   detail.action(async (shortcut: string, rawNumber: string, options: PointOfSaleOptions, self: Command) => {
     const voucherKind = requireVoucherKind(shortcut);
-    const number = Number(rawNumber);
+    const number = parseStrictInteger(rawNumber);
 
-    if (!Number.isInteger(number) || number <= 0) {
+    if (number === undefined || number <= 0) {
       throw new InputValidationError(`El numero "${rawNumber}" no es valido: tiene que ser un entero positivo.`);
     }
 

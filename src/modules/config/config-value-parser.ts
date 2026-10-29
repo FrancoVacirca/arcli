@@ -3,7 +3,9 @@ import { resolve } from 'node:path';
 
 import { parseArgentineDateInputAsArcaDate } from '../../lib/dates/arca-date';
 import { InputValidationError } from '../../lib/errors/app-error';
+import { parseCuit } from '../../lib/identity/cuit';
 import { EXCHANGE_RATE_DECIMALS, parseArgentineAmount } from '../../lib/numbers/argentine-amount';
+import { parseStrictInteger } from '../../lib/numbers/strict-integer';
 import { readPemFile } from '../../lib/security/pem';
 import { IVA_RATE_HINT } from '../billing/billing.schemas';
 import { MAX_RECENT_VOUCHERS } from '../vouchers/voucher-history';
@@ -82,6 +84,16 @@ function parseIvaRate(value: string): string {
   return result.data;
 }
 
+function parseConfigCuit(value: string): string {
+  const result = parseCuit(value);
+
+  if (!result.ok) {
+    throw new InputValidationError(`El CUIT "${value}" no es valido: ${result.reason}.`);
+  }
+
+  return result.value;
+}
+
 function parseCbu(value: string): string {
   const normalizedValue = value.trim();
 
@@ -105,9 +117,9 @@ function parseCbuAlias(value: string): string {
 }
 
 function parsePositiveInteger(value: string): number {
-  const parsedValue = Number.parseInt(value.trim(), 10);
+  const parsedValue = parseStrictInteger(value);
 
-  if (!Number.isInteger(parsedValue) || parsedValue <= 0) {
+  if (parsedValue === undefined || parsedValue <= 0) {
     throw new InputValidationError(`El valor "${value}" no es un entero positivo valido.`);
   }
 
@@ -115,9 +127,9 @@ function parsePositiveInteger(value: string): number {
 }
 
 function parseRecentCount(value: string): number {
-  const parsedValue = Number(value.trim());
+  const parsedValue = parseStrictInteger(value);
 
-  if (!Number.isInteger(parsedValue) || parsedValue < 1 || parsedValue > MAX_RECENT_VOUCHERS) {
+  if (parsedValue === undefined || parsedValue < 1 || parsedValue > MAX_RECENT_VOUCHERS) {
     throw new InputValidationError(
       `La cantidad "${value}" no es valida: tiene que ser un numero entre 1 y ${MAX_RECENT_VOUCHERS}.`,
     );
@@ -189,7 +201,7 @@ export function parseConfigValue(key: CanonicalConfigKey, value: string): boolea
     case 'cotizacionPorDefecto':
       return parseExchangeRate(value);
     case 'cuit':
-      return value.trim();
+      return parseConfigCuit(value);
     case 'emisor.condicionIva':
       return arcliDefaultIvaConditionSchema.parse(value.trim().toLowerCase());
     case 'emisor.domicilio':

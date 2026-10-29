@@ -21,7 +21,7 @@ vi.mock('../../../services/arca/arca-context.resolver', () => ({
 
 const CONFIG = {
   cert: { testing: '/certs/testing.pem' },
-  cuit: '20123456789',
+  cuit: '20123456786',
   emisor: {},
   entornoPorDefecto: 'testing',
   key: { testing: '/certs/testing.key' },
@@ -99,7 +99,7 @@ describe('arcli config', () => {
 
       const output = write.mock.calls.map(([chunk]) => String(chunk)).join('');
 
-      expect(JSON.parse(output)).toHaveProperty('cuit', '20123456789');
+      expect(JSON.parse(output)).toHaveProperty('cuit', '20123456786');
     } finally {
       write.mockRestore();
     }

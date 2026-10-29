@@ -1,5 +1,6 @@
 import { Separator } from '@inquirer/select';
 
+import { parseStrictInteger } from '../../lib/numbers/strict-integer';
 import type { VoucherKindDefinition } from '../../modules/billing/billing.types';
 import { BACK, type Back } from '../../modules/interactive/wizard';
 import { type IssuedVoucher, listVouchersFrom, RECENT_VOUCHERS_LIMIT } from '../../modules/vouchers/voucher-history';
@@ -55,9 +56,9 @@ async function withSpinner<T>(text: string, run: () => Promise<T>): Promise<T> {
 
 function validatePositiveInteger(label: string): (value: string) => string | true {
   return (value) => {
-    const number = Number(value.trim());
+    const number = parseStrictInteger(value);
 
-    return Number.isInteger(number) && number > 0 ? true : `${label} tiene que ser un numero entero mayor a 0.`;
+    return number !== undefined && number > 0 ? true : `${label} tiene que ser un numero entero mayor a 0.`;
   };
 }
 

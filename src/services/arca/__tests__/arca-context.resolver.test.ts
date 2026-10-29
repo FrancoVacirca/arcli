@@ -84,7 +84,7 @@ describe('arca-context.resolver', () => {
     const keyPath = writePemFile(cwd, 'key-testing.pem', privateKeyPem('KEY-TESTING'));
     const configService = createConfigService(cwd);
 
-    configService.setValue('cuit', '20123456789');
+    configService.setValue('cuit', '20123456786');
     configService.setValue('cert.testing', certPath);
     configService.setValue('key.testing', keyPath);
     configService.setValue('puntoVenta', '7');
@@ -97,7 +97,7 @@ describe('arca-context.resolver', () => {
       expect(runtime.pointOfSale).toBe(7);
       expect(runtime.context).toMatchObject({
         cert: certificatePem('CERT-TESTING'),
-        cuit: 20123456789,
+        cuit: 20123456786,
         key: privateKeyPem('KEY-TESTING'),
         production: false,
       });
@@ -114,7 +114,7 @@ describe('arca-context.resolver', () => {
     const testingKeyPath = writePemFile(cwd, 'key-testing.pem', privateKeyPem('KEY-TESTING'));
     const configService = createConfigService(cwd);
 
-    configService.setValue('cuit', '20123456789');
+    configService.setValue('cuit', '20123456786');
     configService.setValue('entorno', 'produccion');
     configService.setValue('cert.produccion', productionCertPath);
     configService.setValue('key.produccion', productionKeyPath);
@@ -132,7 +132,7 @@ describe('arca-context.resolver', () => {
       expect(runtime.pointOfSale).toBeUndefined();
       expect(runtime.context).toMatchObject({
         cert: certificatePem('CERT-TESTING'),
-        cuit: 20123456789,
+        cuit: 20123456786,
         key: privateKeyPem('KEY-TESTING'),
         production: false,
       });
@@ -149,7 +149,7 @@ describe('arca-context.resolver', () => {
     const productionKeyPath = writePemFile(cwd, 'key-production.pem', privateKeyPem('KEY-PRODUCTION'));
     const configService = createConfigService(cwd);
 
-    configService.setValue('cuit', '20123456789');
+    configService.setValue('cuit', '20123456786');
     configService.setValue('cert.testing', testingCertPath);
     configService.setValue('key.testing', testingKeyPath);
     configService.setValue('cert.produccion', productionCertPath);
@@ -173,7 +173,7 @@ describe('arca-context.resolver', () => {
     const cwd = createTempDirectory();
     const configService = createConfigService(cwd);
 
-    configService.setValue('cuit', '20123456789');
+    configService.setValue('cuit', '20123456786');
     try {
       expect(() =>
         new ArcaContextResolver({
@@ -207,7 +207,7 @@ describe('arca-context.resolver', () => {
       cert: {
         testing: join(cwd, 'missing-cert.pem'),
       },
-      cuit: '20123456789',
+      cuit: '20123456786',
       entornoPorDefecto: 'testing',
       key: {
         testing: join(cwd, 'missing-key.pem'),
@@ -235,7 +235,7 @@ describe('arca-context.resolver', () => {
       cert: {
         testing: certPath,
       },
-      cuit: '20123456789',
+      cuit: '20123456786',
       entornoPorDefecto: 'testing',
       key: {
         testing: keyPath,
@@ -261,7 +261,7 @@ describe('arca-context.resolver', () => {
     const keyPath = writePemFile(cwd, 'key-testing.pem', privateKeyPem('KEY-TESTING'));
     const configService = createConfigService(cwd);
 
-    configService.setValue('cuit', '20123456789');
+    configService.setValue('cuit', '20123456786');
     configService.setValue('cert.testing', certPath);
     configService.setValue('key.testing', keyPath);
     try {
@@ -269,7 +269,7 @@ describe('arca-context.resolver', () => {
 
       expect(validation).toMatchObject({
         certPath,
-        cuit: 20123456789,
+        cuit: 20123456786,
         environment: 'testing',
         keyPath,
         outputRaw: false,
@@ -285,7 +285,7 @@ describe('arca-context.resolver', () => {
     const keyPath = writePemFile(cwd, 'key-testing.pem', privateKeyPem('KEY-TESTING'));
     const configService = createConfigService(cwd);
 
-    configService.setValue('cuit', '20123456789');
+    configService.setValue('cuit', '20123456786');
     configService.setValue('cert.testing', certPath);
     configService.setValue('key.testing', keyPath);
     try {
@@ -304,7 +304,7 @@ describe('arca-context.resolver', () => {
     const customTicketPath = join(cwd, 'tickets-personalizados');
     const configService = createConfigService(cwd);
 
-    configService.setValue('cuit', '20123456789');
+    configService.setValue('cuit', '20123456786');
     configService.setValue('cert.testing', certPath);
     configService.setValue('key.testing', keyPath);
     configService.setValue('ticketPath', customTicketPath);
@@ -325,7 +325,7 @@ describe('arca-context.resolver', () => {
       const certificate = createSelfSignedCertificate(days);
       const configService = createConfigService(cwd);
 
-      configService.setValue('cuit', '20123456789');
+      configService.setValue('cuit', '20123456786');
       configService.setValue('cert.testing', certificate.certPath);
       configService.setValue('key.testing', certificate.keyPath);
 
@@ -363,7 +363,7 @@ describe('arca-context.resolver', () => {
       const production = createSelfSignedCertificate(10);
       const configService = createConfigService(cwd);
 
-      configService.setValue('cuit', '20123456789');
+      configService.setValue('cuit', '20123456786');
       configService.setValue('cert.testing', testing.certPath);
       configService.setValue('key.testing', testing.keyPath);
       configService.setValue('cert.produccion', production.certPath);
@@ -385,7 +385,7 @@ describe('arca-context.resolver', () => {
       const cwd = createTempDirectory();
       const configService = createConfigService(cwd);
 
-      configService.setValue('cuit', '20123456789');
+      configService.setValue('cuit', '20123456786');
       configService.setValue('cert.testing', writePemFile(cwd, 'cert.pem', certificatePem('CERT-TESTING')));
       configService.setValue('key.testing', writePemFile(cwd, 'key.pem', privateKeyPem('KEY-TESTING')));
 

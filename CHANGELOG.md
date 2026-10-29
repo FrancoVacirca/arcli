@@ -8,6 +8,19 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ## [Sin publicar]
 
+### Agregado
+
+- **CUIT con dígito verificador y con o sin guiones en todos lados:** `arcli padron`, `arcli fce-obligado`, `--cuit`, `--cuil`, `--acuit`, `comprobanteAsociado.cuit` en el JSON, `config establecer cuit` y el modo interactivo aceptan `20-40950976-3` o `20409509763`, y rechazan un CUIT mal tipeado antes de llegar a ARCA. Antes `arcli padron 20-20179706-4` fallaba y nadie chequeaba el dígito verificador.
+- **Error `ARCA_LAST_VOUCHER_ERROR`:** si ARCA rechaza el pedido del último número (por ejemplo, con un punto de venta no habilitado para web service), la facturación y `arcli ultimos` cortan ahí con el mensaje de ARCA y una sugerencia. No se emite nada.
+
+### Corregido
+
+- **Punto de venta inválido:** la facturación seguía con el número 1 y recién fallaba al emitir con un error confuso, y `arcli ultimos` mostraba que no había comprobantes. Ahora cortan con `ARCA_LAST_VOUCHER_ERROR`.
+- **Lote cortado antes de emitir:** si el lote se cortaba en el login o en el pedido del último número, el comprobante que falló no figuraba en `detalles.sinProcesar` de `BATCH_EMISSION_ERROR`, y reintentar solo esa lista lo perdía. Ahora figura. Si la emisión quedó sin confirmar, sigue en `sinConfirmar` y no en `sinProcesar`, como antes.
+- **IIBB en el PDF:** sin `emisor.iibb`, el PDF decía "Exento"; ahora muestra "-". Si sos exento, configuralo con `arcli config establecer emisor.iibb Exento`. La configuración guiada del modo interactivo ahora lo pregunta junto a los otros datos del emisor.
+- **Números con letras o notación científica:** `config establecer puntoVenta 3a` guardaba `3`, y `arcli consultar fc 1e3` buscaba el 1000. Ahora dan error, igual que en el modo interactivo.
+- **`arcli pdf instalar` colgado:** con un proxy que no responde, npm o la descarga del navegador no terminaban nunca. Ahora se cortan a los 5 y 15 minutos con `PDF_PLUGIN_INSTALL_ERROR`.
+
 ## [2.1.0] - 2026-10-23
 
 Trae `arcli padron` y el IVA receptor desde el padrón al facturar con `--cuit`, el aviso de vencimiento del certificado y una guía para el punto de venta de web service. Además corrige un montón de cosas que salen de una revisión del repo: el JSON de `--cargar` se valida clave por clave, los errores con `--json` tienen siempre la misma forma, y los ejemplos de la ayuda y de los docs se pueden copiar y andan.

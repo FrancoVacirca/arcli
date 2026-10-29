@@ -2,13 +2,13 @@ import type { Arca } from '@arcasdk/core';
 
 import type { IssuedVoucher, VoucherHistoryGateway } from '../../modules/vouchers/voucher-history';
 
+import { getLastAuthorizedNumber } from './last-voucher';
+
 export class ArcaVoucherHistoryGateway implements VoucherHistoryGateway {
   public constructor(private readonly arca: Arca) {}
 
   public async getLastNumber(pointOfSale: number, voucherType: number): Promise<number> {
-    const result = await this.arca.electronicBillingService.getLastVoucher(pointOfSale, voucherType);
-
-    return result.cbteNro ?? 0;
+    return getLastAuthorizedNumber(this.arca, pointOfSale, voucherType);
   }
 
   public async getVoucher(

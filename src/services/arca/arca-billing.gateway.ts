@@ -5,6 +5,8 @@ import type { IVoucher } from '@arcasdk/core/lib/domain/types/voucher.types';
 import { AppError } from '../../lib/errors/app-error';
 import type { BillingGateway } from '../../modules/billing/billing.types.internal';
 
+import { getLastAuthorizedNumber } from './last-voucher';
+
 /** Tope de numeracion de ARCA; el SDK lo valida igual en `createNextVoucher`. */
 const MAX_VOUCHER_NUMBER = 99_999_999;
 
@@ -16,9 +18,7 @@ export class ArcaBillingGateway implements BillingGateway {
    * Si falla, no se envio nada a ARCA. Como el SDK, sin comprobantes previos arranca en 1.
    */
   public async getNextVoucherNumber(pointOfSale: number, voucherType: number): Promise<number> {
-    const lastVoucher = await this.arca.electronicBillingService.getLastVoucher(pointOfSale, voucherType);
-
-    const nextNumber = (lastVoucher.cbteNro || 0) + 1;
+    const nextNumber = (await getLastAuthorizedNumber(this.arca, pointOfSale, voucherType)) + 1;
 
     if (nextNumber > MAX_VOUCHER_NUMBER) {
       throw new Error(`Numero de comprobante no puede ser mayor a ${MAX_VOUCHER_NUMBER}`);

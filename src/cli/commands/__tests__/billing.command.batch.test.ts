@@ -109,7 +109,7 @@ describe('emitBatch', () => {
     expect(results).toEqual(['CAE-a', 'CAE-b']);
   });
 
-  it('si falla a mitad, entrega lo ya procesado y avisa que quedo sin procesar', async () => {
+  it('si falla a mitad antes de emitir, entrega lo ya procesado y deja el que fallo para reintentar', async () => {
     const onPartialResults = vi.fn();
     const emit = async (input: string) => {
       if (input === 'c') {
@@ -124,8 +124,8 @@ describe('emitBatch', () => {
     await expect(run).rejects.toThrow(BatchEmissionError);
     await run.catch((error: BatchEmissionError) => {
       expect(error.message).toContain('El lote se interrumpio en el comprobante #3: Transacción Activa');
-      expect(error.message).toContain('Procesados: 2 de 4. Sin procesar: #4.');
-      expect(error.details).toEqual({ fallo: 3, procesados: 2, sinProcesar: [4], total: 4 });
+      expect(error.message).toContain('Procesados: 2 de 4. Sin procesar: #3, #4.');
+      expect(error.details).toEqual({ fallo: 3, procesados: 2, sinProcesar: [3, 4], total: 4 });
     });
     expect(onPartialResults).toHaveBeenCalledWith(['CAE-a', 'CAE-b']);
   });

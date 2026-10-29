@@ -17,7 +17,7 @@ vi.mock('node:fs', async (importOriginal) => ({
 
 const CONFIG = {
   cert: {},
-  cuit: '20123456789',
+  cuit: '20123456786',
   emisor: { domicilio: 'Calle 123', inicioActividades: '20200301', razonSocial: 'Lucas Gerez' },
   entornoPorDefecto: 'testing',
   key: {},
@@ -108,7 +108,7 @@ describe('attachPdfs', () => {
       deps,
     );
 
-    expect(result.pdf).toEqual({ path: '/pdfs/20123456789/factura-c_0003-00000125.pdf' });
+    expect(result.pdf).toEqual({ path: '/pdfs/20123456786/factura-c_0003-00000125.pdf' });
   });
 
   it('treats Ctrl+C in the PDF question as no, because the voucher is already issued', async () => {
@@ -186,7 +186,7 @@ describe('attachPdfs', () => {
     );
 
     expect(plugin.install).toHaveBeenCalled();
-    expect(result.pdf).toEqual({ path: '/pdfs/20123456789/factura-c_0003-00000125.pdf' });
+    expect(result.pdf).toEqual({ path: '/pdfs/20123456786/factura-c_0003-00000125.pdf' });
   });
 
   it('checks the issuer before downloading anything', async () => {

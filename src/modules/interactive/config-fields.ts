@@ -110,7 +110,7 @@ const FIELD_DEFINITIONS: ReadonlyArray<Omit<ConfigField, 'label'>> = [
     key: 'emisor.inicioActividades',
     read: (c) => date(c.emisor.inicioActividades),
   },
-  { key: 'emisor.iibb', read: (c) => c.emisor.iibb },
+  { hint: 'numero, o "Exento" si lo estas', key: 'emisor.iibb', read: (c) => c.emisor.iibb },
   {
     choices: arcliDefaultIvaConditionSchema.options,
     key: 'emisor.condicionIva',

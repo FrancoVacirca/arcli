@@ -7,7 +7,7 @@ import type { ResolvedArcaRuntime } from '../arca-context.resolver';
 
 vi.mock('@arcasdk/core', () => ({ Arca: vi.fn() }));
 
-const context = { cert: 'cert', cuit: 20123456789, key: 'key', production: true } as ResolvedArcaRuntime['context'];
+const context = { cert: 'cert', cuit: 20123456786, key: 'key', production: true } as ResolvedArcaRuntime['context'];
 
 function notice(expired: boolean): CertificateExpiryNotice {
   return {

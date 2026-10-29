@@ -53,7 +53,8 @@ export function resolvePdfIssuer(
     cuit: config.cuit,
     domicilioComercial: emisor.domicilio,
     fechaInicioActividades: emisor.inicioActividades,
-    iibb: emisor.iibb ?? 'Exento',
+    // Sin el dato no se afirma nada: "Exento" seria declarar una exencion que nadie informo.
+    iibb: emisor.iibb ?? '-',
     razonSocial: emisor.razonSocial,
   };
 }

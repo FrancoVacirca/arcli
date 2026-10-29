@@ -158,3 +158,19 @@ describe('--bruto only where it is used', () => {
     expect(stderr).not.toContain('Aviso');
   });
 });
+
+describe('strict numbers and CUITs in query arguments', () => {
+  it.each([['1e3'], ['0x10'], ['3a']])('consultar rejects the number %s before contacting ARCA', async (number) => {
+    expect((await run(['consultar', 'fc', number])).error).toMatchObject({
+      code: 'INPUT_VALIDATION_ERROR',
+      message: expect.stringContaining(`El numero "${number}" no es valido`),
+    });
+  });
+
+  it('padron rejects a CUIT with a wrong check digit before contacting ARCA', async () => {
+    expect((await run(['padron', '20-20179706-5'])).error).toMatchObject({
+      code: 'INPUT_VALIDATION_ERROR',
+      message: expect.stringContaining('digito verificador'),
+    });
+  });
+});

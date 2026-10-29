@@ -48,7 +48,7 @@ describe('billing.json-input', () => {
       codigoMoneda: 'USD',
       comprobanteAsociado: {
         atajo: 'fc',
-        cuit: '20123456789',
+        cuit: '20123456786',
         fecha: '01-03-2026',
         numero: 10,
         puntoVenta: 3,

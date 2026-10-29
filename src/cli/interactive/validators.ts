@@ -1,4 +1,5 @@
 import { parseArgentineDateInputAsArcaDate } from '../../lib/dates/arca-date';
+import { parseCuit } from '../../lib/identity/cuit';
 import { EXCHANGE_RATE_DECIMALS, parseArgentineAmount } from '../../lib/numbers/argentine-amount';
 
 export function validateAmount(value: string): string | true {
@@ -8,7 +9,9 @@ export function validateAmount(value: string): string | true {
 }
 
 export function validateCuit(value: string): string | true {
-  return /^\d{11}$/.test(value.replace(/-/g, '')) ? true : 'El CUIT tiene 11 digitos.';
+  const result = parseCuit(value);
+
+  return result.ok ? true : `El CUIT ${result.reason}.`;
 }
 
 export function validateDni(value: string): string | true {

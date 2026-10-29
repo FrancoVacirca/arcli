@@ -10,7 +10,7 @@ import { buildPdfFileName } from '../pdf-file-name';
 import { listMissingIssuerKeys, resolvePdfIssuer } from '../pdf-issuer';
 
 const ISSUER_CONFIG = {
-  cuit: '20123456789',
+  cuit: '20123456786',
   emisor: { domicilio: 'Calle 123, CABA', inicioActividades: '20200301', razonSocial: 'Lucas Gerez' },
 };
 
@@ -113,7 +113,7 @@ describe('resolvePdfIssuer', () => {
     ]);
 
     try {
-      resolvePdfIssuer({ cuit: '20123456789', emisor: { razonSocial: 'X' } }, 'c');
+      resolvePdfIssuer({ cuit: '20123456786', emisor: { razonSocial: 'X' } }, 'c');
       expect.unreachable();
     } catch (error) {
       expect(error).toBeInstanceOf(PdfError);
@@ -122,11 +122,14 @@ describe('resolvePdfIssuer', () => {
     }
   });
 
-  it('derives the IVA condition from the letter and defaults IIBB', () => {
+  it('derives the IVA condition from the letter and leaves IIBB blank when missing', () => {
     expect(resolvePdfIssuer(ISSUER_CONFIG, 'c')).toMatchObject({
       condicionIva: 'Responsable Monotributo',
-      iibb: 'Exento',
+      iibb: '-',
     });
+    expect(resolvePdfIssuer({ ...ISSUER_CONFIG, emisor: { ...ISSUER_CONFIG.emisor, iibb: 'Exento' } }, 'c').iibb).toBe(
+      'Exento',
+    );
     expect(resolvePdfIssuer(ISSUER_CONFIG, 'a').condicionIva).toBe('Responsable Inscripto');
     expect(
       resolvePdfIssuer({ ...ISSUER_CONFIG, emisor: { ...ISSUER_CONFIG.emisor, condicionIva: 'sujeto-exento' } }, 'c')
@@ -161,7 +164,7 @@ describe('mapBillingResultToPdfData', () => {
     const data = mapBillingResultToPdfData(
       createResult('fa', {
         CondicionIVAReceptorId: 1,
-        DocNro: 30712345678,
+        DocNro: 30712345671,
         DocTipo: 80,
         ImpIVA: 262.5,
         ImpNeto: 1500,
@@ -187,7 +190,7 @@ describe('mapBillingResultToPdfData', () => {
     ]);
     expect(data.receptor).toEqual({
       condicionIva: 'Responsable Inscripto',
-      documentoNro: '30712345678',
+      documentoNro: '30712345671',
       documentoTipo: 'CUIT',
       domicilio: 'Calle Falsa 123',
       razonSocial: 'Cliente SA',
@@ -197,14 +200,14 @@ describe('mapBillingResultToPdfData', () => {
   it('includes the associated voucher of a credit note', () => {
     const data = mapBillingResultToPdfData(
       createResult('ncc', {
-        CbtesAsoc: [{ CbteFch: '20261001', Cuit: '20123456789', Nro: 120, PtoVta: 3, Tipo: 11 }],
+        CbtesAsoc: [{ CbteFch: '20261001', Cuit: '20123456786', Nro: 120, PtoVta: 3, Tipo: 11 }],
         ImpTotal: 500,
       }),
       issuer,
     );
 
     expect(data.cbtesAsociados).toEqual([
-      { cuit: '20123456789', fecha: '20261001', numero: 120, puntoVenta: 3, tipo: 11 },
+      { cuit: '20123456786', fecha: '20261001', numero: 120, puntoVenta: 3, tipo: 11 },
     ]);
   });
 

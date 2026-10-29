@@ -36,7 +36,7 @@ const NOW = new Date('2031-06-18T15:00:00Z');
  * anteriores al ejemplo se suman a esta config.
  */
 const BASE_CONFIG: ReadonlyArray<readonly [string, string]> = [
-  ['cuit', '20123456789'],
+  ['cuit', '20123456786'],
   ['puntoVenta', '3'],
 ];
 

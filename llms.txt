@@ -50,7 +50,7 @@ Shortcuts (`family` = comando alternativo `arcli <family> <letra>`, ej. `arcli f
 
 ## Flags principales (alias corto entre paréntesis)
 
-- `-m, --monto <n>`: importe total (requerido). Montos en formato argentino: punto para miles, coma para decimales (`15000`, `15.000`, `1.500,50`). `1500.50` da error; máximo 2 decimales (la cotización, 6). Aplica a `--monto`, `--exento`, `--nogravado`, `--cm` y `--alicuota TASA:MONTO`. En JSON los montos son números, también con 2 decimales como máximo. Enteros (`--pv`, `--ar`, `--dia`…) solo con dígitos; `--cuit`/`--cuil`/`--dni` aceptan guiones.
+- `-m, --monto <n>`: importe total (requerido). Montos en formato argentino: punto para miles, coma para decimales (`15000`, `15.000`, `1.500,50`). `1500.50` da error; máximo 2 decimales (la cotización, 6). Aplica a `--monto`, `--exento`, `--nogravado`, `--cm` y `--alicuota TASA:MONTO`. En JSON los montos son números, también con 2 decimales como máximo. Enteros (`--pv`, `--ar`, `--dia`…) solo con dígitos; `--cuit`/`--cuil`/`--acuit`/`--dni` aceptan guiones, y todo CUIT (también el de `padron`, `fce-obligado` y `config establecer cuit`) se valida con su dígito verificador.
 - Concepto: `--concepto <tipo>` (`productos`/`servicios`/`productos-servicios`) o atajos `--cs` `--cp` `--csp`. Uno solo, no combinar `--concepto` con un atajo.
 - IVA receptor: `--iva-receptor <tipo>` / `--ir <tipo>` (alias) o un atajo `--ir-ce|--ir-cf|--ir-il|--ir-ina|--ir-ms|--ir-mtip|--ir-pe|--ir-ri|--ir-rm|--ir-se|--ir-snc`. Usar exactamente una forma.
   Valores válidos: `cliente-del-exterior`, `consumidor-final`, `iva-liberado`, `iva-no-alcanzado`, `monotributista-social`, `monotributo-trabajador-independiente-promovido`, `proveedor-del-exterior`, `responsable-inscripto`, `responsable-monotributo`, `sujeto-exento`, `sujeto-no-categorizado`.
@@ -148,7 +148,7 @@ Sin `--json` (ni `json=true` en la config): panel de texto en stderr. Con `--jso
 `{"codigo": "...", "detalles": {...} | null, "error": "mensaje", "sugerencia": "..." | null}`.
 `codigo` es `CONFIGURATION_ERROR`, `INPUT_VALIDATION_ERROR`, `EMISSION_UNCERTAIN` (falló la llamada
 que emite, no el login ni el pedido del último número: puede haberse emitido igual; antes de reintentar, verificar con el `arcli ultimos <tipo> --pv <n>`
-que viene en `sugerencia`), `TRANSIENT_ERROR` (consultas: reintentar), `CERTIFICATE_EXPIRED` (el certificado del entorno venció: se corta antes
+que viene en `sugerencia`), `TRANSIENT_ERROR` (consultas: reintentar), `ARCA_LAST_VOUCHER_ERROR` (facturación o `ultimos`: ARCA rechazó el pedido del último número, por ejemplo con un punto de venta no habilitado; no se emitió nada), `CERTIFICATE_EXPIRED` (el certificado del entorno venció: se corta antes
 de ARCA, no se envió nada; `detalles.entorno` y `detalles.vencimiento`, la guía en `sugerencia`), `UNEXPECTED_ERROR`, `VOUCHER_NOT_FOUND` (`consultar`), o en un lote
 (`--cargar` con un array, aunque tenga un solo elemento) `BATCH_VALIDATION_ERROR` (no se emitió ninguno; `detalles.comprobantes` lista cada
 `{indice, error}`) y `BATCH_EMISSION_ERROR` (se cortó a mitad: los resultados ya procesados salen antes por

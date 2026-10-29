@@ -1,4 +1,5 @@
 import { InputValidationError } from '../lib/errors/app-error';
+import { parseCuit } from '../lib/identity/cuit';
 import { parseArgentineAmount } from '../lib/numbers/argentine-amount';
 import { parseDocumentNumber, parseStrictInteger } from '../lib/numbers/strict-integer';
 
@@ -25,6 +26,19 @@ export function integerOption(flag: string): (value: string) => number {
     }
 
     return parsed;
+  };
+}
+
+/** CUIT o CUIL: acepta guiones y puntos (`20-40950976-3`) y chequea el digito verificador. */
+export function cuitOption(flag: string): (value: string) => string {
+  return (value) => {
+    const result = parseCuit(value);
+
+    if (!result.ok) {
+      throw new InputValidationError(`${flag} "${value}" no es valido: ${result.reason}.`);
+    }
+
+    return result.value;
   };
 }
 

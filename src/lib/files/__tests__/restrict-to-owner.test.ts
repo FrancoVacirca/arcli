@@ -20,7 +20,7 @@ describe.skipIf(process.platform === 'win32')('restrictFolderToOwner', () => {
 
     directories.push(root);
     mkdirSync(tickets, { mode: 0o755 });
-    writeFileSync(join(tickets, 'TA-20123456789-wsfe.json'), '{}', { mode: 0o644 });
+    writeFileSync(join(tickets, 'TA-20123456786-wsfe.json'), '{}', { mode: 0o644 });
 
     restrictFolderToOwner(tickets);
 

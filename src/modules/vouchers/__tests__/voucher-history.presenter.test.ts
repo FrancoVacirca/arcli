@@ -39,14 +39,14 @@ describe('voucher-history.presenter', () => {
       3,
       [
         voucher,
-        { ...voucher, cae: undefined, documentNumber: 20123456789, documentTypeCode: 80, number: 13, total: 5 },
+        { ...voucher, cae: undefined, documentNumber: 20123456786, documentTypeCode: 80, number: 13, total: 5 },
       ],
       ' · ',
     );
 
     expect(rows[0]).toMatch(/^00003-00000012 · 01\/10\/2026 · Consumidor final · +[\d.,]+\$ · CAE 86400940834444$/);
     // Sin CAE no queda un separador colgando; el receptor y el total quedan alineados con la otra fila.
-    expect(rows[1]).toMatch(/^00003-00000013 · 01\/10\/2026 · CUIT 20123456789 · +5\$$/);
+    expect(rows[1]).toMatch(/^00003-00000013 · 01\/10\/2026 · CUIT 20123456786 · +5\$$/);
     expect(rows[0].indexOf('$')).toBe(rows[1].indexOf('$'));
   });
 

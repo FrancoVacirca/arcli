@@ -39,7 +39,12 @@ const GUIDED_KEYS: readonly ConfigPublicKey[] = [
   'concepto',
   'ivaReceptor',
 ];
-const ISSUER_KEYS: readonly ConfigPublicKey[] = ['emisor.razonSocial', 'emisor.domicilio', 'emisor.inicioActividades'];
+const ISSUER_KEYS: readonly ConfigPublicKey[] = [
+  'emisor.razonSocial',
+  'emisor.domicilio',
+  'emisor.inicioActividades',
+  'emisor.iibb',
+];
 
 function withConfigService<T>(run: (service: ConfigService) => T): T {
   const service = new ConfigService();

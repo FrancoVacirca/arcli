@@ -87,13 +87,14 @@ afterEach(() => {
 describe('runGuidedSetup', () => {
   it('pide lo obligatorio, los defaults y opcionalmente los datos del PDF, y guarda cada respuesta', async () => {
     askTextMock
-      .mockResolvedValueOnce('20123456789')
+      .mockResolvedValueOnce('20123456786')
       .mockResolvedValueOnce('/certs/testing.crt')
       .mockResolvedValueOnce('/certs/testing.key')
       .mockResolvedValueOnce('3')
       .mockResolvedValueOnce('Lucas Gerez')
       .mockResolvedValueOnce('Calle 123')
-      .mockResolvedValueOnce('1/03/2020');
+      .mockResolvedValueOnce('1/03/2020')
+      .mockResolvedValueOnce('Exento');
     chooseStepMock.mockResolvedValueOnce('servicios').mockResolvedValueOnce('consumidor-final');
     vi.mocked(confirm).mockResolvedValueOnce(true);
 
@@ -102,8 +103,9 @@ describe('runGuidedSetup', () => {
     expect(store).toMatchObject({
       'cert.testing': '/certs/testing.crt',
       concepto: 'servicios',
-      cuit: '20123456789',
+      cuit: '20123456786',
       'emisor.domicilio': 'Calle 123',
+      'emisor.iibb': 'Exento',
       'emisor.inicioActividades': '1/03/2020',
       'emisor.razonSocial': 'Lucas Gerez',
       ivaReceptor: 'consumidor-final',

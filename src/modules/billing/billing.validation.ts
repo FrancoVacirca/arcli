@@ -1,5 +1,6 @@
 import { diffArcaDatesInDays, formatArcaDateAsArgentineDate } from '../../lib/dates/arca-date';
 import { InputValidationError } from '../../lib/errors/app-error';
+import { parseCuit } from '../../lib/identity/cuit';
 
 import { formatDocumentFlag, formatVoucherLabel } from './billing.mappers';
 import type { BillingCommandInput, BillingConcept } from './billing.schemas';
@@ -78,13 +79,14 @@ export function validateDocumentIdentity(input: BillingCommandInput, voucherKind
     );
   }
 
-  if (
-    (input.documentType === 'cuit' || input.documentType === 'cuil') &&
-    !/^\d{11}$/.test(String(input.documentNumber))
-  ) {
-    throw new InputValidationError(
-      `${formatDocumentFlag(input.documentType)} debe tener 11 digitos en ${formatVoucherLabel(voucherKind)}.`,
-    );
+  if (input.documentType === 'cuit' || input.documentType === 'cuil') {
+    const result = parseCuit(input.documentNumber);
+
+    if (!result.ok) {
+      throw new InputValidationError(
+        `${formatDocumentFlag(input.documentType)} ${input.documentNumber} no es valido en ${formatVoucherLabel(voucherKind)}: ${result.reason}.`,
+      );
+    }
   }
 
   if (input.documentType === 'dni' && !/^\d{7,8}$/.test(String(input.documentNumber))) {

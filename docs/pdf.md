@@ -16,7 +16,7 @@ arcli config establecer emisor.inicioActividades 1/03/2020
 arcli fc -m 150000 --cs --cfinal --ir-cf --emitir --exportar-pdf --descripcion "Servicios de septiembre"
 ```
 
-La primera vez, ARCLI ofrece descargar el plugin de PDF. El archivo queda en `~/arcli/comprobantes/20123456789/factura-c_0003-00000125.pdf`.
+La primera vez, ARCLI ofrece descargar el plugin de PDF. El archivo queda en `~/arcli/comprobantes/20123456786/factura-c_0003-00000125.pdf`.
 
 ## El plugin de PDF
 
@@ -72,7 +72,7 @@ ARCA solo guarda números: no tiene el nombre del emisor, ni el del cliente, ni 
 | `emisor.razonSocial`       | sí          | Nombre o razón social                                                                          |
 | `emisor.domicilio`         | sí          | Domicilio comercial                                                                            |
 | `emisor.inicioActividades` | sí          | Fecha con año, por ejemplo `1/03/2020`                                                         |
-| `emisor.iibb`              | no          | Número de Ingresos Brutos. Si falta, sale "Exento"                                             |
+| `emisor.iibb`              | no          | Número de Ingresos Brutos, o `Exento`. Si falta, sale "-"                                      |
 | `emisor.condicionIva`      | no          | Por defecto sale de la letra: `A` y `B` → responsable inscripto, `C` → responsable monotributo |
 | `emisor.logo`              | no          | Ruta a una imagen PNG o JPG                                                                    |
 
@@ -95,7 +95,7 @@ El detalle del PDF tiene un renglón por alícuota de IVA con la descripción y 
 ## Carpeta y nombre del archivo
 
 - **Carpeta:** la config `pdfCarpeta`. Por defecto es `~/arcli/comprobantes`, una ruta fija para que los PDFs no queden repartidos según desde dónde corriste el comando.
-- **Una subcarpeta por CUIT emisor:** `~/arcli/comprobantes/20123456789/`. Así dos emisores con el mismo punto de venta y número no se pisan.
+- **Una subcarpeta por CUIT emisor:** `~/arcli/comprobantes/20123456786/`. Así dos emisores con el mismo punto de venta y número no se pisan.
 - **Testing:** los PDFs de testing van a `testing/<CUIT>/` y llevan al pie "COMPROBANTE DE PRUEBA - SIN VALIDEZ FISCAL".
 - **Nombre:** `<tipo>-<letra>_<punto de venta>-<número>.pdf`, con el punto de venta en 4 dígitos y el número en 8. Por ejemplo, `factura-c_0003-00000125.pdf` o `nota-credito-a_0003-00000007.pdf`.
 - **Nunca se pisa un PDF:** si el archivo ya existe, el nuevo se guarda como `factura-c_0003-00000125-2.pdf`, `-3` y así.
@@ -109,13 +109,13 @@ arcli config establecer pdfCarpeta ~/Documentos/facturas
 En la terminal, debajo del comprobante:
 
 ```text
-PDF guardado en /Users/vos/arcli/comprobantes/20123456789/factura-c_0003-00000125.pdf
+PDF guardado en /Users/vos/arcli/comprobantes/20123456786/factura-c_0003-00000125.pdf
 ```
 
 En JSON, el resultado suma la clave `pdf` **solo si se intentó generar** el PDF:
 
 ```json
-{ "pdf": { "ruta": "/Users/vos/arcli/comprobantes/20123456789/factura-c_0003-00000125.pdf" } }
+{ "pdf": { "ruta": "/Users/vos/arcli/comprobantes/20123456786/factura-c_0003-00000125.pdf" } }
 ```
 
 ```json

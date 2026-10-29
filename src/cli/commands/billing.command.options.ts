@@ -1,7 +1,7 @@
 import { type Command, Option } from 'commander';
 
 import { EXCHANGE_RATE_DECIMALS } from '../../lib/numbers/argentine-amount';
-import { amountOption, documentNumberOption, integerOption } from '../option-parsers';
+import { amountOption, cuitOption, documentNumberOption, integerOption } from '../option-parsers';
 
 export function registerBillingOptions(command: Command): void {
   command
@@ -69,7 +69,11 @@ export function registerBillingOptions(command: Command): void {
     )
     .option('--ar <number>', 'numero del comprobante asociado', integerOption('--ar'))
     .option('--ac <shortcut>', 'atajo del comprobante asociado, por ejemplo fc o fa')
-    .option('--acuit <number>', 'CUIT del comprobante asociado; en NC/ND FCE por defecto el CUIT emisor')
+    .option(
+      '--acuit <number>',
+      'CUIT del comprobante asociado; en NC/ND FCE por defecto el CUIT emisor',
+      cuitOption('--acuit'),
+    )
     .option('--periodo-desde <fecha>', 'inicio del periodo asociado; alternativa a --ac en notas comunes')
     .option('--pd <fecha>', 'alias de inicio del periodo asociado')
     .option('--periodo-hasta <fecha>', 'fin del periodo asociado; alternativa a --ac en notas comunes')
