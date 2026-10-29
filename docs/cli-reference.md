@@ -135,7 +135,7 @@ Usalos cuando necesitás controlar el entorno, la salida o el modo de inspecció
 El entorno y la decisión de emitir son independientes:
 
 - **Entorno:** `--testing` o `--produccion`; sin flag, `config.entorno` (`testing` por defecto).
-- **Emitir:** `--emitir` o `--previsualizar`; sin flag, `emitir`/`previsualizar` del JSON de `--cargar`; si tampoco, `config.emitir` (`false` por defecto). Si nada pide emitir, en una terminal se muestra la vista previa y se pregunta; con `--json` o sin terminal no se emite.
+- **Emitir:** `--emitir` o `--previsualizar`; sin flag, `emitir`/`previsualizar` del JSON de `--cargar`; si tampoco, `config.emitir` (`false` por defecto). Si nada pide emitir, en una terminal se muestra la vista previa y se pregunta (Esc cuenta como no, igual que en el modo interactivo, y también en las preguntas del PDF); con `--json` o sin terminal no se emite.
 
 Así, `--produccion --emitir` emite en producción sin preguntar, y también lo hace un comando sin flags si la config tiene `entorno produccion` y `emitir true`. Es a propósito, para quien no quiere confirmar cada vez. Para no depender de la config (scripts, agentes), pasá siempre el entorno y `--emitir` o `--previsualizar`.
 

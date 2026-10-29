@@ -355,7 +355,8 @@ function parseBillingCommandInputFromSource(
       serviceEndDate: pickString(commandOptions.servicioHasta, commandOptions.sh, fileInput?.servicioHasta),
       serviceStartDate: pickString(commandOptions.servicioDesde, commandOptions.sd, fileInput?.servicioDesde),
       shortcut,
-      totalAmount: totalAmount === undefined ? undefined : Math.round(totalAmount * 100) / 100,
+      // Sin redondear: un monto con mas de 2 decimales es un error del schema, no se ajusta en silencio.
+      totalAmount,
       transferMode: pickString(commandOptions.transferencia, fileInput?.transferencia),
       untaxedAmount,
     }),

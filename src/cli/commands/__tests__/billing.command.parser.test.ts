@@ -50,6 +50,16 @@ afterEach(() => {
 });
 
 describe('billing.command.parser', () => {
+  it('never rounds the JSON total: keeps 2 decimals and rejects more', () => {
+    const parse = (montoTotal: number) =>
+      parseBillingCommandInput(createCommand(['--cargar', writeJsonInput({ montoTotal })]), 'fc');
+
+    expect(parse(100.55).totalAmount).toBe(100.55);
+    expect(parse(1234.5).totalAmount).toBe(1234.5);
+    expect(() => parse(1.005)).toThrow(/hasta 2 decimales/);
+    expect(() => parse(100.555)).toThrow(/hasta 2 decimales/);
+  });
+
   it('defaults to safe dry-run when emit is absent', () => {
     const command = createCommand(['--monto', '1000']);
     const input = parseBillingCommandInput(command, 'fa', {

@@ -1,10 +1,9 @@
-import select from '@inquirer/select';
-
 import type { BillingCommandInput } from '../../modules/billing/billing.schemas';
 import type { BillingService } from '../../modules/billing/billing.service';
 import type { BillingExecutionResult, BillingGateway } from '../../modules/billing/billing.types.internal';
 import type { ResolvedArcaRuntime } from '../../services/arca/arca-context.resolver';
 import { writeTerminalOutput } from '../../ui';
+import { chooseOne } from '../interactive/prompts';
 
 import { formatBillingOutputs } from './billing.command.output';
 
@@ -15,15 +14,17 @@ export interface InteractiveBillingPreviewOutcome {
   readonly proceed: boolean;
 }
 
+/** Esc cuenta como no, igual que en el modo interactivo. */
 async function promptForEmission(count: number, voucherLabel: string): Promise<boolean> {
-  return select({
-    choices: [
+  return chooseOne(
+    count > 1 ? `¿Desea emitir los ${count} comprobantes ahora?` : `¿Desea emitir ${voucherLabel} ahora?`,
+    [
       { name: 'Si, emitir ahora', value: true },
       { name: 'No, dejar sin emitir', value: false },
     ],
-    default: true,
-    message: count > 1 ? `¿Desea emitir los ${count} comprobantes ahora?` : `¿Desea emitir ${voucherLabel} ahora?`,
-  });
+    true,
+    { escapeLabel: 'no emitir', escapeValue: false },
+  );
 }
 
 function applyEmitDecision(inputs: BillingCommandInput[], shouldEmit: boolean): BillingCommandInput[] {
