@@ -1,4 +1,6 @@
 import { Separator } from '@inquirer/select';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { BACK } from '../../../modules/interactive/wizard';
@@ -204,5 +206,28 @@ describe('runConfigMenu', () => {
 
     expect(install).toHaveBeenCalledTimes(1);
     expect(uninstall).not.toHaveBeenCalled();
+  });
+
+  it('instala y desinstala el autocompletado desde configuracion', async () => {
+    const shell = process.env.SHELL;
+    const rc = join(process.env.HOME ?? '', '.zshrc');
+
+    process.env.SHELL = '/bin/zsh';
+
+    try {
+      vi.mocked(chooseOne).mockResolvedValueOnce('completado').mockResolvedValueOnce('volver');
+      chooseStepMock.mockResolvedValueOnce('instalar');
+      await runConfigMenu();
+
+      expect(readFileSync(rc, 'utf8')).toContain('eval "$(arcli completado zsh)"');
+
+      vi.mocked(chooseOne).mockResolvedValueOnce('completado').mockResolvedValueOnce('volver');
+      chooseStepMock.mockResolvedValueOnce('desinstalar');
+      await runConfigMenu();
+
+      expect(readFileSync(rc, 'utf8')).not.toContain('arcli completado');
+    } finally {
+      process.env.SHELL = shell;
+    }
   });
 });

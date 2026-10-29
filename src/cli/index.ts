@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { OWNER_ONLY_UMASK } from '../lib/files/restrict-to-owner';
+import { COMPLETE_COMMAND } from '../modules/completion/shell-scripts';
 import { renderUpdateNoticePanel } from '../modules/update-check/update-check.presenter';
 import { checkForUpdate } from '../modules/update-check/update-check.service';
 import { writeTerminalError } from '../ui';
@@ -18,12 +19,14 @@ let errorsAsJson: boolean | undefined;
 // Se decide recien al fallar (puede leer la config) y una sola vez: commander y el catch lo consultan.
 const shouldPrintErrorsAsJson = (): boolean => (errorsAsJson ??= shouldPrintErrorAsJson(process.argv));
 const program = createProgram({ errorsAsJson: shouldPrintErrorsAsJson });
-const argv = normalizeHelpArgv(process.argv, isInteractiveTerminal());
+// El autocompletado corre en cada Tab: recibe las palabras tal cual y no busca actualizaciones.
+const isCompletion = process.argv[2] === COMPLETE_COMMAND;
+const argv = isCompletion ? process.argv : normalizeHelpArgv(process.argv, isInteractiveTerminal());
 const useJson = process.argv.includes('--json');
 // El modo interactivo muestra la actualizacion como primera opcion del menu, no al cerrar.
 const isInteractiveMode = argv[2] === 'interactivo';
 const updateCheckPromise =
-  useJson || isInteractiveMode ? Promise.resolve(null) : checkForUpdate(CLI_VERSION).catch(() => null);
+  useJson || isInteractiveMode || isCompletion ? Promise.resolve(null) : checkForUpdate(CLI_VERSION).catch(() => null);
 
 program
   .parseAsync(argv)

@@ -37,6 +37,9 @@ function mentionsCommand(doc: string, path: string[]): boolean {
   return parent !== '' && new RegExp(`${word(parent)} \\[[^\\]]*${word(leaf)}[^\\]]*\\]`).test(doc);
 }
 
+/** El script de autocompletado lo llama en cada Tab; no se usa a mano. */
+const UNDOCUMENTED_COMMANDS = new Set(['__completar']);
+
 function collect(program: Command) {
   const commands: string[][] = [];
   const flags = new Set<string>();
@@ -45,6 +48,7 @@ function collect(program: Command) {
       if (option.long && !option.hidden) flags.add(option.long);
     }
     for (const sub of command.commands) {
+      if (UNDOCUMENTED_COMMANDS.has(sub.name())) continue;
       commands.push([...path, sub.name()]);
       walk(sub, [...path, sub.name()]);
     }

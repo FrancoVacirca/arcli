@@ -2,6 +2,18 @@ import { Separator } from '@inquirer/select';
 import { join } from 'node:path';
 
 import { CERTIFICATE_GUIDE_URL } from '../../lib/links';
+import {
+  formatCompletionResultAsText,
+  formatCompletionStateAsText,
+} from '../../modules/completion/completion.presenter';
+import {
+  currentCompletionEnvironment,
+  detectShell,
+  getCompletionState,
+  installCompletion,
+  uninstallCompletion,
+} from '../../modules/completion/installer';
+import { COMPLETION_SHELLS, type CompletionShell } from '../../modules/completion/shell-scripts';
 import type { ArcliConfig, ConfigPublicKey } from '../../modules/config/config.schemas';
 import { CONFIG_SECTIONS } from '../../modules/config/config.sections';
 import { ConfigService, validateConfigValue } from '../../modules/config/config.service';
@@ -286,7 +298,43 @@ async function runPdfPluginMenu(): Promise<void> {
   writeTerminalOutput(formatPdfPluginStatusAsText(plugin.getStatus(), 'Plugin de PDF instalado'));
 }
 
-type ConfigOption = 'cambiar' | 'guiada' | 'pdf' | 'revisar' | 'ver' | 'volver';
+async function runCompletionMenu(): Promise<void> {
+  const environment = currentCompletionEnvironment();
+  const shell =
+    detectShell(environment.shell) ??
+    (await chooseStep<CompletionShell>(
+      '¿Qué shell usás?',
+      COMPLETION_SHELLS.map((name) => ({ name, value: name })),
+    ));
+
+  if (shell === BACK) {
+    return;
+  }
+
+  const state = getCompletionState(shell, environment);
+
+  writeTerminalOutput(formatCompletionStateAsText(state, environment.home));
+
+  const action = await chooseStep<'desinstalar' | 'instalar'>('¿Qué hacemos con el autocompletado?', [
+    state.installed
+      ? { description: 'Lo saca del archivo de inicio del shell', name: 'Desinstalar', value: 'desinstalar' }
+      : {
+          description: `Completa comandos y flags con Tab; se agrega a ${state.path.replace(environment.home, '~')}`,
+          name: 'Instalar',
+          value: 'instalar',
+        },
+  ]);
+
+  if (action === BACK) {
+    return;
+  }
+
+  const result = (action === 'instalar' ? installCompletion : uninstallCompletion)(shell, environment);
+
+  writeTerminalOutput(formatCompletionResultAsText(result, environment.home));
+}
+
+type ConfigOption = 'cambiar' | 'completado' | 'guiada' | 'pdf' | 'revisar' | 'ver' | 'volver';
 
 function showConfig(): void {
   withConfigService((service) => {
@@ -319,6 +367,11 @@ export async function runConfigMenu(): Promise<void> {
           value: 'cambiar',
         },
         { description: 'Estado, instalar o desinstalar', name: 'Plugin de PDF', value: 'pdf' },
+        {
+          description: 'Completar comandos y flags con Tab en la terminal',
+          name: 'Autocompletado',
+          value: 'completado',
+        },
         new Separator(' '),
         { name: '← Volver al menu', value: 'volver' },
       ],
@@ -341,5 +394,6 @@ export async function runConfigMenu(): Promise<void> {
     if (option === 'guiada') await runGuidedSetup();
     if (option === 'cambiar') await runChangeField();
     if (option === 'pdf') await runPdfPluginMenu();
+    if (option === 'completado') await runCompletionMenu();
   }
 }

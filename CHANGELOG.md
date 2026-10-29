@@ -14,6 +14,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - **Error `ARCA_LAST_VOUCHER_ERROR`:** si ARCA rechaza el pedido del último número (por ejemplo, con un punto de venta no habilitado para web service), la facturación y `arcli ultimos` cortan ahí con el mensaje de ARCA y una sugerencia. No se emite nada.
 - **Esc en las preguntas del CLI:** "¿Desea emitir … ahora?", que aparece sin `--emitir` en una terminal, ahora se cierra con Esc como un "no", igual que en el modo interactivo y en las preguntas del PDF.
 - **`numero` en el JSON de facturación:** el número que le tocó al comprobante emitido (`null` en una previsualización), y `solicitud` lo trae en `CbteDesde`/`CbteHasta`. El panel de texto muestra `Número: 00003-00000125`. Antes el número solo se veía con `--bruto`.
+- **Autocompletado con Tab** para bash, zsh y fish. Se instala con `arcli completado instalar`, que agrega una línea al archivo de inicio del shell (`~/.zshrc`, `~/.bashrc`…), y se saca con `arcli completado desinstalar`; también desde el modo interactivo, en Configuración → Autocompletado. Completa comandos y atajos, flags, valores (`--iva-receptor`, `--concepto`, `--alicuota`, `--moneda`, `--transferencia`, `--ac`), claves de config y sus valores, tablas de `parametros` y letras de las familias; donde va una ruta, archivos. No hay que reinstalarlo al actualizar arcli. Ver [Autocompletado](docs/cli-reference.md#autocompletado).
 
 ### Corregido
 

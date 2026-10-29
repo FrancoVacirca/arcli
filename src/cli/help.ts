@@ -698,6 +698,31 @@ export function createPadronHelp(): string {
   ].join('\n');
 }
 
+export function createCompletionHelp(): string {
+  return [
+    '',
+    section(
+      'Para que sirve',
+      compactList([
+        'Completar con Tab comandos, flags y valores: arcli f<Tab>, arcli fc --ir<Tab>, arcli config establecer <Tab>.',
+        'La lista sale de la versión instalada: después de actualizar arcli no hay que reinstalar nada.',
+      ]),
+    ),
+    '',
+    section(
+      'Uso',
+      compactList([
+        'Instalar: arcli completado instalar (usa el shell de $SHELL; o arcli completado instalar zsh)',
+        'Ver si está instalado: arcli completado',
+        'Desinstalar: arcli completado desinstalar',
+        'Ver el script sin instalarlo: arcli completado zsh',
+        'Después de instalar, abrí una terminal nueva.',
+      ]),
+    ),
+    '',
+  ].join('\n');
+}
+
 export function createVoucherQueryHelp(): string {
   return [
     '',

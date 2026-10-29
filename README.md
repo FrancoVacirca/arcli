@@ -31,6 +31,8 @@ Requiere Node.js 22.22.1 o superior.
 npm install -g arcli
 ```
 
+Opcional: autocompletado con Tab de comandos, flags y valores, en bash, zsh o fish. Se instala con `arcli completado instalar` y se saca con `arcli completado desinstalar` ([detalle](docs/cli-reference.md#autocompletado)).
+
 ## Configuración
 
 Necesitás tu CUIT, un punto de venta y un certificado con su clave privada de ARCA. Si todavía no los tenés, seguí [Cómo obtener los certificados](https://github.com/LcsGrz/arcli/blob/main/docs/obtencion-certificados.md).
