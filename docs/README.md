@@ -14,6 +14,7 @@
 - [Patrones de uso](usage-patterns.md): facturas, notas, FCE, lotes, PDF y automatización, con el comando de cada caso.
 - [PDF de comprobantes](pdf.md): plugin, datos del emisor, carpeta y nombre de los archivos.
 - [Troubleshooting](troubleshooting.md): errores frecuentes, causa y solución.
+- [Modo librería](libreria.md): emitir desde código con `arcli/api`, sin la config de la CLI.
 
 ## Referencia
 

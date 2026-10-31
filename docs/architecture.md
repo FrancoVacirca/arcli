@@ -67,6 +67,10 @@ Dentro del alcance del proyecto (A, B y C de factura, nota de crédito y débito
 
 Comandos, flags, claves de config y JSON son contrato público. Antes de cambiarlos, mirá [CONTRIBUTING](../CONTRIBUTING.md#contrato-del-cli) y actualizá [entrada y salida](input-output.md) y los tests de serialización.
 
+## Modo librería
+
+`src/api/` expone `createArcli()` para usar ARCLI desde código ([guía](libreria.md)). Arma el mismo `ResolvedArcaRuntime` que `ArcaContextResolver`, pero con el PEM recibido como texto, la config por defecto y el `ticketStorage` de quien llama, sin `ConfigService` ni archivos. Usa el mismo `BillingService` y los mismos gateways que los comandos, y corta con `CERTIFICATE_EXPIRED` antes de WSAA, como `ArcaClientFactory`. Es lo único que sale con tipos: `tsconfig.api.json` emite las declaraciones de `src/api/index.ts` y de lo que importa. `scripts/prepare.mjs` hace el build cuando se instala desde git, porque npm corre `prepare` y no `prepack`.
+
 ## Decisiones de diseño
 
 - **CLI primero.** El flujo principal se piensa desde la terminal; el modo interactivo es una capa encima y no agrega comandos de emisión.

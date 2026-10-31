@@ -42,7 +42,7 @@ function walk(directory) {
 
     if (entry.isDirectory()) {
       walk(fullPath);
-    } else if (entry.name.endsWith('.js')) {
+    } else if (entry.name.endsWith('.js') || entry.name.endsWith('.d.ts')) {
       fixFile(fullPath);
     }
   }
