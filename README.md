@@ -76,6 +76,7 @@ El índice completo está en [docs/](https://github.com/LcsGrz/arcli/blob/main/d
 - [Referencia del CLI](https://github.com/LcsGrz/arcli/blob/main/docs/cli-reference.md) y [Configuración](https://github.com/LcsGrz/arcli/blob/main/docs/configuration.md)
 - [Entrada y salida](https://github.com/LcsGrz/arcli/blob/main/docs/input-output.md): formato del JSON
 - [PDF de comprobantes](https://github.com/LcsGrz/arcli/blob/main/docs/pdf.md)
+- [Modo librería](https://github.com/LcsGrz/arcli/blob/main/docs/libreria.md): emitir desde código con `arcli/api`
 - [Cómo obtener los certificados](https://github.com/LcsGrz/arcli/blob/main/docs/obtencion-certificados.md)
 - [Troubleshooting](https://github.com/LcsGrz/arcli/blob/main/docs/troubleshooting.md), [Reglas de validación](https://github.com/LcsGrz/arcli/blob/main/docs/validation-rules.md) y [Limitaciones](https://github.com/LcsGrz/arcli/blob/main/docs/limitations.md)
 - [llms.txt](llms.txt): referencia condensada para agentes de IA con acceso a terminal

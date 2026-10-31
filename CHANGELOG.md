@@ -10,6 +10,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ### Agregado
 
+- **Modo librería (`arcli/api`):** `createArcli()` emite y previsualiza desde código con las mismas validaciones y la misma emisión en dos pasos que los comandos, sin leer la config de la CLI ni archivos: el certificado y la clave van como texto y el ticket de WSAA en un `ticketStorage` propio (base de datos, Redis), para servidores que se reinician. También consulta el padrón, el último número y un comprobante emitido. El paquete trae tipos solo para esta entrada. Los comandos no cambian. Ver [Modo librería](docs/libreria.md).
 - **CUIT con dígito verificador y con o sin guiones en todos lados:** `arcli padron`, `arcli fce-obligado`, `--cuit`, `--cuil`, `--acuit`, `comprobanteAsociado.cuit` en el JSON, `config establecer cuit` y el modo interactivo aceptan `20-33333333-4` o `20333333334`, y rechazan un CUIT mal tipeado antes de llegar a ARCA. Antes `arcli padron 20-20179706-4` fallaba y nadie chequeaba el dígito verificador.
 - **Error `ARCA_LAST_VOUCHER_ERROR`:** si ARCA rechaza el pedido del último número (por ejemplo, con un punto de venta no habilitado para web service), la facturación y `arcli ultimos` cortan ahí con el mensaje de ARCA y una sugerencia. No se emite nada.
 - **Esc en las preguntas del CLI:** "¿Desea emitir … ahora?", que aparece sin `--emitir` en una terminal, ahora se cierra con Esc como un "no", igual que en el modo interactivo y en las preguntas del PDF.
